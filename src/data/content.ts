@@ -102,7 +102,7 @@ export type Case = {
 };
 
 export const casesCopy = {
-  title: 'Selected work',
+  title: 'Featured work',
 };
 
 export const cases: Case[] = [
