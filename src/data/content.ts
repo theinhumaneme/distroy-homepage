@@ -46,7 +46,7 @@ export const sources: Source[] = [
   // no public URL: these render without a chip
   { id: 'smartai', label: 'SMART AI Chat', detail: 'Nebulogic Technologies' },
   { id: 'oaam', label: 'OAAM', detail: 'Red Hat / IBM hackathon, 2026' },
-  { id: 'nebulogic', label: 'Nebulogic Technologies', detail: '2022 - 2025' },
+  { id: 'nebulogic', label: 'Nebulogic Technologies', detail: '2022 – 2025' },
   { id: 'ta', label: 'Graduate TA, CS4530', detail: 'Northeastern' },
   { id: 'gctc', label: 'Web Administrator', detail: 'GCET' },
   { id: 'braintumor', label: 'Brain Tumor Detection', detail: 'Guided academic project' },
@@ -95,7 +95,7 @@ export type Case = {
   stack: string[];
   links: { label: string; url: string }[];
   badges?: string[];
-  viz?: 'rag' | 'graph' | 'device' | 'fleet' | 'checkpoint' | 'route' | 'bars';
+  viz?: 'rag' | 'graph' | 'device' | 'fleet' | 'checkpoint';
   compact?: boolean;
 };
 
@@ -109,7 +109,7 @@ export const cases: Case[] = [
     anchor: 'work-smartai',
     title: 'SMART AI Chat',
     org: 'Nebulogic Technologies · City of Fort Wayne',
-    period: 'Software Engineer, 2023 - 2025',
+    period: 'Software Engineer, 2023 – 2025',
     headline: 'City-service information, in plain language.',
     body: [
       {
@@ -171,7 +171,7 @@ export const cases: Case[] = [
     anchor: 'work-documan',
     title: 'Documan',
     org: 'Personal project · original platform and rewrite',
-    period: '2020 - 2026',
+    period: '2020 – 2026',
     headline: 'Course materials, in one searchable place.',
     body: [
       { text: 'I built Documan to bring scattered notes, lab manuals, and past papers into one library, available on the web and through Telegram.' },
@@ -201,7 +201,7 @@ export const cases: Case[] = [
     anchor: 'work-hikari',
     title: 'Hikari',
     org: 'Personal project · open source (MIT)',
-    period: '2024 - 2025',
+    period: '2024 – 2025',
     headline: 'One configuration. Only the changes get deployed.',
     body: [
       {
@@ -557,7 +557,7 @@ export const roles: Role[] = [
     anchor: 'exp-ta',
     title: 'Graduate Teaching Assistant, CS4530: Fundamentals of Software Engineering',
     org: 'Northeastern University, Khoury College of Computer Sciences',
-    period: 'Sep 2026 - present',
+    period: 'Sep 2026 – present',
     points: [
       'Support 250+ students weekly across labs and office hours, with hands-on guidance on React, React Hooks and component-based architecture.',
       'Mentor 60+ students on MVC architecture, unit testing with Vitest, usability testing with Playwright, and mocking strategies.',
@@ -567,7 +567,7 @@ export const roles: Role[] = [
     anchor: 'exp-swe',
     title: 'Software Engineer',
     org: 'Nebulogic Technologies, Hyderabad',
-    period: 'Jun 2023 - Jul 2025',
+    period: 'Jun 2023 – Jul 2025',
     points: [
       'Built SMART AI Chat, a RAG chatbot for the City of Fort Wayne’s 311 service, with a query cache and a knowledge base expanded around what residents asked most.',
       'Cut the core CRM product’s startup from 20 seconds to 200 milliseconds with Redis pipelining; Redis Pub/Sub propagates config without restarts.',
@@ -579,7 +579,7 @@ export const roles: Role[] = [
     anchor: 'exp-intern',
     title: 'Software Engineer Intern',
     org: 'Nebulogic Technologies, Hyderabad',
-    period: 'Jun 2022 - Jun 2023',
+    period: 'Jun 2022 – Jun 2023',
     points: [
       'Built reproducible CI/CD with Docker multi-stage builds on GitLab CI across 40+ services.',
       'Upgraded GitLab from v14 to v16 with every repository and pipeline intact, plus performance tuning and disaster recovery.',
@@ -590,7 +590,7 @@ export const roles: Role[] = [
     anchor: 'exp-web',
     title: 'Web Administrator',
     org: 'Geethanjali College of Engineering and Technology, Hyderabad',
-    period: 'Dec 2021 - May 2023',
+    period: 'Dec 2021 – May 2023',
     points: [
       'Maintained the official college portal for 7,000+ students and alumni.',
       'Built 6+ event and conference sites, including VIBGYOR and BHASWARA.',
@@ -613,8 +613,14 @@ export const outcomes = [
 
 export const about = {
   title: 'About me',
-  intro:
-    'I started Documan as an electronics engineering student who wanted a better way to share course materials. At Nebulogic, that interest grew into work on backend systems, deployment tools, and a city-service chatbot. Today, I’m studying computer science at Northeastern and teaching software engineering, while building projects across applied AI, infrastructure, and data visualization.',
+  lead: 'I got into software by fixing small, annoying problems. The fixes kept turning into systems.',
+  story: [
+    'Documan started that way. As an electronics engineering student, I wanted one place for my classmates’ notes, lab manuals and past papers, on the web and in Telegram. It ran for five years, served 4,000+ students, and never cost anything to host.',
+    'Nebulogic was my first job. As an intern I set up CI/CD across 40+ services. As a software engineer I built SMART AI Chat on my own, a 311 chatbot for the City of Fort Wayne, and cut the core CRM product’s startup from 20 seconds to 200 milliseconds.',
+    'Now I’m studying computer science at Northeastern and working as a teaching assistant for CS4530, Fundamentals of Software Engineering. Outside class I keep building: Hikari for container deployments across machines, Patternsmith for illustrated programming tutorials, and a NixOS configuration that keeps my environments reproducible.',
+    'The work I enjoy most makes other engineers faster: smoother deployments, clearer observability, and better day-to-day workflows.',
+  ],
+  blogLine: { text: 'I write up what I learn', link: 'on the blog', url: '/blog/' },
   interests: ['Applied AI and LLM systems', 'Backend engineering', 'Infrastructure and deployment', 'Data visualization'],
   coursework: [
     { code: 'CS5330', title: 'Pattern Recognition and Computer Vision' },
@@ -625,14 +631,14 @@ export const about = {
     { code: 'CS5010', title: 'Programming Design Paradigm' },
   ],
   education: [
-    { name: 'Northeastern University', what: 'MS, Computer Science', when: 'Sep 2025 - May 2027 (expected)' },
-    { name: 'Geethanjali College of Engineering and Technology', what: "Bachelor's, Electronics and Communication Engineering", when: 'Aug 2019 - May 2023' },
+    { name: 'Northeastern University', what: 'MS, Computer Science', when: 'Sep 2025 – May 2027 (expected)' },
+    { name: 'Geethanjali College of Engineering and Technology', what: "Bachelor's, Electronics and Communication Engineering", when: 'Aug 2019 – May 2023' },
   ],
   awards: [
     { name: 'Best Podman Container Implementation', by: 'Red Hat / IBM · Pods, Prompts & Prototypes', when: '2026' },
     { name: 'People’s Choice', by: 'Red Hat / IBM · Pods, Prompts & Prototypes', when: '2026' },
     { name: 'AWS Certified AI Practitioner', by: 'Amazon Web Services', when: '2026' },
-    { name: 'Best Employee of the Month (4 times)', by: 'Nebulogic Technologies', when: '2023 - 2024' },
+    { name: 'Best Employee of the Month (4 times)', by: 'Nebulogic Technologies', when: '2023 – 2024' },
     { name: 'INNOVADOR 2.0, First Place', by: 'Bhaswara 2023 paper presentation', when: '2023' },
     { name: 'Microsoft Certified: Azure Fundamentals (AZ-900)', by: 'Microsoft', when: '2023' },
     { name: '3rd Place, TECHEXPO 2022', by: 'IEEE GCET Student Branch', when: '2022' },

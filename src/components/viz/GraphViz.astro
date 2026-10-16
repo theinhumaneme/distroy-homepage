@@ -1,42 +1,64 @@
 ---
+import VizFrame from './VizFrame.astro';
+import Node from './Node.astro';
 const fields = ['topic', 'research', 'code', 'article', 'diagrams', 'errors[]'];
 ---
 
-<div class="viz" data-viz="graph">
-  <p class="viz-status" data-status>PipelineState ← topic</p>
-  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: research and teaching, then code generation with a bounded JSON repair loop, then writing, then a separate Mermaid validation tool step with a bounded fix loop back to writing, then the finished article. The stages share one typed state.">
-    <path class="wire" data-p="e1" d="M170 106 L205 106" />
-    <path class="wire" data-p="e2" d="M335 106 L370 106" />
-    <path class="wire" data-p="e3" d="M445 132 L445 200" />
-    <path class="wire dash" data-p="fix" d="M520 226 C556 226 556 106 520 106" style="stroke:color-mix(in oklab, var(--t4) 55%, transparent)" />
-    <path class="wire" data-p="out" d="M370 226 L322 226" />
-    <path class="wire dash" data-p="rep" d="M246 80 C246 44 294 44 294 80" style="stroke:color-mix(in oklab, var(--t3) 55%, transparent)" />
-    <text x="270" y="40" text-anchor="middle" style="fill:var(--t3)">json repair ≤ 4</text>
-    <text x="548" y="170" text-anchor="end" style="fill:var(--t4)">fix ≤ 5</text>
+<VizFrame name="graph" status="PipelineState ← topic" caption="illustrative · every stage reads and writes one typed PipelineState">
+  <div class="viz-canvas">
+    <svg viewBox="0 0 560 304" role="img" aria-label="Diagram: research and teaching, then code generation with a bounded JSON repair loop, then writing, then a separate Mermaid validation tool step with a bounded fix loop back to writing, then the finished article. The stages share one typed state.">
+      <path class="wire" data-p="e1" d="M170 66 H210" />
+      <path class="wire" data-p="e2" d="M330 66 H370" />
+      <path class="wire" data-p="e3" d="M445 92 V150" />
+      <path class="wire" data-p="out" d="M370 176 H330" />
+      <path class="wire dash" data-p="rep" d="M245 40 C245 12 295 12 295 40" />
+      <path class="wire dash" data-p="fix" d="M520 176 C556 176 556 66 520 66" />
+      <text class="wl" x="270" y="22" text-anchor="middle" style="fill:var(--t3)">json repair ≤ 4</text>
+      <text class="wl" x="548" y="125" text-anchor="end" style="fill:var(--t4)">fix ≤ 5</text>
 
-    <g><rect class="box" data-n="rt" x="20" y="80" width="150" height="52" rx="12" /><text class="lbl" x="95" y="103" text-anchor="middle">research_teaching</text><text class="sub" x="95" y="119" text-anchor="middle">agent</text></g>
-    <g><rect class="box" data-n="code" x="205" y="80" width="130" height="52" rx="12" /><text class="lbl" x="270" y="103" text-anchor="middle">code</text><text class="sub" x="270" y="119" text-anchor="middle">generates code</text></g>
-    <g><rect class="box" data-n="write" x="370" y="80" width="150" height="52" rx="12" /><text class="lbl" x="445" y="103" text-anchor="middle">writing</text><text class="sub" x="445" y="119" text-anchor="middle">reuses code verbatim</text></g>
-    <g><rect class="box" data-n="mv" x="370" y="200" width="150" height="52" rx="12" /><text class="lbl" x="445" y="223" text-anchor="middle">mermaid_validation</text><text class="sub" x="445" y="239" text-anchor="middle">mmdc · tool node</text></g>
-    <g><rect class="box" data-n="out" x="152" y="200" width="170" height="52" rx="12" /><text class="lbl" x="237" y="223" text-anchor="middle">article.md</text><text class="sub" x="237" y="239" text-anchor="middle">→ Hugo static site</text></g>
+      <Node id="rt" x={20} y={40} w={150} label="research_teaching" sub="agent" kind="ai" />
+      <Node id="code" x={210} y={40} w={120} label="code" sub="generates code" kind="ai" />
+      <Node id="write" x={370} y={40} w={150} label="writing" sub="reuses code verbatim" kind="ai" />
+      <Node id="mv" x={370} y={150} w={150} label="mermaid_validation" sub="mmdc · tool node" />
+      <Node id="out" x={180} y={150} w={150} label="article.md" sub="→ Hugo static site" kind="ok" />
 
-    <g>
-      <rect x="20" y="290" width="500" height="92" rx="14" fill="rgb(var(--wash-rgb) / 0.02)" stroke="rgb(var(--ink-rgb) / 0.1)" />
-      <text x="38" y="316" class="lbl">PipelineState</text>
-      <text x="502" y="316" text-anchor="end" class="sub" data-endpoint>endpoint: hosted API</text>
-      {
-        fields.map((f, i) => (
-          <g data-field-chip={f} transform={`translate(${38 + i * 80} 334)`}>
-            <rect width="72" height="28" rx="7" fill="rgb(var(--wash-rgb) / 0.03)" stroke="rgb(var(--ink-rgb) / 0.12)" />
-            <text x="36" y="18" text-anchor="middle">{f}</text>
-          </g>
-        ))
-      }
-    </g>
+      <g>
+        <rect class="state" x="20" y="232" width="500" height="68" rx="12" />
+        <text x="36" y="254" class="lbl">PipelineState</text>
+        <text x="504" y="254" text-anchor="end" class="sub" data-endpoint>endpoint: hosted API</text>
+        {
+          fields.map((f, i) => (
+            <g data-field-chip={f} transform={`translate(${36 + i * 77} 266)`}>
+              <rect class="chip" width="70" height="22" rx="6" />
+              <text x="35" y="15" text-anchor="middle">
+                {f}
+              </text>
+            </g>
+          ))
+        }
+      </g>
 
-    <circle class="pkt" r="5.5" cx="0" cy="0" data-pkt style="opacity:0" />
-  </svg>
-</div>
+      <circle class="pkt" r="4.5" cx="0" cy="0" data-pkt style="opacity:0" />
+    </svg>
+  </div>
+</VizFrame>
+
+<style>
+  .state {
+    fill: rgb(var(--wash-rgb) / 0.02);
+    stroke: var(--line);
+  }
+  .chip {
+    fill: transparent;
+    stroke: var(--viz-edge);
+  }
+  [data-p='rep'] {
+    stroke: color-mix(in oklab, var(--t3) 60%, transparent);
+  }
+  [data-p='fix'] {
+    stroke: color-mix(in oklab, var(--t4) 60%, transparent);
+  }
+</style>
 
 <script>
   import { gsap, C, col, tint, paint, playWhenVisible, glow, travel, say } from '../../scripts/viz';
@@ -48,9 +70,11 @@ const fields = ['topic', 'research', 'code', 'article', 'diagrams', 'errors[]'];
     const pkt = $('[data-pkt]')!;
     const status = $('[data-status]') as HTMLElement;
     const endpoint = $('[data-endpoint]')!;
+    const chips = root.querySelectorAll('[data-field-chip] rect');
     const chip = (f: string) => $(`[data-field-chip="${f}"] rect`);
-    const light = (f: string, color: string, at: gsap.Position = '<') =>
-      tl.to(paint(chip(f)), { stroke: col(color), fill: tint(color, 0.2), duration: 0.35 }, at);
+    // a stage writing its field into the shared state
+    const fill = (f: string, color: string, at: gsap.Position = '<') =>
+      tl.to(paint(chip(f)), { stroke: col(color), fill: tint(color, 0.22), duration: 0.35 }, at);
 
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
     let local = false;
@@ -60,38 +84,37 @@ const fields = ['topic', 'research', 'code', 'article', 'diagrams', 'errors[]'];
     });
 
     say(tl, status, 'PipelineState ← topic', C.ink);
-    light('topic', C.ink, '>');
-    tl.set(pkt, { opacity: 0, x: 95, y: 106 });
+    fill('topic', C.ink, '>');
     glow(tl, n('rt'), C.t1, '>0.2', 0.5);
     say(tl, status, 'research & teaching agent', C.t1, '<');
-    light('research', C.t1);
-    travel(tl, pkt, p('e1'), 0.45);
+    fill('research', C.t1);
+    travel(tl, pkt, p('e1'), 0.45, '>', C.t1);
     glow(tl, n('code'), C.t3, '>', 0.2);
     say(tl, status, 'code agent → malformed JSON envelope', C.t4, '<');
-    travel(tl, pkt, p('rep'), 0.7, '<');
+    travel(tl, pkt, p('rep'), 0.7, '<', C.t3);
     say(tl, status, 'repair prompt · attempt 2/4 → ok', C.t2);
     glow(tl, n('code'), C.t2, '<', 0.3);
-    light('code', C.t3);
-    travel(tl, pkt, p('e2'), 0.45);
+    fill('code', C.t3);
+    travel(tl, pkt, p('e2'), 0.45, '>', C.t1);
     glow(tl, n('write'), C.t1, '>', 0.3);
     say(tl, status, 'writing stage reuses the code verbatim', C.t1, '<');
-    light('article', C.t1);
-    travel(tl, pkt, p('e3'), 0.45);
+    fill('article', C.t1);
+    travel(tl, pkt, p('e3'), 0.45, '>', C.t1);
     glow(tl, n('mv'), C.t4, '>', 0.3);
     say(tl, status, 'mmdc: diagram failed to render', C.t4, '<');
-    light('errors[]', C.t4);
-    travel(tl, pkt, p('fix'), 0.8);
+    fill('errors[]', C.t4);
+    travel(tl, pkt, p('fix'), 0.8, '>', C.t4);
     glow(tl, n('write'), C.t3, '>', 0.2);
     say(tl, status, 'smallest-change fix · 1/5', C.t3, '<');
-    travel(tl, pkt, p('e3'), 0.45);
+    travel(tl, pkt, p('e3'), 0.45, '>', C.t1);
     glow(tl, n('mv'), C.t2, '>', 0.3);
     say(tl, status, 'mmdc: valid', C.t2, '<');
-    light('diagrams', C.t5);
-    travel(tl, pkt, p('out'), 0.45);
+    fill('diagrams', C.t5);
+    travel(tl, pkt, p('out'), 0.45, '>', C.t2);
     glow(tl, n('out'), C.t2, '>', 0.8);
     say(tl, status, 'article written · Hugo-ready Markdown', C.t2, '<');
     tl.to(pkt, { opacity: 0, duration: 0.3 }, '<');
-    tl.to(root.querySelectorAll('[data-field-chip] rect'), { stroke: col('rgb(var(--ink-rgb) / 0.12)'), fill: col('rgb(var(--wash-rgb) / 0.03)'), duration: 0.5 }, '>0.6');
+    tl.to(chips, { stroke: col(C.line), fill: col('transparent'), duration: 0.5 }, '>0.6');
 
     playWhenVisible(root, tl);
   });

@@ -1,0 +1,26 @@
+---
+// One diagram node. `kind` sets the hue of the underline, the same mark the
+// hero uses for tokens: ai = model, data = storage and search, cache = cache
+// and repair, ok = delivered output, io = what goes in.
+interface Props {
+  id?: string;
+  x: number;
+  y: number;
+  w: number;
+  h?: number;
+  label: string;
+  sub?: string;
+  kind?: 'ai' | 'data' | 'cache' | 'ok' | 'fail' | 'io';
+  // marks the sub line so a script can rewrite it (e.g. an agent's state)
+  subKey?: string | number;
+}
+const { id, x, y, w, h = 52, label, sub, kind = 'io', subKey } = Astro.props;
+const cx = x + w / 2;
+---
+
+<g class:list={['node', `k-${kind}`]}>
+  <rect class="box" data-n={id} x={x} y={y} width={w} height={h} rx="10" />
+  <path class="kind-bar" d={`M${x + 14} ${y + h - 4} H${x + w - 14}`} />
+  <text class="lbl" x={cx} y={sub ? y + h / 2 - 2 : y + h / 2 + 4} text-anchor="middle">{label}</text>
+  {sub && <text class="sub" x={cx} y={y + h / 2 + 13} text-anchor="middle" data-sub={subKey}>{sub}</text>}
+</g>

@@ -1,84 +1,107 @@
 ---
+import VizFrame from './VizFrame.astro';
+import Node from './Node.astro';
 const json = ['{', '  "vendor": "…",', '  "date": "…",', '  "line_items": […],', '  "total": …', '}'];
 ---
 
-<div class="viz" data-viz="device">
-  <p class="viz-status" data-status>waiting for a file</p>
-  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: a file is dropped inside a boundary labelled your machine. A local vision model reads it and structured data comes out. Sending results to Google Sheets is a separate, optional action.">
-    <rect x="16" y="40" width="404" height="344" rx="20" fill="color-mix(in oklab, var(--t2) 2.5%, transparent)" stroke="var(--t2)" stroke-opacity=".45" stroke-dasharray="5 6" />
-    <text x="36" y="66" style="fill:var(--t2)">your machine</text>
+<VizFrame name="device" status="drop a file" caption="illustrative · output shape only · syncing to Sheets is a separate, optional step">
+  <button slot="controls" type="button" class="viz-btn sync" data-sync>Send to Sheets</button>
+  <div class="viz-canvas">
+    <svg viewBox="0 0 560 296" role="img" aria-label="Diagram: a file is dropped inside a boundary labelled your machine. A local vision model reads it and structured data comes out. Sending results to Google Sheets over MCP is a separate, optional action.">
+      <rect class="zone" x="12" y="12" width="408" height="276" rx="16" />
+      <text x="28" y="34" class="zl">your machine</text>
 
-    <rect x="40" y="96" width="130" height="150" rx="14" fill="none" stroke="rgb(var(--ink-rgb) / 0.14)" stroke-dasharray="4 5" data-drop />
-    <text x="105" y="268" text-anchor="middle" class="sub">drop a file</text>
+      <rect class="drop" x="32" y="52" width="100" height="134" rx="12" data-drop />
+      <g data-doc>
+        <rect class="doc" x="52" y="68" width="60" height="80" rx="6" />
+        <rect class="ln strong" x="61" y="80" width="30" height="5" rx="2.5" />
+        <rect class="ln" x="61" y="93" width="42" height="3" rx="1.5" />
+        <rect class="ln" x="61" y="101" width="36" height="3" rx="1.5" />
+        <rect class="ln" x="61" y="109" width="42" height="3" rx="1.5" />
+        <rect class="ln" x="61" y="128" width="18" height="3" rx="1.5" />
+        <rect class="amt" x="86" y="126" width="17" height="7" rx="2" />
+        <rect class="scan" x="52" y="68" width="60" height="2" data-scan style="opacity:0" />
+      </g>
+      <text x="82" y="204" text-anchor="middle" class="sub">drop a file</text>
 
-    <g data-doc>
-      <rect x="66" y="114" width="78" height="104" rx="8" fill="var(--bg-3)" stroke="rgb(var(--ink-rgb) / 0.22)" />
-      <rect x="78" y="130" width="40" height="6" rx="3" fill="rgb(var(--ink-rgb) / 0.4)" />
-      <rect x="78" y="146" width="54" height="4" rx="2" fill="rgb(var(--ink-rgb) / 0.16)" />
-      <rect x="78" y="156" width="48" height="4" rx="2" fill="rgb(var(--ink-rgb) / 0.16)" />
-      <rect x="78" y="166" width="54" height="4" rx="2" fill="rgb(var(--ink-rgb) / 0.16)" />
-      <rect x="78" y="188" width="24" height="4" rx="2" fill="rgb(var(--ink-rgb) / 0.16)" />
-      <rect x="110" y="186" width="22" height="8" rx="2" fill="var(--t3)" fill-opacity=".6" />
-      <text x="105" y="210" text-anchor="middle" class="sub">invoice</text>
-      <rect x="66" y="114" width="78" height="3" fill="var(--t2)" data-scan style="opacity:0" />
-    </g>
+      <path class="wire" data-p="dm" d="M132 82 H160" />
+      <Node id="model" x={160} y={56} w={240} label="local vision model" sub="served on-device" kind="ai" />
+      <path class="wire" data-p="mj" d="M280 108 V136" />
 
-    <path class="wire" data-p="dm" d="M170 172 L206 172" />
-    <g>
-      <rect class="box" data-n="model" x="206" y="110" width="190" height="64" rx="14" />
-      <text class="lbl" x="301" y="136" text-anchor="middle">local vision model</text>
-      <text class="sub" x="301" y="154" text-anchor="middle">served on-device</text>
-    </g>
-    <path class="wire" data-p="mj" d="M301 174 L301 206" />
+      <rect class="box" data-n="json" x="160" y="136" width="240" height="134" rx="10" />
+      <path class="kind-bar json-bar" d="M174 266 H386" />
+      {json.map((l, i) => <text x="178" y={162 + i * 17} class="code" data-json-line>{l}</text>)}
 
-    <g>
-      <rect class="box" data-n="json" x="206" y="206" width="190" height="154" rx="14" />
-      {json.map((l, i) => <text x="224" y={232 + i * 19} data-json-line style="fill:var(--ink-2);opacity:0">{l}</text>)}
-      <text x="380" y="350" text-anchor="end" class="sub">illustrative shape</text>
-    </g>
+      <path class="wire dash" data-p="mcp" d="M400 203 H444" data-mcp-wire />
+      <g data-sheets class="sheets">
+        <Node id="sheets" x={444} y={177} w={104} label="Sheets" sub="MCP · opt-in" kind="cache" />
+      </g>
 
-    <path class="wire dash" data-p="mcp" d="M396 283 C440 283 448 236 470 236" style="opacity:.35" data-mcp-wire />
-    <g style="opacity:.45" data-sheets>
-      <rect class="box" data-n="sheets" x="440" y="202" width="104" height="54" rx="12" />
-      <text class="lbl" x="492" y="226" text-anchor="middle">Sheets</text>
-      <text class="sub" x="492" y="242" text-anchor="middle">via MCP</text>
-    </g>
-
-    <circle class="pkt" r="5.5" cx="0" cy="0" data-pkt style="opacity:0" />
-  </svg>
-  <button type="button" class="sync mono" data-sync>Send results to Sheets <span class="faint">(optional)</span></button>
-</div>
+      <circle class="pkt" r="4.5" cx="0" cy="0" data-pkt style="opacity:0" />
+    </svg>
+  </div>
+</VizFrame>
 
 <style>
+  .zone {
+    --zc: var(--t2);
+  }
+  .zl {
+    fill: var(--t2);
+  }
+  .drop {
+    fill: none;
+    stroke: var(--viz-edge);
+    stroke-dasharray: 4 5;
+  }
+  .doc {
+    fill: var(--viz-node);
+    stroke: var(--viz-edge);
+  }
+  .ln {
+    fill: rgb(var(--ink-rgb) / 0.18);
+  }
+  .ln.strong {
+    fill: rgb(var(--ink-rgb) / 0.4);
+  }
+  .amt {
+    fill: var(--t3);
+    opacity: 0.7;
+  }
+  .scan {
+    fill: var(--t1);
+  }
+  .code {
+    fill: var(--ink-2);
+    opacity: 0.35;
+  }
+  .json-bar {
+    stroke: var(--t2);
+  }
+  .sheets {
+    opacity: 0.5;
+  }
+  [data-mcp-wire] {
+    opacity: 0.5;
+  }
   .sync {
-    position: absolute;
-    right: 8px;
-    top: -40px;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: var(--fs-micro);
     color: var(--t3);
+    border-color: color-mix(in oklab, var(--t3) 40%, transparent);
     background: color-mix(in oklab, var(--t3) 8%, transparent);
-    border: 1px solid color-mix(in oklab, var(--t3) 35%, transparent);
-    transition: background 0.2s;
   }
   .sync:hover {
-    background: color-mix(in oklab, var(--t3) 16%, transparent);
+    color: var(--t3);
+    border-color: color-mix(in oklab, var(--t3) 60%, transparent);
+    background: color-mix(in oklab, var(--t3) 14%, transparent);
   }
   .sync[disabled] {
     opacity: 0.5;
     cursor: default;
   }
-  @media (max-width: 520px) {
-    .sync {
-      position: static;
-      margin: 8px 0 0 8px;
-    }
-  }
 </style>
 
 <script>
-  import { gsap, C, col, paint, playWhenVisible, glow, travel, say } from '../../scripts/viz';
+  import { gsap, C, col, paint, playWhenVisible, setBusy, glow, travel, say } from '../../scripts/viz';
 
   document.querySelectorAll<HTMLElement>('[data-viz="device"]').forEach((root) => {
     const $ = (s: string) => root.querySelector(s);
@@ -88,50 +111,50 @@ const json = ['{', '  "vendor": "…",', '  "date": "…",', '  "line_items": [�
     const status = $('[data-status]') as HTMLElement;
     const doc = $('[data-doc]')!;
     const scan = $('[data-scan]')!;
+    const drop = paint($('[data-drop]'))!;
     const lines = root.querySelectorAll('[data-json-line]');
     const btn = $('[data-sync]') as HTMLButtonElement;
 
     // The default loop never leaves the machine.
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.4 });
     say(tl, status, 'drop a file', C.ink);
-    tl.set(lines, { opacity: 0 })
-      .fromTo(doc, { y: -70, opacity: 0, rotate: -6, transformOrigin: '50% 50%' }, { y: 0, opacity: 1, rotate: 0, duration: 0.8, ease: 'bounce.out' })
-      .to(paint($('[data-drop]')), { stroke: col(C.t2), duration: 0.3 }, '<0.4')
-      .to($('[data-drop]'), { stroke: col('rgb(var(--ink-rgb) / 0.14)'), duration: 0.6 }, '>0.4');
-    say(tl, status, 'local vision model reading the invoice', C.t1, '<');
-    glow(tl, n('model'), C.t1, '<', 1.4);
-    tl.set(scan, { opacity: 1, y: 0 }, '<').to(scan, { y: 100, duration: 0.7, ease: 'sine.inOut', repeat: 2, yoyo: true }, '<');
+    tl.set(lines, { opacity: 0.35 })
+      .fromTo(doc, { y: -40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' })
+      .to(drop, { stroke: col(C.t2), duration: 0.3 }, '<0.3')
+      .to(drop, { stroke: col(C.line), duration: 0.6 }, '>0.4');
+    say(tl, status, 'a local vision model reads the invoice', C.t1, '<');
+    travel(tl, pkt, p('dm'), 0.35, '<', C.t1);
+    glow(tl, n('model'), C.t1, '>', 1.4);
+    tl.set(scan, { opacity: 1, y: 0 }, '<').to(scan, { y: 78, duration: 0.7, ease: 'sine.inOut', repeat: 2, yoyo: true }, '<');
     tl.set(scan, { opacity: 0 });
-    travel(tl, pkt, p('mj'), 0.35);
+    travel(tl, pkt, p('mj'), 0.35, '>', C.t1);
     say(tl, status, 'structured data · re-prompt once if malformed', C.t2, '<');
     glow(tl, n('json'), C.t2, '>', 1.6);
-    tl.to(lines, { opacity: 1, duration: 0.15, stagger: 0.14 }, '<');
+    tl.to(lines, { opacity: 1, duration: 0.15, stagger: 0.12 }, '<');
     tl.to(pkt, { opacity: 0, duration: 0.2 }, '<');
     tl.to(doc, { opacity: 0, duration: 0.4 }, '>0.6');
+    tl.to(lines, { opacity: 0.35, duration: 0.4 }, '<');
 
     playWhenVisible(root, tl);
 
     // Syncing happens only when asked.
     btn.addEventListener('click', () => {
       btn.disabled = true;
-      root.dataset.busy = '1';
-      tl.pause();
+      setBusy(root, true);
       const s = gsap.timeline({
         onComplete: () => {
           btn.disabled = false;
-          root.dataset.busy = '';
-          tl.play();
+          setBusy(root, false);
         },
       });
       s.set(lines, { opacity: 1 });
-      say(s, status, 'sending extracted results over MCP', C.t3);
+      say(s, status, 'sending the extracted results over MCP', C.t3);
       s.to([$('[data-mcp-wire]'), $('[data-sheets]')], { opacity: 1, duration: 0.3 });
-      s.set(pkt, { x: 396, y: 283 });
-      travel(s, pkt, p('mcp'), 0.8);
+      travel(s, pkt, p('mcp'), 0.7, '>', C.t3);
       glow(s, n('sheets'), C.t3, '>', 0.8);
       say(s, status, 'synced to Google Sheets', C.t3, '<');
       s.to(pkt, { opacity: 0, duration: 0.2 }, '<');
-      s.to([$('[data-mcp-wire]'), $('[data-sheets]')], { opacity: (i: number) => (i === 0 ? 0.35 : 0.45), duration: 0.5 }, '>0.4');
+      s.to([$('[data-mcp-wire]'), $('[data-sheets]')], { opacity: 0.5, duration: 0.5 }, '>0.4');
     });
   });
 </script>

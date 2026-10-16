@@ -1,9 +1,6 @@
 ---
 import ChapterHead from './ChapterHead.astro';
 import { about } from '../data/content';
-import { tokenize } from '../lib/build';
-
-const toks = tokenize(about.intro);
 ---
 
 <section id="about" class="chapter" data-stage="about" data-field="1" data-field-level="0.22" aria-labelledby="about-title">
@@ -12,18 +9,14 @@ const toks = tokenize(about.intro);
       <span slot="title" id="about-title">{about.title}</span>
     </ChapterHead>
 
-    <div class="intro-wrap">
-      <div class="modes mono" role="group" aria-label="How to show this paragraph" data-reveal>
-        <button type="button" data-mode="text" aria-pressed="true">text</button>
-        <button type="button" data-mode="tokens" aria-pressed="false">tokens</button>
+    <div class="story">
+      <p class="lead" data-reveal>{about.lead}</p>
+      <div class="story-body" data-reveal data-reveal-delay="0.08">
+        {about.story.map((t) => <p>{t}</p>)}
+        <p>
+          {about.blogLine.text} <a href={about.blogLine.url}>{about.blogLine.link}</a>.
+        </p>
       </div>
-      <p class="intro" data-intro data-reveal>
-        <span class="as-text">{about.intro}</span>
-        <span class="as-tokens" aria-hidden="true">
-          {toks.map((t, i) => <span class={`tk c${(i % 5) + 1}`} title={`token ${t.id}`}>{t.t}</span>)}
-        </span>
-      </p>
-      <p class="tok-note mono faint" data-tok-note hidden>{toks.length} o200k tokens · {about.intro.length} characters</p>
     </div>
 
     <div class="ab-grid">
@@ -98,54 +91,45 @@ const toks = tokenize(about.intro);
 </section>
 
 <style>
-  .intro-wrap {
-    max-width: 980px;
-    margin-bottom: clamp(48px, 8vh, 88px);
+  /* a one-line lead in the display voice, then the story at reading size */
+  .story {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(24px, 5vw, 80px);
+    align-items: start;
+    margin-bottom: clamp(56px, 9vh, 96px);
   }
-  .modes {
-    display: inline-flex;
-    gap: 2px;
-    padding: 3px;
-    margin-bottom: 18px;
-    border-radius: 9px;
-    background: rgb(var(--wash-rgb) / 0.04);
-    border: 1px solid var(--line);
-    font-size: var(--fs-micro);
-  }
-  .modes button {
-    padding: 5px 10px;
-    border-radius: 6px;
-    color: var(--ink-3);
-  }
-  .modes button[aria-pressed='true'] {
-    color: var(--ink);
-    background: rgb(var(--wash-rgb) / 0.09);
-  }
-  .intro {
+  .lead {
+    max-width: 16em;
     font-size: var(--fs-lead);
-    line-height: 1.42;
+    font-weight: var(--fw-medium);
+    line-height: 1.3;
     letter-spacing: var(--tr-snug);
+    text-wrap: balance;
+  }
+  .story-body {
+    display: grid;
+    gap: 1em;
+    max-width: 34em;
+    font-size: var(--fs-lede);
+    line-height: 1.65;
+    color: var(--ink-2);
     text-wrap: pretty;
   }
-  .as-tokens {
-    display: none;
+  .story-body a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--line-3);
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 0.2s;
   }
-  .intro.show-tokens .as-text {
-    display: none;
+  .story-body a:hover {
+    text-decoration-color: var(--t2);
   }
-  .intro.show-tokens .as-tokens {
-    display: inline;
-  }
-  .tk {
-    --c: var(--t1);
-    border-radius: 4px;
-    white-space: pre-wrap;
-    background: color-mix(in oklab, var(--c) 18%, transparent);
-    box-shadow: inset 0 -2px 0 color-mix(in oklab, var(--c) 70%, transparent);
-  }
-  .tok-note {
-    margin-top: 12px;
-    font-size: var(--fs-micro);
+  @media (max-width: 900px) {
+    .story {
+      grid-template-columns: 1fr;
+    }
   }
 
   .ab-grid {
@@ -272,16 +256,3 @@ const toks = tokenize(about.intro);
     }
   }
 </style>
-
-<script>
-  const intro = document.querySelector<HTMLElement>('[data-intro]');
-  const note = document.querySelector<HTMLElement>('[data-tok-note]');
-  document.querySelectorAll<HTMLButtonElement>('#about [data-mode]').forEach((b, _, all) =>
-    b.addEventListener('click', () => {
-      const tokens = b.dataset.mode === 'tokens';
-      all.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-      intro?.classList.toggle('show-tokens', tokens);
-      if (note) note.hidden = !tokens;
-    }),
-  );
-</script>

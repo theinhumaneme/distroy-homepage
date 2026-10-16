@@ -1,99 +1,79 @@
 ---
-// positions for an illustrative set of agents around the control plane
-const cx = 280,
-  cy = 196,
-  R = 148;
-const agents = Array.from({ length: 5 }, (_, i) => {
-  const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-  return { x: +(cx + Math.cos(a) * R * 1.25).toFixed(1), y: +(cy + Math.sin(a) * R).toFixed(1) };
-});
-const hex = Array.from({ length: 6 }, (_, i) => {
-  const a = Math.PI / 6 + (i * Math.PI) / 3;
-  return `${(cx + Math.cos(a) * 58).toFixed(1)},${(cy + Math.sin(a) * 58).toFixed(1)}`;
-}).join(' ');
+import VizFrame from './VizFrame.astro';
+import Node from './Node.astro';
+// an illustrative set of agents, three either side of the server
+const rows = [24, 114, 204];
+const agents = [...rows.map((y) => ({ x: 20, y, side: -1 })), ...rows.map((y) => ({ x: 430, y, side: 1 }))];
+const wire = (a: { x: number; y: number; side: number }) =>
+  a.side < 0 ? `M205 140 C168 140 168 ${a.y + 26} 130 ${a.y + 26}` : `M355 140 C392 140 392 ${a.y + 26} 430 ${a.y + 26}`;
+const DOWN = 4;
 ---
 
-<div class="viz" data-viz="fleet">
-  <p class="viz-status" data-status>Configuration updated</p>
-  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: after the configuration is updated, a server pushes it to agents over persistent connections. Each agent compares it with its last-applied state and updates only the affected stacks. A disconnected agent reconnects automatically.">
-    {agents.map((a, i) => <path class="wire" data-wire={i} d={`M${cx} ${cy} L${a.x} ${a.y}`} />)}
+<VizFrame name="fleet" status="configuration updated" caption="illustrative · an agent on each machine, over persistent connections">
+  <div class="viz-canvas">
+    <svg viewBox="0 0 560 280" data-down={DOWN} role="img" aria-label="Diagram: after the configuration is updated, the server pushes it to an agent on each machine over persistent connections. Each agent compares it with its last-applied state and updates only the affected stacks. A disconnected agent reconnects automatically.">
+      {agents.map((a, i) => <path class="wire" data-wire={i} d={wire(a)} />)}
 
-    <polygon points={hex} class="box" data-n="cp" />
-    <text class="lbl" x={cx} y={cy - 4} text-anchor="middle">server</text>
-    <text class="sub" x={cx} y={cy + 12} text-anchor="middle">one configuration</text>
-
-    {
-      agents.map((a, i) => (
+      <Node id="cp" x={205} y={114} w={150} label="server" sub="one configuration" kind="data" />
+      {agents.map((a, i) => (
         <g data-agent={i}>
-          <circle cx={a.x} cy={a.y} r="26" class="box" data-ring={i} />
-          <text class="lbl" x={a.x} y={a.y + 4} text-anchor="middle">agent</text>
-          <text class="sub" x={a.x} y={a.y + 44} text-anchor="middle" data-agent-lbl={i}>up to date</text>
+          <Node id={`a${i}`} x={a.x} y={a.y} w={110} label="agent" sub="up to date" subKey={i} kind="ok" />
         </g>
-      ))
-    }
+      ))}
 
-    {
-      agents.map((_, i) => (
-        <g data-env={i} style="opacity:0">
-          <rect x="-11" y="-8" width="22" height="16" rx="3" fill="var(--t3)" />
-          <path d="M-11 -8 L0 1 L11 -8" fill="none" stroke="var(--bg)" stroke-width="1.4" />
-        </g>
-      ))
-    }
-    <text x="20" y="390" class="sub">illustrative · agents on each machine, persistent connections</text>
-  </svg>
-</div>
+      {agents.map((_, i) => <circle class="pkt" r="4.5" data-env={i} style="opacity:0" />)}
+    </svg>
+  </div>
+</VizFrame>
 
 <script>
-  import { gsap, C, playWhenVisible, glow, say } from '../../scripts/viz';
+  import { gsap, C, playWhenVisible, glow, travel, say } from '../../scripts/viz';
 
   document.querySelectorAll<HTMLElement>('[data-viz="fleet"]').forEach((root) => {
     const $ = (s: string) => root.querySelector(s);
     const status = $('[data-status]') as HTMLElement;
     const wires = [...root.querySelectorAll<SVGPathElement>('[data-wire]')];
     const envs = [...root.querySelectorAll('[data-env]')];
-    const rings = [...root.querySelectorAll('[data-ring]')];
-    const lbls = [...root.querySelectorAll('[data-agent-lbl]')];
-    const DOWN = 3;
+    const subs = [...root.querySelectorAll('[data-sub]')];
+    const ring = (i: number) => $(`[data-n="a${i}"]`);
+    const DOWN = Number(root.querySelector('svg')?.dataset.down ?? 4);
+    const state = (tl: gsap.core.Timeline, i: number, text: string, at: gsap.Position) => tl.call(() => void (subs[i].textContent = text), [], at);
 
+    // push to every agent at once; each updates only what changed
     const broadcast = (tl: gsap.core.Timeline, skip: number[] = [], at: gsap.Position = '>') => {
-      const label = `b${tl.duration()}`;
+      const label = `b${tl.duration().toFixed(2)}`;
       tl.addLabel(label, at);
       envs.forEach((e, i) => {
         if (skip.includes(i)) return;
-        tl.set(e, { opacity: 1 }, label).to(
-          e,
-          { duration: 0.8, ease: 'power2.inOut', motionPath: { path: wires[i], align: wires[i], alignOrigin: [0.5, 0.5], autoRotate: false } },
-          label,
-        );
-        tl.to(e, { opacity: 0, duration: 0.15 }, `${label}+=0.8`);
-        tl.call(() => (lbls[i].textContent = 'update changed stacks'), [], `${label}+=0.8`);
-        glow(tl, rings[i], C.t2, `${label}+=0.8`, 0.5);
-        tl.call(() => (lbls[i].textContent = 'up to date'), [], `${label}+=1.9`);
+        travel(tl, e, wires[i], 0.7, label, C.t3);
+        tl.to(e, { opacity: 0, duration: 0.15 }, `${label}+=0.7`);
+        state(tl, i, 'updating stacks', `${label}+=0.7`);
+        glow(tl, ring(i), C.t2, `${label}+=0.7`, 0.5);
+        state(tl, i, 'up to date', `${label}+=1.8`);
       });
     };
 
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
-    say(tl, status, 'Configuration updated', C.ink);
+    say(tl, status, 'configuration updated', C.t3);
     glow(tl, $('[data-n="cp"]'), C.t3, '>0.2', 0.4);
     say(tl, status, 'pushing the update to every agent', C.t3, '<');
     broadcast(tl, [], '<');
+    say(tl, status, 'only the affected stacks change', C.t2, '>-0.6');
+
     // one agent drops off and comes back
-    say(tl, status, 'agent lost connection', C.t4, '>0.6');
-    tl.to(wires[DOWN], { opacity: 0.15, duration: 0.3 }, '<')
-      .to(root.querySelector(`[data-agent="${DOWN}"]`), { opacity: 0.35, duration: 0.3 }, '<')
-      .call(() => (lbls[DOWN].textContent = 'offline'), [], '<');
-    ['reconnecting…', 'reconnecting…', 'reconnecting…'].forEach((t, i) => {
-      tl.call(() => (lbls[DOWN].textContent = t), [], `>${i ? 0.5 : 0.3}`);
-    });
-    say(tl, status, 'agent reconnected automatically', C.t2, '>0.5');
-    tl.to(wires[DOWN], { opacity: 1, duration: 0.3 }, '<').to(root.querySelector(`[data-agent="${DOWN}"]`), { opacity: 1, duration: 0.3 }, '<');
-    say(tl, status, 'compare with last-applied state, update what changed', C.t2, '>0.2');
-    broadcast(
-      tl,
-      envs.map((_, i) => i).filter((i) => i !== DOWN),
-      '<',
-    );
+    say(tl, status, 'an agent lost its connection', C.t4, '>0.8');
+    tl.to(wires[DOWN], { opacity: 0.15, duration: 0.3 }, '<').to($(`[data-agent="${DOWN}"]`), { opacity: 0.4, duration: 0.3 }, '<');
+    state(tl, DOWN, 'offline', '<');
+    state(tl, DOWN, 'reconnecting…', '>0.8');
+    say(tl, status, 'reconnecting automatically', C.t3, '<');
+    tl.to(wires[DOWN], { opacity: 1, duration: 0.3 }, '>1').to($(`[data-agent="${DOWN}"]`), { opacity: 1, duration: 0.3 }, '<');
+    state(tl, DOWN, 'connected', '<');
+    say(tl, status, 'it compares with its last-applied state', C.t2, '>0.3');
+    travel(tl, envs[DOWN], wires[DOWN], 0.7, '<', C.t3);
+    tl.to(envs[DOWN], { opacity: 0, duration: 0.15 }, '>');
+    state(tl, DOWN, 'updating stacks', '<');
+    glow(tl, ring(DOWN), C.t2, '<', 0.5);
+    state(tl, DOWN, 'up to date', '>');
 
     playWhenVisible(root, tl);
   });

@@ -1,145 +1,187 @@
-<div class="viz ck" data-viz="checkpoint">
-  <div class="tabs mono" role="tablist" aria-label="Documan checkpoint">
-    <button role="tab" aria-selected="false" data-ck="v1">Original · Python / Flask</button>
-    <button role="tab" aria-selected="true" data-ck="v2">Rewrite · Java / Angular</button>
+---
+import VizFrame from './VizFrame.astro';
+import Node from './Node.astro';
+---
+
+<VizFrame name="checkpoint" status="a write commits its row and outbox key together">
+  <div slot="controls" class="tabs" role="tablist" aria-label="Documan version">
+    <button type="button" role="tab" id="ck-v1" aria-controls="ck-pane-v1" aria-selected="false" tabindex="-1" data-ck="v1">Original</button>
+    <button type="button" role="tab" id="ck-v2" aria-controls="ck-pane-v2" aria-selected="true" data-ck="v2">Rewrite</button>
   </div>
 
-  <div class="pane" data-pane="v1" hidden>
-    <svg viewBox="0 0 560 330" role="img" aria-label="v1 architecture: a Flask web app and a Telegram bot share a PostgreSQL user store, MeiliSearch for full-text search and Google Drive for files.">
-      <path class="wire" data-p1="a" d="M150 96 C150 150 120 170 110 214" />
-      <path class="wire" data-p1="b" d="M150 96 C170 160 270 170 280 214" />
-      <path class="wire" data-p1="c" d="M410 96 C390 160 290 170 280 214" />
-      <path class="wire" data-p1="d" d="M410 96 C420 150 440 170 450 214" />
-      <g><rect class="box" x="80" y="44" width="140" height="52" rx="12" /><text class="lbl" x="150" y="67" text-anchor="middle">web app</text><text class="sub" x="150" y="83" text-anchor="middle">Flask · Flask-Login</text></g>
-      <g><rect class="box" x="340" y="44" width="140" height="52" rx="12" /><text class="lbl" x="410" y="67" text-anchor="middle">Telegram bot</text><text class="sub" x="410" y="83" text-anchor="middle">python-telegram-bot</text></g>
-      <g><rect class="box" x="40" y="214" width="140" height="52" rx="12" /><text class="lbl" x="110" y="237" text-anchor="middle">PostgreSQL</text><text class="sub" x="110" y="253" text-anchor="middle">shared user store</text></g>
-      <g><rect class="box" x="210" y="214" width="140" height="52" rx="12" /><text class="lbl" x="280" y="237" text-anchor="middle">MeiliSearch</text><text class="sub" x="280" y="253" text-anchor="middle">full-text search</text></g>
-      <g><rect class="box" x="380" y="214" width="140" height="52" rx="12" /><text class="lbl" x="450" y="237" text-anchor="middle">Google Drive</text><text class="sub" x="450" y="253" text-anchor="middle">storage &amp; delivery</text></g>
-      <text x="280" y="306" text-anchor="middle" class="sub">role-based access by department · year · semester</text>
-      {[0, 1, 2, 3].map((i) => <circle class="pkt" r="4.5" data-dot1={i} style="opacity:0" />)}
-    </svg>
-    <p class="note mono">4,000+ students · 200,000+ deliveries · 1,200+ active users · 99%+ uptime</p>
+  <div class="pane" id="ck-pane-v1" role="tabpanel" aria-labelledby="ck-v1" data-pane="v1" hidden>
+    <div class="viz-canvas">
+      <svg viewBox="0 0 560 262" role="img" aria-label="Original platform: a Flask web app and a Telegram bot share PostgreSQL, MeiliSearch for full-text search, and Google Drive for files.">
+        <path class="wire" data-p1="a" d="M140 76 C140 128 90 128 90 180" />
+        <path class="wire" data-p1="b" d="M180 76 C180 128 260 128 260 180" />
+        <path class="wire" data-p1="c" d="M380 76 C380 128 300 128 300 180" />
+        <path class="wire" data-p1="d" d="M420 76 C420 128 470 128 470 180" />
+        <Node id="web" x={90} y={24} w={140} label="web app" sub="Flask · Flask-Login" />
+        <Node id="bot" x={330} y={24} w={140} label="Telegram bot" sub="python-telegram-bot" />
+        <Node id="pg" x={20} y={180} w={140} label="PostgreSQL" sub="shared user store" kind="data" />
+        <Node id="ms" x={210} y={180} w={140} label="MeiliSearch" sub="full-text search" kind="data" />
+        <Node id="gd" x={400} y={180} w={140} label="Google Drive" sub="storage & delivery" kind="data" />
+        <text x="280" y="256" text-anchor="middle" class="sub">role-based access by department · year · semester</text>
+        <circle class="pkt" r="4.5" data-pkt1 style="opacity:0" />
+      </svg>
+    </div>
+    <p class="viz-foot">Python / Flask · 4,000+ students · 200,000+ deliveries · 1,200+ active users · 99%+ uptime</p>
   </div>
 
-  <div class="pane" data-pane="v2">
-    <svg viewBox="0 0 560 330" role="img" aria-label="v2 transactional outbox: a write and its outbox key commit in one PostgreSQL transaction; a drainer waits for the Meilisearch task. A rolled-back write leaves no key and is never indexed. A reconcile runs every six hours.">
-      <text x="20" y="40" class="sub">commit path</text>
-      <path class="wire" data-p2="ok" d="M86 82 L520 82" />
-      <g><rect class="box" data-n2="w" x="20" y="60" width="66" height="44" rx="10" /><text class="lbl" x="53" y="87" text-anchor="middle">write</text></g>
-      <g><rect class="box" data-n2="tx" x="112" y="56" width="132" height="52" rx="10" /><text class="lbl" x="178" y="79" text-anchor="middle">PostgreSQL tx</text><text class="sub" x="178" y="95" text-anchor="middle">row + outbox key</text></g>
-      <g><rect class="box" data-n2="drain" x="270" y="56" width="110" height="52" rx="10" /><text class="lbl" x="325" y="79" text-anchor="middle">drainer</text><text class="sub" x="325" y="95" text-anchor="middle">after commit</text></g>
-      <g><rect class="box" data-n2="meili" x="406" y="56" width="134" height="52" rx="10" /><text class="lbl" x="473" y="79" text-anchor="middle">Meilisearch</text><text class="sub" x="473" y="95" text-anchor="middle">await task, not 202</text></g>
+  <div class="pane" id="ck-pane-v2" role="tabpanel" aria-labelledby="ck-v2" data-pane="v2">
+    <div class="viz-canvas">
+      <svg viewBox="0 0 560 262" role="img" aria-label="Rewrite, transactional outbox: a write and its outbox key commit in one PostgreSQL transaction, and a drainer waits for the Meilisearch task after commit. A rolled-back write leaves no key and is never indexed. A set-based reconcile runs every six hours.">
+        <text x="20" y="18" class="sub">committed write</text>
+        <path class="wire" data-p2="a" d="M84 54 H108" />
+        <path class="wire" data-p2="b" d="M248 54 H272" />
+        <path class="wire" data-p2="c" d="M392 54 H416" />
+        <Node id="w" x={20} y={28} w={64} label="write" />
+        <Node id="tx" x={108} y={28} w={140} label="PostgreSQL tx" sub="row + outbox key" kind="data" />
+        <Node id="drain" x={272} y={28} w={120} label="drainer" sub="after commit" />
+        <Node id="meili" x={416} y={28} w={124} label="Meilisearch" sub="await task, not 202" kind="data" />
 
-      <text x="20" y="160" class="sub">rollback path</text>
-      <path class="wire" data-p2="rb" d="M86 202 L250 202" />
-      <g><rect class="box" data-n2="w2" x="20" y="180" width="66" height="44" rx="10" /><text class="lbl" x="53" y="207" text-anchor="middle">write</text></g>
-      <g><rect class="box" data-n2="tx2" x="112" y="176" width="132" height="52" rx="10" /><text class="lbl" x="178" y="199" text-anchor="middle">PostgreSQL tx</text><text class="sub" x="178" y="215" text-anchor="middle">rolled back</text></g>
-      <text x="270" y="198" style="fill:var(--t4)" data-rb-x>✕ no outbox key</text>
-      <text x="270" y="216" class="sub">never indexed</text>
+        <text x="20" y="124" class="sub">rolled-back write</text>
+        <path class="wire" data-p2="r" d="M84 160 H108" />
+        <path class="wire dash" data-p2="x" d="M248 160 H276" />
+        <Node id="w2" x={20} y={134} w={64} label="write" />
+        <Node id="tx2" x={108} y={134} w={140} label="PostgreSQL tx" sub="rolled back" kind="fail" />
+        <text x="286" y="157" class="miss" data-rb>no outbox key</text>
+        <text x="286" y="172" class="sub">never indexed</text>
 
-      <path class="wire dash" d="M30 286 L530 286" />
-      <text x="20" y="272" class="sub">every 6 h · set-based reconcile re-pushes everything</text>
-      <circle r="4" fill="var(--t5)" data-sweep cx="30" cy="286" />
+        <text x="20" y="226" class="sub">every 6 h · set-based reconcile re-pushes everything</text>
+        <path class="wire dash" d="M20 246 H540" />
+        <circle r="4" class="sweep" data-sweep cx="20" cy="246" />
 
-      <circle class="pkt" r="5.5" data-pkt2 style="opacity:0" />
-      <circle class="pkt" r="5.5" data-pkt3 style="opacity:0;fill:var(--t4);filter:drop-shadow(0 0 6px var(--t4))" />
-    </svg>
-    <p class="note mono">search being down never fails a write · public rewrite, no users yet</p>
+        <circle class="pkt" r="4.5" data-pkt2 style="opacity:0" />
+      </svg>
+    </div>
+    <p class="viz-foot">Java / Angular · search being down never fails a write · public rewrite, no users yet</p>
   </div>
-</div>
+</VizFrame>
 
 <style>
   .tabs {
     display: inline-flex;
     gap: 2px;
-    padding: 3px;
-    margin: 16px 16px 0;
-    border-radius: 10px;
+    padding: 2px;
+    border-radius: 9px;
     background: rgb(var(--wash-rgb) / 0.04);
     border: 1px solid var(--line);
+    font-family: var(--f-mono);
     font-size: var(--fs-micro);
   }
   .tabs button {
-    padding: 7px 12px;
+    min-height: 26px;
+    padding: 0 10px;
     border-radius: 7px;
     color: var(--ink-3);
     transition:
       color 0.2s,
       background 0.2s;
   }
+  .tabs button:hover {
+    color: var(--ink);
+  }
   .tabs button[aria-selected='true'] {
     color: var(--ink);
     background: rgb(var(--wash-rgb) / 0.09);
   }
   .pane {
-    padding: 8px 4px 0;
+    display: grid;
+    gap: 12px;
   }
-  .note {
-    padding: 12px 16px 0;
-    font-size: var(--fs-micro);
-    color: var(--ink-3);
+  .pane[hidden] {
+    display: none;
+  }
+  .miss {
+    fill: var(--t4);
+  }
+  .sweep {
+    fill: var(--t5);
   }
 </style>
 
 <script>
-  import { gsap, C, playWhenVisible, glow, travel } from '../../scripts/viz';
+  import { gsap, C, playWhenVisible, activate, glow, travel, say } from '../../scripts/viz';
 
   document.querySelectorAll<HTMLElement>('[data-viz="checkpoint"]').forEach((root) => {
     const $ = (s: string) => root.querySelector(s);
+    const n = (k: string) => $(`[data-n="${k}"]`);
+    const status = $('[data-status]') as HTMLElement;
 
-    // v1: requests flow from both clients into the shared services
-    const t1 = gsap.timeline({ repeat: -1 });
-    root.querySelectorAll('[data-dot1]').forEach((dot, i) => {
-      const path = $(`[data-p1="${'abcd'[i]}"]`)!;
-      t1.set(dot, { opacity: 1 }, i * 0.35).to(
-        dot,
-        { duration: 1.4, ease: 'sine.inOut', motionPath: { path: path as SVGPathElement, align: path as SVGPathElement, alignOrigin: [0.5, 0.5] }, repeat: 1, repeatDelay: 0.6 },
-        i * 0.35,
-      );
+    // Original: requests from both clients reach the shared services
+    const pkt1 = $('[data-pkt1]')!;
+    const p1 = (k: string) => $(`[data-p1="${k}"]`);
+    const t1 = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
+    say(t1, status, 'the web app and the bot share one set of services', C.t5);
+    (
+      [
+        ['web', 'a', 'pg'],
+        ['web', 'b', 'ms'],
+        ['bot', 'c', 'ms'],
+        ['bot', 'd', 'gd'],
+      ] as const
+    ).forEach(([from, path, to]) => {
+      glow(t1, n(from), C.ink, '>', 0.1);
+      travel(t1, pkt1, p1(path), 0.6, '<', C.t5);
+      glow(t1, n(to), C.t5, '>', 0.2);
     });
+    t1.to(pkt1, { opacity: 0, duration: 0.2 }, '>');
 
-    // v2: outbox commit vs rollback, with the periodic reconcile sweep
-    const n = (k: string) => $(`[data-n2="${k}"]`);
+    // Rewrite: outbox commit vs rollback, then the periodic reconcile sweep
     const pkt = $('[data-pkt2]')!;
-    const pkt3 = $('[data-pkt3]')!;
-    const t2 = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
-    t2.set(pkt, { x: 53, y: 82, opacity: 0 });
-    glow(t2, n('w'), C.ink, '>', 0.2);
-    t2.set(pkt, { opacity: 1 }, '<').to(pkt, { x: 178, duration: 0.5, ease: 'power2.inOut' });
-    glow(t2, n('tx'), C.t5, '<0.3', 0.3);
-    t2.to(pkt, { x: 325, duration: 0.5, ease: 'power2.inOut' });
-    glow(t2, n('drain'), C.t1, '<0.3', 0.3);
-    t2.to(pkt, { x: 473, duration: 0.5, ease: 'power2.inOut' });
-    glow(t2, n('meili'), C.t2, '<0.3', 0.6);
+    const p2 = (k: string) => $(`[data-p2="${k}"]`);
+    const t2 = gsap.timeline({ repeat: -1, repeatDelay: 0.8 });
+    say(t2, status, 'a write commits its row and outbox key together', C.t5);
+    glow(t2, n('w'), C.ink, '<', 0.2);
+    travel(t2, pkt, p2('a'), 0.35, '<', C.ink);
+    glow(t2, n('tx'), C.t5, '>', 0.3);
+    say(t2, status, 'after commit, the drainer pushes to Meilisearch', C.t5);
+    travel(t2, pkt, p2('b'), 0.35, '>0.2', C.t5);
+    glow(t2, n('drain'), C.t5, '>', 0.3);
+    travel(t2, pkt, p2('c'), 0.35, '>', C.t5);
+    glow(t2, n('meili'), C.t2, '>', 0.6);
+    say(t2, status, 'indexed: the task is awaited, not just accepted', C.t2, '<');
     t2.to(pkt, { opacity: 0, duration: 0.2 }, '<');
-    t2.set(pkt3, { x: 53, y: 202, opacity: 0 });
-    glow(t2, n('w2'), C.ink, '>', 0.2);
-    t2.set(pkt3, { opacity: 1 }, '<').to(pkt3, { x: 178, duration: 0.5, ease: 'power2.inOut' });
-    glow(t2, n('tx2'), C.t4, '<0.3', 0.4);
-    t2.fromTo($('[data-rb-x]'), { opacity: 0.25 }, { opacity: 1, duration: 0.2, yoyo: true, repeat: 3 }, '<');
-    t2.to(pkt3, { opacity: 0, scale: 0, transformOrigin: '50% 50%', duration: 0.3 }, '<');
-    t2.fromTo($('[data-sweep]'), { attr: { cx: 30 } }, { attr: { cx: 530 }, duration: 1.6, ease: 'none' }, '>0.2');
-    t2.set(pkt3, { scale: 1 });
 
-    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-ck]')];
-    const panes = [...root.querySelectorAll<HTMLElement>('[data-pane]')];
-    let current = 'v2';
-    const show = (id: string) => {
-      current = id;
-      tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.ck === id)));
-      panes.forEach((p) => (p.hidden = p.dataset.pane !== id));
-      const pane = panes.find((p) => p.dataset.pane === id);
-      if (pane) gsap.fromTo(pane, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: 'expo.out' });
-      (id === 'v1' ? t1 : t2).restart();
-      (id === 'v1' ? t2 : t1).pause();
-    };
-    tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.ck!)));
+    say(t2, status, 'a rolled-back write leaves no outbox key', C.t4, '>0.4');
+    glow(t2, n('w2'), C.ink, '<', 0.2);
+    travel(t2, pkt, p2('r'), 0.35, '<', C.ink);
+    glow(t2, n('tx2'), C.t4, '>', 0.5);
+    travel(t2, pkt, p2('x'), 0.3, '<', C.t4);
+    t2.to(pkt, { opacity: 0, scale: 0, transformOrigin: '50% 50%', duration: 0.3 }, '>');
+    t2.to($('[data-rb]'), { opacity: 0.3, duration: 0.2, yoyo: true, repeat: 3 }, '<');
+    say(t2, status, 'so it is never indexed', C.t4, '<');
+    t2.set(pkt, { scale: 1 });
+
+    say(t2, status, 'every 6 h a reconcile re-pushes everything', C.t5, '>0.4');
+    t2.fromTo($('[data-sweep]'), { attr: { cx: 20 } }, { attr: { cx: 540 }, duration: 1.6, ease: 'none' }, '<');
 
     playWhenVisible(root, t2);
-    t1.pause();
-    new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) t1.pause();
-      else if (current === 'v1') t1.play();
-    }).observe(root);
+    playWhenVisible(root, t1);
+
+    // tabs: click or arrow keys
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-ck]')];
+    const panes = [...root.querySelectorAll<HTMLElement>('[data-pane]')];
+    const show = (id: string, focus = false) => {
+      tabs.forEach((t) => {
+        const on = t.dataset.ck === id;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        if (on && focus) t.focus();
+      });
+      panes.forEach((p) => (p.hidden = p.dataset.pane !== id));
+      const pane = panes.find((p) => p.dataset.pane === id);
+      if (pane) gsap.fromTo(pane, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.45, ease: 'expo.out' });
+      activate(root, id === 'v1' ? t1 : t2);
+    };
+    tabs.forEach((t) => {
+      t.addEventListener('click', () => show(t.dataset.ck!));
+      t.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        show(t.dataset.ck === 'v1' ? 'v2' : 'v1', true);
+      });
+    });
   });
 </script>

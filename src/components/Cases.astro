@@ -6,11 +6,9 @@ import GraphViz from './viz/GraphViz.astro';
 import DeviceViz from './viz/DeviceViz.astro';
 import FleetViz from './viz/FleetViz.astro';
 import CheckpointViz from './viz/CheckpointViz.astro';
-import RouteViz from './viz/RouteViz.astro';
-import BarsViz from './viz/BarsViz.astro';
 import { cases, casesCopy } from '../data/content';
 
-const VIZ = { rag: RagViz, graph: GraphViz, device: DeviceViz, fleet: FleetViz, checkpoint: CheckpointViz, route: RouteViz, bars: BarsViz };
+const VIZ = { rag: RagViz, graph: GraphViz, device: DeviceViz, fleet: FleetViz, checkpoint: CheckpointViz };
 let n = 0;
 const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padStart(2, '0') }));
 ---
@@ -36,9 +34,9 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
           return (
             <article id={c.anchor} class="compact panel" aria-labelledby={`${c.anchor}-t`} data-reveal>
               <div class="cp-left">
-                <p class="meta mono">
-                  <span>{c.org}</span>
-                  <span class="faint">{c.period}</span>
+                <p class="meta">
+                  <span class="org">{c.org}</span>
+                  <span class="when">{c.period}</span>
                 </p>
                 <h3 id={`${c.anchor}-t`} class="cp-title">
                   {c.headline}
@@ -60,10 +58,10 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
           );
         return (
           <article id={c.anchor} class:list={['case', { flip: i % 2 === 0 && i > 0 }]} aria-labelledby={`${c.anchor}-t`}>
-            <p class="meta mono" data-reveal>
-              <span class="num">{c.n}</span>
-              <span>{c.org}</span>
-              {c.period && <span class="faint">{c.period}</span>}
+            <p class="meta" data-reveal>
+              <span class="num mono">{c.n}</span>
+              <span class="org">{c.org}</span>
+              {c.period && <span class="when">{c.period}</span>}
             </p>
             <div class="case-grid">
               <div class="case-text">
@@ -145,7 +143,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
                 )}
               </div>
               {Viz && (
-                <figure class:list={['panel', 'case-viz', { bare: c.viz === 'checkpoint' || c.viz === 'route' || c.viz === 'bars' }]} data-reveal>
+                <figure class="panel case-viz" data-reveal>
                   <Viz />
                 </figure>
               )}
@@ -166,21 +164,34 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
   .compact + .case {
     border-top: 1px dashed var(--line-2);
   }
+  /* context line above a case: index, who it was for, when */
   .meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 18px;
-    align-items: center;
-    margin-bottom: clamp(20px, 3.5vh, 36px);
-    font-size: var(--fs-micro);
+    align-items: baseline;
+    gap: 4px 12px;
+    margin-bottom: clamp(16px, 3vh, 28px);
+    font-size: var(--fs-small);
+    line-height: 1.5;
     color: var(--ink-2);
   }
   .meta .num {
-    color: var(--bg);
-    background: var(--ink);
-    padding: 3px 8px;
-    border-radius: 5px;
+    font-size: var(--fs-xs);
     font-weight: var(--fw-medium);
+    color: var(--t1);
+    font-variant-numeric: tabular-nums;
+  }
+  .meta .org {
+    font-weight: var(--fw-medium);
+  }
+  .meta .when {
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .meta .org + .when::before {
+    content: '·';
+    margin-right: 12px;
+    color: var(--ink-4);
   }
 
   .case-grid {
@@ -322,12 +333,9 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
   }
   .case-viz {
     margin: 0;
-    padding: 52px 8px 14px;
+    padding: 16px 18px 16px;
     position: sticky;
     top: calc(var(--hud-h) + 24px);
-  }
-  .case-viz.bare {
-    padding-top: 0;
   }
 
   .compact {

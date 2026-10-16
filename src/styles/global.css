@@ -48,6 +48,11 @@
 
   --field-opacity: 0.72;
 
+  /* diagrams: node fill, edge and the ground behind wire labels */
+  --viz-node: #121219;
+  --viz-edge: rgb(var(--ink-rgb) / 0.16);
+  --viz-ground: #0c0c12;
+
   --f-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --f-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
 
@@ -123,6 +128,10 @@
   --t5: #1a6bb8;
 
   --field-opacity: 0.5;
+
+  --viz-node: #f2f1ec;
+  --viz-edge: rgb(var(--ink-rgb) / 0.2);
+  --viz-ground: #fbfaf8;
 }
 
 .theme-switching *,
@@ -410,14 +419,19 @@ p {
   flex-wrap: wrap;
   gap: 6px;
 }
+/* tags and stack items: names, not code, so the sans at label size */
 .chip {
-  font-family: var(--f-mono);
-  font-size: var(--fs-micro);
-  padding: 4px 9px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
   border-radius: 6px;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  line-height: 1.2;
   color: var(--ink-2);
-  background: var(--bg-2);
-  border: 1px solid var(--line);
+  background: rgb(var(--wash-rgb) / 0.03);
+  border: 1px solid var(--line-2);
   white-space: nowrap;
 }
 
@@ -517,16 +531,124 @@ p {
 }
 
 /* ---------------------------------------------------------------------------
-   Case-study diagrams (SVG). Shared so every diagram speaks one language.
+   Case-study diagrams (SVG). Shared so every diagram speaks one language:
+   a status line and controls on top, a hairline showing where the loop is,
+   nodes with a hue underline (as the hero's tokens), wires that fill in the
+   packet's hue as it travels, and a one-line caption.
+   Hues: t1 model · t5 data/search · t3 cache/repair · t2 delivered · t4 failure.
 --------------------------------------------------------------------------- */
 .viz {
   position: relative;
+  display: grid;
+  gap: 12px;
+}
+.viz-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.viz-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 8px;
+  background: rgb(var(--wash-rgb) / 0.04);
+  border: 1px solid var(--line);
+  font-family: var(--f-mono);
+  font-size: var(--fs-micro);
+  color: var(--ink-2);
+}
+.viz-status::before {
+  content: '';
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--sc, var(--t2));
+  transition: background 0.3s;
+}
+.viz-ctl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.viz-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 8px;
+  border: 1px solid var(--line-2);
+  font-family: var(--f-mono);
+  font-size: var(--fs-micro);
+  color: var(--ink-2);
+  transition:
+    color 0.2s,
+    background 0.2s,
+    border-color 0.2s;
+}
+.viz-btn:hover {
+  color: var(--ink);
+  border-color: var(--line-3);
+  background: rgb(var(--wash-rgb) / 0.05);
+}
+.viz-pause {
+  width: 30px;
+  padding: 0;
+}
+.viz-pause svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.viz-pause .i-play,
+.viz-pause[aria-pressed='true'] .i-pause {
+  display: none;
+}
+.viz-pause[aria-pressed='true'] .i-play {
+  display: block;
+}
+.viz-track {
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.viz-track::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: var(--sc, var(--ink-3));
+  opacity: 0.7;
+  transform-origin: left;
+  transform: scaleX(var(--viz-p, 0));
+}
+.viz-canvas {
+  min-width: 0;
 }
 .viz svg {
+  display: block;
   width: 100%;
   height: auto;
   overflow: visible;
 }
+.viz-foot {
+  font-family: var(--f-mono);
+  font-size: var(--fs-micro);
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
 .viz text {
   font-family: var(--f-mono);
   font-size: 11px;
@@ -542,55 +664,52 @@ p {
   font-size: 10px;
   fill: var(--ink-3);
 }
+/* labels that sit on a wire knock the wire out behind them */
+.viz .wl {
+  font-size: 10px;
+  paint-order: stroke;
+  stroke: var(--viz-ground);
+  stroke-width: 6px;
+  stroke-linejoin: round;
+}
 .viz .box {
-  fill: var(--bg-2);
-  stroke: rgb(var(--ink-rgb) / 0.14);
+  fill: var(--viz-node);
+  stroke: var(--viz-edge);
   stroke-width: 1.2;
+}
+.viz .node {
+  --k: var(--ink-3);
+}
+.viz .k-ai { --k: var(--t1); }
+.viz .k-data { --k: var(--t5); }
+.viz .k-cache { --k: var(--t3); }
+.viz .k-ok { --k: var(--t2); }
+.viz .k-fail { --k: var(--t4); }
+.viz .kind-bar {
+  fill: none;
+  stroke: var(--k);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.85;
 }
 .viz .wire {
   fill: none;
-  stroke: rgb(var(--ink-rgb) / 0.16);
+  stroke: var(--viz-edge);
   stroke-width: 1.3;
 }
 .viz .wire.dash {
   stroke-dasharray: 3 5;
 }
+.viz .flow {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
 .viz .pkt {
   fill: var(--t2);
-  filter: drop-shadow(0 0 6px var(--t2));
 }
-.viz .tagtxt {
-  font-size: 10.5px;
-  font-weight: var(--fw-medium);
-}
-.viz-status {
-  position: absolute;
-  left: 8px;
-  top: -40px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: rgb(var(--wash-rgb) / 0.04);
-  border: 1px solid var(--line);
-  font-family: var(--f-mono);
-  font-size: var(--fs-micro);
-  color: var(--ink-2);
-  z-index: 2;
-}
-.viz-status::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--sc, var(--t2));
-  box-shadow: 0 0 10px var(--sc, var(--t2));
-}
-/* On paper, glows read as smudges: packets and status dots go flat */
-:root[data-theme='light'] .viz .pkt {
-  filter: none;
-}
-:root[data-theme='light'] .viz-status::before {
-  box-shadow: none;
+.viz .zone {
+  fill: color-mix(in oklab, var(--zc, var(--t2)) 4%, transparent);
+  stroke: color-mix(in oklab, var(--zc, var(--t2)) 55%, transparent);
+  stroke-dasharray: 5 6;
 }

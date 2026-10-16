@@ -1,0 +1,27 @@
+---
+// The frame every case-study diagram shares: a live status line and controls
+// above the drawing, a progress hairline for the loop, and a caption below.
+interface Props {
+  name: string;
+  status: string;
+  caption?: string;
+  class?: string;
+}
+const { name, status, caption, class: cls } = Astro.props;
+---
+
+<div class:list={['viz', cls]} data-viz={name}>
+  <div class="viz-head">
+    <p class="viz-status" data-status>{status}</p>
+    <div class="viz-ctl">
+      <slot name="controls" />
+      <button class="viz-btn viz-pause" type="button" data-viz-pause aria-pressed="false" aria-label="Pause animation">
+        <svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3.5v9M10.5 3.5v9" /></svg>
+        <svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.4v9.2L12.4 8Z" /></svg>
+      </button>
+    </div>
+  </div>
+  <div class="viz-track" aria-hidden="true"></div>
+  <slot />
+  {caption && <p class="viz-foot">{caption}</p>}
+</div>
