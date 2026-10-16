@@ -1,0 +1,199 @@
+---
+import ChapterHead from './ChapterHead.astro';
+import { roles, outcomes, gisNote } from '../data/content';
+---
+
+<section id="experience" class="chapter" data-stage="experience" data-field="4" data-field-level="0.4" aria-labelledby="exp-title">
+  <div class="wrap">
+    <ChapterHead id="experience" color="var(--t3)">
+      <span slot="title" id="exp-title">Professional <span class="serif">experience.</span></span>
+      Backend, performance and delivery work at Nebulogic, teaching at Northeastern, and the college web portal where it started.
+    </ChapterHead>
+
+    <div class="exp-grid">
+      <ol class="roles">
+        {
+          roles.map((r, i) => (
+            <>
+              <li id={r.anchor} class="role" data-reveal data-reveal-delay={String((i % 2) * 0.06)}>
+                <p class="r-top mono">
+                  <span>{r.org}</span>
+                  <span class="faint">{r.period}</span>
+                </p>
+                <h3 class="r-title">{r.title}</h3>
+                <ul>
+                  {r.points.map((p) => (
+                    <li>{p}</li>
+                  ))}
+                </ul>
+              </li>
+              {/* company-level work: the profile does not tie it to one of the two roles */}
+              {r.anchor === 'exp-intern' && (
+                <li id={gisNote.anchor} class="gis" data-reveal>
+                  <p class="mono">{gisNote.label}</p>
+                  <p class="g-t">{gisNote.title}</p>
+                  <p>{gisNote.text}</p>
+                </li>
+              )}
+            </>
+          ))
+        }
+      </ol>
+
+      <aside class="outcomes" aria-labelledby="out-title">
+        <p id="out-title" class="o-h mono" data-reveal>Selected outcomes</p>
+        <dl>
+          {
+            outcomes.map((o, i) => (
+              <div class="o" data-reveal data-reveal-delay={String(i * 0.05)}>
+                <dt class="mono">{o.label}</dt>
+                <dd>
+                  <span class="ov">{o.value}</span>
+                  <span class="or mono">{o.role}</span>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .exp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: start;
+  }
+  .roles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .role {
+    padding: clamp(20px, 2.6vw, 32px);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+    scroll-margin-top: calc(var(--hud-h) + 24px);
+  }
+  .role:target {
+    border-color: color-mix(in oklab, var(--t3) 55%, transparent);
+  }
+  .r-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 16px;
+    font-size: 0.72rem;
+    color: var(--t3);
+  }
+  .r-title {
+    margin-top: 12px;
+    font-size: 1.3rem;
+    font-weight: 560;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .role > ul {
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  .role > ul li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 0.96rem;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+  .role > ul li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.65em;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--t3);
+    opacity: 0.7;
+  }
+  .gis {
+    margin: 0;
+    padding: 16px 18px;
+    border-left: 2px solid var(--t5);
+    background: color-mix(in oklab, var(--t5) 5%, transparent);
+    border-radius: 0 10px 10px 0;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+    scroll-margin-top: calc(var(--hud-h) + 40px);
+  }
+  .gis .mono {
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--t5);
+  }
+  .g-t {
+    margin: 4px 0 6px;
+    color: var(--ink);
+    font-weight: 540;
+  }
+
+  .outcomes {
+    position: sticky;
+    top: calc(var(--hud-h) + 24px);
+  }
+  .o-h {
+    font-size: var(--fs-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .outcomes dl {
+    margin: 0;
+  }
+  .o {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .o dt {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .o dd {
+    margin: 6px 0 0;
+    display: grid;
+    gap: 4px;
+  }
+  .ov {
+    font-size: clamp(1.25rem, 2vw, 1.65rem);
+    font-weight: 560;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+  .or {
+    font-size: 0.7rem;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 960px) {
+    .exp-grid {
+      grid-template-columns: 1fr;
+    }
+    .outcomes {
+      position: static;
+      order: -1;
+    }
+  }
+</style>

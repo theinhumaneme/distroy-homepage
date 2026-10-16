@@ -1,16 +1,17 @@
 ---
+import { chapters } from '../data/content';
 interface Props {
-  n: string;
-  stage: string;
+  id: string;
   color?: string;
 }
-const { n, stage, color = 'var(--t1)' } = Astro.props;
+const { id, color = 'var(--t1)' } = Astro.props;
+const ch = chapters.find((c) => c.id === id)!;
 ---
 
 <header class="chap-head">
   <p class="chap-tag" style={`--c:${color}`} data-reveal>
-    <span>{n}</span><i></i><b>{stage}</b>
+    <span>{ch.n}</span><i></i><b>{ch.label}</b><em class="anno" aria-hidden="true">{ch.anno}</em>
   </p>
   <h2 class="chap-title" data-split><slot name="title" /></h2>
-  <div class="lede" data-reveal data-reveal-delay="0.15"><slot /></div>
+  {Astro.slots.has('default') && <div class="lede" data-reveal data-reveal-delay="0.15"><slot /></div>}
 </header>

@@ -16,6 +16,7 @@ const CLUSTER_COLOR: Record<string, string> = {
   systems: '#7cc4ff',
   product: '#ffc96b',
   teaching: '#6fe3c1',
+  academic: '#ff8a80',
 };
 
 export function createEngine(index: Index) {

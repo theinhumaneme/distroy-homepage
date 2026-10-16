@@ -6,12 +6,12 @@ import { suggestedQueries } from '../data/content';
 const index = buildIndex();
 ---
 
-<section id="retrieve" class="chapter query" data-stage="retrieve" data-field="3" data-field-level="0.45" aria-labelledby="q-title">
+<section id="explore" class="chapter query" data-stage="explore" data-field="3" data-field-level="0.45" aria-labelledby="q-title">
   <div class="wrap">
-    <ChapterHead n="03" stage="retrieve" color="var(--t5)">
-      <span slot="title" id="q-title">Don’t take my word. <span class="serif">Query it.</span></span>
-      Below is a working retrieval engine over {index.chunks.length} chunks of my work. Your query is embedded in your browser,
-      ranked by cosine similarity, and every result links to the evidence.
+    <ChapterHead id="explore" color="var(--t5)">
+      <span slot="title" id="q-title">Find the work <span class="serif">relevant to you.</span></span>
+      Search by problem, technology, or area of interest. Results highlight matching passages and link to the relevant project or
+      experience.
     </ChapterHead>
 
     <div class="q-grid">
@@ -19,7 +19,7 @@ const index = buildIndex();
         <form class="q-box" data-q-form role="search">
           <label class="sr-only" for="q-input">Search my work</label>
           <span class="gt mono" aria-hidden="true">›</span>
-          <input id="q-input" class="mono" type="search" autocomplete="off" spellcheck="false" placeholder="ask anything: rag, rust, latency…" data-q-input />
+          <input id="q-input" class="mono" type="search" autocomplete="off" spellcheck="false" placeholder="try: backend, deployment, RAG…" data-q-input />
           <kbd class="mono" aria-hidden="true">⏎</kbd>
         </form>
         <div class="sugg" aria-label="Suggested queries">
@@ -27,28 +27,32 @@ const index = buildIndex();
         </div>
 
         <div class="results" aria-live="polite">
-          <p class="r-head mono"><span data-r-meta>top-k = 6 · cosine</span><span data-r-ms></span></p>
+          <p class="r-head mono"><span data-r-meta>top 6 passages · score</span><span data-r-ms></span></p>
           <ol data-results></ol>
-          <p class="empty muted" data-empty hidden>No chunk matched. Try “LLM”, “Redis” or “privacy”.</p>
+          <p class="empty muted" data-empty hidden>Nothing matched. Try “backend”, “Redis” or “data visualization”.</p>
         </div>
+        <details class="how">
+          <summary class="mono">How this search works</summary>
+          <p>
+            Browser-local keyword retrieval using TF-IDF and related terms, ranked by cosine similarity over {index.chunks.length}
+            passages. The map combines text similarity with category grouping; distances are illustrative.
+          </p>
+        </details>
       </div>
 
       <figure class="panel space" data-reveal>
         <div class="panel-bar">
           <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span>vector space · drag to rotate</span>
+          <span>map of the work · drag to rotate</span>
           <span class="keys" aria-hidden="true">
-            <i style="--c:var(--t1)">ai</i><i style="--c:var(--t5)">systems</i><i style="--c:var(--t3)">product</i><i style="--c:var(--t2)">teaching</i>
+            <i style="--c:var(--t1)">ai</i><i style="--c:var(--t5)">systems</i><i style="--c:var(--t3)">product</i><i style="--c:var(--t2)">teaching</i><i style="--c:var(--t4)">academic</i>
           </span>
         </div>
         <div class="stage">
-          <canvas data-space aria-label="3D map of my work. Each point is a chunk of evidence, grouped by project."></canvas>
+          <canvas data-space aria-label="Illustrative 3D map of my work. Each point is a passage, grouped by project."></canvas>
           <div class="tip mono" data-tip hidden></div>
         </div>
-        <figcaption class="mono faint">
-          TF-IDF · {index.vocab.length} terms · {index.chunks.length} chunks · {index.docs.length} docs · laid out by similarity
-          (classical MDS)
-        </figcaption>
+        <figcaption class="mono faint">{index.chunks.length} passages · {index.docs.length} projects and roles · distances are illustrative</figcaption>
       </figure>
     </div>
   </div>
@@ -128,7 +132,7 @@ const index = buildIndex();
 
   .results {
     margin-top: 28px;
-    min-height: 560px;
+    min-height: 520px;
   }
   .r-head {
     display: flex;
@@ -221,6 +225,23 @@ const index = buildIndex();
     padding: 18px 4px;
     font-size: 0.9rem;
   }
+  .how {
+    margin-top: 18px;
+    font-size: 0.86rem;
+    color: var(--ink-2);
+  }
+  .how summary {
+    cursor: pointer;
+    font-size: 0.72rem;
+    color: var(--ink-3);
+  }
+  .how summary:hover {
+    color: var(--ink);
+  }
+  .how p {
+    margin-top: 10px;
+    max-width: 60ch;
+  }
 
   .space {
     margin: 0;
@@ -305,7 +326,7 @@ const index = buildIndex();
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
 
-  const COLORS: Record<string, string> = { ai: 'var(--t1)', systems: 'var(--t5)', product: 'var(--t3)', teaching: 'var(--t2)' };
+  const COLORS: Record<string, string> = { ai: 'var(--t1)', systems: 'var(--t5)', product: 'var(--t3)', teaching: 'var(--t2)', academic: 'var(--t4)' };
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const raw = document.getElementById('index-data')?.textContent;
@@ -356,7 +377,7 @@ const index = buildIndex();
     const run = (q: string) => {
       const t = performance.now();
       const hits = engine.search(q);
-      ms.textContent = q.trim() ? `${(performance.now() - t).toFixed(2)} ms · in-browser` : '';
+      ms.textContent = q.trim() ? `${hits.length} result${hits.length === 1 ? '' : 's'} · ${(performance.now() - t).toFixed(1)} ms` : '';
       space.setHits(hits);
       render(hits, q);
       suggs.forEach((b) => b.classList.toggle('on', b.dataset.sugg === q));
@@ -400,7 +421,7 @@ const index = buildIndex();
       trigger: canvas,
       start: 'top 70%',
       once: true,
-      onEnter: () => !input.value && typeQuery('RAG'),
+      onEnter: () => !input.value && typeQuery('backend'),
     });
 
     space.onHover((i, x, y) => {

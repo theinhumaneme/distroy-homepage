@@ -1,0 +1,63 @@
+---
+// Illustrative shape only: no real workout data is drawn here.
+const bars = [34, 52, 46, 61, 58, 72, 40, 66, 78, 70, 86, 92];
+---
+
+<div class="viz vz" data-viz="bars">
+  <p class="vz-h mono"><span style="--c:var(--t3)">weekly volume</span><span class="faint">illustrative · trend and records</span></p>
+  <svg viewBox="0 0 520 200" role="img" aria-label="Illustration: weekly training volume bars rise, a trend line draws over them and a star marks a personal record.">
+    {bars.map((b, i) => <rect x={24 + i * 40} y={170 - b * 1.4} width="26" height={b * 1.4} rx="5" fill="var(--t3)" fill-opacity={0.25 + (i / bars.length) * 0.6} data-bar />)}
+    <path
+      d={`M37 ${170 - bars[0] * 1.4 - 8} ` + bars.map((b, i) => `L${37 + i * 40} ${170 - b * 1.4 - 8}`).join(' ')}
+      fill="none"
+      stroke="var(--ink)"
+      stroke-width="1.4"
+      stroke-dasharray="2 4"
+      data-trend
+    />
+    <text x={37 + 11 * 40} y={170 - bars[11] * 1.4 - 18} text-anchor="middle" style="fill:var(--t3);font-size:14px" data-pr>★ PR</text>
+  </svg>
+</div>
+
+<style>
+  .vz {
+    padding: 16px 16px 10px;
+  }
+  .vz-h {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    font-size: 0.7rem;
+    margin-bottom: 10px;
+  }
+  .vz-h span:first-child {
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .vz-h span:first-child::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--c);
+  }
+</style>
+
+<script>
+  import { gsap, playWhenVisible } from '../../scripts/viz';
+
+  document.querySelectorAll<HTMLElement>('[data-viz="bars"]').forEach((root) => {
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.4 });
+    tl.set(root.querySelectorAll('[data-bar]'), { scaleY: 0, transformOrigin: '50% 100%' })
+      .set(root.querySelector('[data-trend]'), { opacity: 0 })
+      .set(root.querySelector('[data-pr]'), { opacity: 0, y: 6 })
+      .to(root.querySelectorAll('[data-bar]'), { scaleY: 1, duration: 0.8, ease: 'expo.out', stagger: 0.07 })
+      .to(root.querySelector('[data-trend]'), { opacity: 1, duration: 0.6 }, '>-0.2')
+      .to(root.querySelector('[data-pr]'), { opacity: 1, y: 0, duration: 0.5, ease: 'back.out(3)' }, '<0.2')
+      .to({}, { duration: 2 });
+    playWhenVisible(root, tl);
+  });
+</script>

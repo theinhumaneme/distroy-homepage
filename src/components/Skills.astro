@@ -1,25 +1,25 @@
 ---
-import ChapterHead from './ChapterHead.astro';
 import { buildSkills } from '../lib/build';
-import { docs } from '../data/content';
 
 const { rows, dims, max } = buildSkills();
 const flat = rows.flatMap((r) => r.cells);
 ---
 
-<section id="embed" class="chapter" data-stage="embed" data-field="2" data-field-level="0.55" aria-labelledby="emb-title">
+<section id="skills" class="chapter skills" data-stage="explore" data-field="2" data-field-level="0.45" aria-labelledby="sk-title">
   <div class="wrap">
-    <ChapterHead n="02" stage="embed" color="var(--t2)">
-      <span slot="title" id="emb-title">What I’m <span class="serif">made of.</span></span>
-      Every skill is a dimension. Brightness is <strong>evidence</strong>: how many of the {docs.length} pieces of work on
-      this page use it. It’s counted at build time, not self-rated.
-    </ChapterHead>
+    <header class="sk-head">
+      <h3 id="sk-title" class="sub-title" data-reveal>Skills connected to <span class="serif">actual work.</span></h3>
+      <p class="lede" data-reveal>
+        Explore the projects and roles where I used each technology. Highlight intensity reflects the number of listed examples, not
+        a proficiency rating.
+      </p>
+    </header>
 
     <div class="panel emb" data-reveal>
       <div class="panel-bar">
         <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span>embedding("kalyan") ∈ ℝ<sup>{dims}</sup></span>
-        <span class="legend" aria-hidden="true">1 <i></i> {max} docs</span>
+        <span>skills in practice · {dims} technologies</span>
+        <span class="legend" aria-hidden="true">1 <i></i> {max} examples</span>
       </div>
 
       <div class="strip" aria-hidden="true" data-strip>
@@ -33,14 +33,7 @@ const flat = rows.flatMap((r) => r.cells);
               <p class="rl mono">{r.label}</p>
               <ul class="cells">
                 {r.cells.map((c) => (
-                  <li
-                    tabindex="0"
-                    class="cell"
-                    style={`--w:${c.w}`}
-                    data-skill={c.skill}
-                    data-n={c.n}
-                    data-used={c.used.join(' · ')}
-                  >
+                  <li tabindex="0" class="cell" style={`--w:${c.w}`} data-skill={c.skill} data-n={c.n} data-used={c.used.join(' · ')}>
                     {c.skill}
                   </li>
                 ))}
@@ -51,13 +44,27 @@ const flat = rows.flatMap((r) => r.cells);
       </div>
 
       <p class="readout mono" aria-live="polite" data-readout>
-        <span class="faint">hover a dimension</span>
+        <span class="faint">hover or focus a skill to see where it was used</span>
       </p>
     </div>
   </div>
 </section>
 
 <style>
+  .skills {
+    padding-top: clamp(56px, 9vh, 110px);
+  }
+  .sk-head {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .sub-title {
+    font-size: var(--fs-h3);
+    letter-spacing: -0.04em;
+    font-weight: 560;
+    line-height: 1.05;
+  }
   .emb {
     overflow: hidden;
   }
@@ -188,9 +195,8 @@ const flat = rows.flatMap((r) => r.cells);
 
   const show = (el: HTMLElement) => {
     if (!readout) return;
-    const w = Number(getComputedStyle(el).getPropertyValue('--w')).toFixed(2);
     const n = el.dataset.n;
-    readout.innerHTML = `<b>${el.dataset.skill}</b>&nbsp; w=${w} · ${n} doc${n === '1' ? '' : 's'} · <span class="muted">${el.dataset.used}</span>`;
+    readout.innerHTML = `<b>${el.dataset.skill}</b>&nbsp; ${n} example${n === '1' ? '' : 's'}: <span class="muted">${el.dataset.used}</span>`;
   };
   matrix?.querySelectorAll<HTMLElement>('.cell').forEach((c) => {
     c.addEventListener('pointerenter', () => show(c));

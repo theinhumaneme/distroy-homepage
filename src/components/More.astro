@@ -1,0 +1,123 @@
+---
+import { moreWork } from '../data/content';
+
+const groups = [
+  { key: 'tools', title: 'Tools, systems and team work' },
+  { key: 'academic', title: 'Academic projects' },
+] as const;
+---
+
+<section class="chapter more" data-stage="explore" data-field="3" data-field-level="0.3" aria-labelledby="more-title">
+  <div class="wrap">
+    <h3 id="more-title" class="sub-title" data-reveal>More projects and experiments</h3>
+    {
+      groups.map((g) => (
+        <div class="grp">
+          <p class="grp-t mono" data-reveal>
+            {g.title}
+          </p>
+          <ul class="grid">
+            {moreWork
+              .filter((d) => d.group === g.key)
+              .map((d, i) => (
+                <li id={d.anchor} data-reveal data-reveal-delay={String(i * 0.05)}>
+                  {d.url ? (
+                    <a class="card" href={d.url} target="_blank" rel="noopener">
+                      <span class="top mono">
+                        <span>{d.tag}</span>
+                        <span aria-hidden="true">↗</span>
+                      </span>
+                      <span class="t">{d.title}</span>
+                      <span class="l">{d.line}</span>
+                    </a>
+                  ) : (
+                    <div class="card">
+                      <span class="top mono">
+                        <span>{d.tag}</span>
+                      </span>
+                      <span class="t">{d.title}</span>
+                      <span class="l">{d.line}</span>
+                    </div>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .more {
+    padding-top: 0;
+  }
+  .sub-title {
+    font-size: var(--fs-h3);
+    letter-spacing: -0.04em;
+    font-weight: 560;
+    line-height: 1.05;
+    margin-bottom: 28px;
+  }
+  .grp + .grp {
+    margin-top: 36px;
+  }
+  .grp-t {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .grid li {
+    scroll-margin-top: calc(var(--hud-h) + 40px);
+  }
+  .card {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    height: 100%;
+    padding: 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+    transition:
+      border-color 0.3s,
+      background 0.3s,
+      transform 0.4s var(--ease-out);
+  }
+  a.card:hover {
+    border-color: var(--line-3);
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-3px);
+  }
+  li:target .card {
+    border-color: var(--t2);
+  }
+  .top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--ink-3);
+  }
+  .t {
+    font-weight: 560;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+  }
+  .l {
+    font-size: 0.9rem;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+</style>

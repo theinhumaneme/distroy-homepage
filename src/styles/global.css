@@ -227,6 +227,15 @@ p {
   height: 1px;
   background: var(--line-3);
 }
+.chap-tag .anno {
+  font-style: normal;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--ink-4);
+}
+.chap-tag .anno::before {
+  content: '// ';
+}
 
 .chap-title {
   font-size: var(--fs-h2);

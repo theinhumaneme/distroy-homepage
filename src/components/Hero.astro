@@ -1,34 +1,29 @@
 ---
-import { hero, person, docs } from '../data/content';
-const nChunks = docs.reduce((a, d) => a + d.chunks.length, 0);
+import { hero, person } from '../data/content';
 import { tokenize } from '../lib/build';
 
 const nameToks = tokenize(person.name);
 // break the name onto two lines at the first token that starts a new word
 const breakAt = nameToks.findIndex((t, i) => i > 0 && t.t.startsWith(' '));
 const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
-const promptToks = tokenize(hero.prompt);
+const [s1, s2, s3] = hero.statement;
 ---
 
 <section id="top" class="hero" data-stage="top" data-field="0" aria-labelledby="hero-name">
   <div class="wrap hero-in">
-    <div class="prompt mono" data-hero-prompt>
+    <p class="prompt mono" aria-hidden="true">
       <span class="who">you</span>
-      <span class="gt" aria-hidden="true">›</span>
-      <span class="q" data-typed={hero.prompt}>{hero.prompt}</span><span class="caret" aria-hidden="true"></span>
-      <span class="meta" aria-hidden="true">{promptToks.length} tokens · temp 0.0</span>
-    </div>
-
-    <div class="status mono" data-hero-status data-chunks={nChunks} aria-hidden="true">
-      <span class="spin"></span><span data-status-text>retrieving context</span>
-    </div>
+      <span class="gt">›</span>
+      <span class="q" data-typed={hero.prompt}>{hero.prompt}</span><span class="caret"></span>
+      <span class="meta">o200k tokens shown under the name</span>
+    </p>
 
     <h1 id="hero-name" class="name" aria-label={person.name}>
       {
         lines.map((line, li) => (
           <span class="line" aria-hidden="true">
             {line.map((t, i) => (
-              <span class={`tok c${((li * 3 + i) % 5) + 1}`} title={`"${t.t.replace(' ', '␣')}" → ${t.id}`} data-name-tok>
+              <span class={`tok c${((li * 3 + i) % 5) + 1}`} title={`"${t.t.replace(' ', '␣')}" → token ${t.id}`} data-name-tok>
                 {li > 0 && i === 0 ? t.t.trimStart() : t.t}
                 <span class="tid mono">{t.id}</span>
               </span>
@@ -38,29 +33,26 @@ const promptToks = tokenize(hero.prompt);
       }
     </h1>
 
-    <p class="thesis" data-hero-thesis>
-      <span class="ln">{hero.thesisA} <em class="serif shimmer">{hero.thesisB}</em></span>
-      <span class="ln">{hero.thesisC} <em class="serif">{hero.thesisD}</em></span>
+    <p class="statement" data-hero-statement>
+      {s1} <em class="serif shimmer">{s2}</em> {s3}
     </p>
 
-    <div class="foot">
-      <p class="intro" data-hero-late>{hero.intro}</p>
-      <div class="side" data-hero-late>
-        <ul class="meta-list mono">
-          {hero.meta.map((m) => <li>{m}</li>)}
-        </ul>
+    <div class="foot" data-hero-late>
+      <p class="intro">{hero.intro}</p>
+      <div class="side">
+        <p class="meta-line mono">{hero.meta.join(' · ')}</p>
         <div class="ctas">
-          <a class="btn primary" href="#retrieve">Query my work <span class="arr">↓</span></a>
-          <a class="btn" href={person.github} target="_blank" rel="noopener">GitHub <span class="arr">↗</span></a>
-          <a class="btn" href={`mailto:${person.email}`}>Email <span class="arr">→</span></a>
+          <a class="btn primary" href="#work">Explore my work <span class="arr">↓</span></a>
+          <a class="btn" href={person.resume} download>Download resume <span class="arr">↓</span></a>
+          <a class="btn" href="#contact">Contact <span class="arr">→</span></a>
         </div>
       </div>
     </div>
   </div>
 
-  <a class="scroll mono" href="#tokenize" data-hero-late>
+  <a class="scroll mono" href="#work">
     <span class="bar" aria-hidden="true"><i></i></span>
-    scroll to run inference
+    Explore the work
   </a>
 </section>
 
@@ -71,12 +63,12 @@ const promptToks = tokenize(hero.prompt);
     min-height: 100svh;
     display: flex;
     align-items: center;
-    padding-top: calc(var(--hud-h) + 4vh);
-    padding-bottom: 14vh;
+    padding-top: calc(var(--hud-h) + 3vh);
+    padding-bottom: 10vh;
   }
   .hero-in {
     display: grid;
-    gap: clamp(18px, 3vh, 32px);
+    gap: clamp(14px, 2.4vh, 28px);
   }
 
   .prompt {
@@ -85,21 +77,22 @@ const promptToks = tokenize(hero.prompt);
     gap: 10px;
     justify-self: start;
     max-width: 100%;
-    padding: 10px 14px 10px 10px;
+    margin: 0;
+    padding: 9px 14px 9px 9px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--line-2);
-    font-size: clamp(0.8rem, 1.1vw, 0.95rem);
-    color: var(--ink);
+    font-size: clamp(0.78rem, 1vw, 0.9rem);
+    color: var(--ink-2);
   }
   .who {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 3px 7px;
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.06);
-    color: var(--ink-2);
+    color: var(--ink-3);
   }
   .gt {
     color: var(--t2);
@@ -116,8 +109,8 @@ const promptToks = tokenize(hero.prompt);
     margin-left: 10px;
     padding-left: 12px;
     border-left: 1px solid var(--line-2);
-    color: var(--ink-3);
-    font-size: 0.72rem;
+    color: var(--ink-4);
+    font-size: 0.7rem;
     white-space: nowrap;
   }
   @keyframes blink {
@@ -126,38 +119,14 @@ const promptToks = tokenize(hero.prompt);
     }
   }
 
-  .status {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    height: 0;
-    overflow: hidden;
-    font-size: 0.75rem;
-    color: var(--ink-3);
-    opacity: 0;
-  }
-  .spin {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 1.5px solid var(--ink-4);
-    border-top-color: var(--t2);
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   .name {
     display: grid;
     row-gap: 0.26em;
-    font-size: var(--fs-display);
+    font-size: clamp(3rem, 8vw, 8.2rem);
     line-height: 0.92;
     letter-spacing: -0.055em;
     font-weight: 600;
-    margin-top: 0.15em;
+    margin-top: 0.1em;
   }
   .line {
     display: block;
@@ -187,20 +156,20 @@ const promptToks = tokenize(hero.prompt);
     opacity: 0.85;
   }
 
-  .thesis {
-    display: grid;
-    margin-top: clamp(28px, 5vh, 56px);
-    font-size: clamp(1.7rem, 4vw, 3.6rem);
+  .statement {
+    margin-top: clamp(18px, 3.4vh, 40px);
+    max-width: 26ch;
+    font-size: clamp(1.8rem, 3.5vw, 3.3rem);
     line-height: 1.04;
-    letter-spacing: -0.035em;
-    font-weight: 500;
-    color: var(--ink);
+    letter-spacing: -0.04em;
+    font-weight: 540;
+    text-wrap: balance;
   }
-  .thesis em {
-    font-size: 1.12em;
-    letter-spacing: -0.01em;
+  .statement em {
+    font-size: 1.1em;
+    letter-spacing: -0.015em;
   }
-  /* SplitText wraps the word in its own elements, so the clip goes on those */
+  /* SplitText wraps the words in their own elements, so the clip goes on those */
   .shimmer,
   .shimmer :global(div) {
     background-image: linear-gradient(100deg, var(--t1) 10%, var(--t5) 35%, var(--t2) 55%, var(--t3) 75%, var(--t4) 95%);
@@ -209,7 +178,7 @@ const promptToks = tokenize(hero.prompt);
     background-clip: text;
     color: transparent;
     animation: shimmer 9s ease-in-out infinite alternate;
-    padding-right: 0.08em;
+    padding-right: 0.02em;
   }
   @keyframes shimmer {
     to {
@@ -222,12 +191,12 @@ const promptToks = tokenize(hero.prompt);
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
     gap: clamp(24px, 5vw, 80px);
     align-items: end;
-    margin-top: clamp(12px, 3vh, 28px);
+    margin-top: clamp(4px, 2vh, 20px);
   }
   .intro {
     font-size: var(--fs-lede);
     color: var(--ink-2);
-    max-width: 46ch;
+    max-width: 48ch;
     line-height: 1.5;
     text-wrap: pretty;
   }
@@ -236,31 +205,10 @@ const promptToks = tokenize(hero.prompt);
     gap: 18px;
     justify-items: start;
   }
-  .meta-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    font-size: 0.75rem;
+  .meta-line {
+    font-size: 0.76rem;
     color: var(--ink-3);
-  }
-  .meta-list li::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-right: 8px;
-    border-radius: 50%;
-    background: var(--t2);
-    vertical-align: 1px;
-  }
-  .meta-list li:nth-child(2)::before {
-    background: var(--t1);
-  }
-  .meta-list li:nth-child(3)::before {
-    background: var(--t3);
+    letter-spacing: 0.02em;
   }
   .ctas {
     display: flex;
@@ -307,9 +255,7 @@ const promptToks = tokenize(hero.prompt);
     .foot {
       grid-template-columns: 1fr;
     }
-    .meta {
-      display: none;
-    }
+    .meta,
     .scroll {
       display: none;
     }
@@ -324,36 +270,26 @@ const promptToks = tokenize(hero.prompt);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const root = document.querySelector('.hero');
 
+  // Everything enters together within a second; nothing waits on the typing.
   if (root && !reduce) {
     const q = root.querySelector<HTMLElement>('[data-typed]')!;
     const full = q.dataset.typed ?? '';
-    const status = root.querySelector<HTMLElement>('[data-hero-status]')!;
-    const statusText = root.querySelector<HTMLElement>('[data-status-text]')!;
     const toks = root.querySelectorAll<HTMLElement>('[data-name-tok]');
-    const thesis = root.querySelector<HTMLElement>('[data-hero-thesis]')!;
+    const statement = root.querySelector<HTMLElement>('[data-hero-statement]')!;
     const late = root.querySelectorAll<HTMLElement>('[data-hero-late]');
-    const split = SplitText.create(thesis, { type: 'words', mask: 'words' });
-
-    q.textContent = '';
-    gsap.set(toks, { opacity: 0, y: '0.25em', filter: 'blur(14px)' });
-    gsap.set(split.words, { yPercent: 110 });
-    gsap.set(late, { opacity: 0, y: 24 });
+    const split = SplitText.create(statement, { type: 'words', mask: 'words' });
 
     const typed = { n: 0 };
-    const tl = gsap.timeline({ delay: 0.35 });
-    tl.to(typed, {
+    q.textContent = '';
+    gsap.to(typed, {
       n: full.length,
-      duration: full.length * 0.042,
+      duration: full.length * 0.035,
       ease: 'none',
+      delay: 0.15,
       onUpdate: () => (q.textContent = full.slice(0, Math.round(typed.n))),
-    })
-      .to(status, { height: 22, opacity: 1, duration: 0.35, ease: 'power2.out' }, '+=0.2')
-      .call(() => (statusText.textContent = `retrieving from ${status.dataset.chunks} chunks`), [], '+=0.0')
-      .call(() => (statusText.textContent = 'reranking'), [], '+=0.45')
-      .call(() => (statusText.textContent = 'generating'), [], '+=0.35')
-      .to(status, { height: 0, opacity: 0, duration: 0.35, ease: 'power2.in' }, '+=0.25')
-      .to(toks, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.9, ease: 'expo.out', stagger: 0.11 }, '-=0.1')
-      .to(split.words, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.045 }, '-=0.55')
-      .to(late, { opacity: 1, y: 0, duration: 1, ease: 'expo.out', stagger: 0.1 }, '-=0.7');
+    });
+    gsap.from(toks, { opacity: 0, y: '0.2em', filter: 'blur(12px)', duration: 0.9, ease: 'expo.out', stagger: 0.06, delay: 0.05 });
+    gsap.from(split.words, { yPercent: 110, duration: 1, ease: 'expo.out', stagger: 0.03, delay: 0.2 });
+    gsap.from(late, { opacity: 0, y: 18, duration: 0.9, ease: 'expo.out', delay: 0.3 });
   }
 </script>

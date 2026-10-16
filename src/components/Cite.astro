@@ -1,21 +1,17 @@
 ---
-import { sources, citeIndex } from '../data/content';
+// Renders a citation chip only when the source has a public URL.
+import { sourceById } from '../data/content';
 interface Props {
-  src: string;
+  src?: string;
 }
-const n = citeIndex(Astro.props.src);
-const s = sources[n - 1];
-const tip = `${s.label} · ${s.detail}`;
+const s = Astro.props.src ? sourceById(Astro.props.src) : undefined;
+const tip = s ? `${s.label} · ${s.detail}` : '';
 ---
 
 {
-  s.url ? (
-    <a class="cite" href={s.url} target="_blank" rel="noopener" data-tip={tip} aria-label={`Source ${n}: ${tip}`}>
-      {n}
-    </a>
-  ) : (
-    <a class="cite" href={`#ref-${n}`} data-tip={tip} aria-label={`Source ${n}: ${tip}`}>
-      {n}
+  s?.url && (
+    <a class="cite" href={s.url} target="_blank" rel="noopener" data-tip={tip} aria-label={`Source: ${tip}`}>
+      ↗
     </a>
   )
 }

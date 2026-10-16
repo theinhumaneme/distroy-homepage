@@ -1,17 +1,5 @@
 ---
-interface Props {
-  total: number;
-}
-const { total } = Astro.props;
-const stages = [
-  ['prompt', 'top'],
-  ['tokenize', 'tokenize'],
-  ['embed', 'embed'],
-  ['retrieve', 'retrieve'],
-  ['attend', 'attend'],
-  ['model card', 'card'],
-  ['generate', 'generate'],
-];
+import { chapters } from '../data/content';
 ---
 
 <header class="hud">
@@ -20,21 +8,19 @@ const stages = [
     <span>kalyan<span class="faint">.</span>mudumby</span>
   </a>
 
-  <nav class="stages mono" aria-label="Chapters">
+  <nav class="stages" aria-label="Sections">
     {
-      stages.map(([label, id], i) => (
-        <a href={`#${id}`} data-stage-link>
-          <span class="i">{String(i).padStart(2, '0')}</span>
-          {label}
+      chapters.map((c) => (
+        <a href={`#${c.id}`} data-stage-link>
+          {c.label === 'Explore my work' ? 'Explore' : c.label}
         </a>
       ))
     }
   </nav>
 
-  <div class="ctx mono" title="Tokens of this page's content you have scrolled through">
-    <span class="lbl">ctx</span>
-    <span class="num"><span data-ctx-count data-total={total}>0</span><span class="faint">/{total.toLocaleString('en-US')}</span></span>
-    <span class="track" aria-hidden="true"><span class="fill" data-ctx-fill></span></span>
+  <div class="where mono" aria-hidden="true">
+    <span class="num" data-where>01 / 06 · Introduction</span>
+    <span class="track"><span class="fill" data-progress></span></span>
   </div>
 </header>
 
@@ -49,7 +35,9 @@ const stages = [
     align-items: center;
     gap: 24px;
     padding-inline: var(--gutter);
-    transition: background 0.4s, border-color 0.4s;
+    transition:
+      background 0.4s,
+      border-color 0.4s;
     border-bottom: 1px solid transparent;
   }
   .hud:global(.scrolled) {
@@ -88,59 +76,47 @@ const stages = [
   }
   .stages {
     display: flex;
-    gap: 4px;
+    gap: 2px;
     padding: 4px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.025);
     border: 1px solid var(--line);
-    font-size: 0.7rem;
+    font-size: 0.8rem;
   }
   .stages a {
-    display: inline-flex;
-    gap: 6px;
-    align-items: center;
-    padding: 6px 11px;
+    padding: 6px 13px;
     border-radius: 999px;
     color: var(--ink-3);
-    transition: color 0.3s, background 0.3s;
+    transition:
+      color 0.3s,
+      background 0.3s;
     white-space: nowrap;
-  }
-  .stages a .i {
-    color: var(--ink-4);
-    transition: color 0.3s;
   }
   .stages a:hover {
     color: var(--ink);
   }
   .stages a:global(.on) {
     color: var(--ink);
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.08);
   }
-  .stages a:global(.on) .i {
-    color: var(--t2);
-  }
-  .ctx {
+  .where {
     justify-self: end;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     font-size: 0.7rem;
-    color: var(--ink-2);
-  }
-  .ctx .lbl {
     color: var(--ink-3);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
   }
-  .ctx .num {
-    font-variant-numeric: tabular-nums;
-    min-width: 11ch;
-    text-align: right;
+  .where .num {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 52vw;
   }
   .track {
     width: 84px;
-    height: 4px;
-    border-radius: 4px;
+    height: 3px;
+    border-radius: 3px;
     background: var(--line-2);
     overflow: hidden;
   }
@@ -157,12 +133,12 @@ const stages = [
       display: none;
     }
     .hud {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: auto 1fr;
     }
   }
   @media (max-width: 420px) {
     .track {
-      width: 48px;
+      width: 40px;
     }
   }
 </style>

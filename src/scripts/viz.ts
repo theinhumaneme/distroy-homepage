@@ -24,7 +24,10 @@ export function playWhenVisible(root: Element, tl: gsap.core.Timeline) {
     tl.progress(1).pause();
     return;
   }
-  new IntersectionObserver(([e]) => (e.isIntersecting ? tl.play() : tl.pause()), { threshold: 0.2 }).observe(root);
+  // a diagram can mark itself busy (e.g. while an on-demand action plays)
+  new IntersectionObserver(([e]) => (e.isIntersecting && (root as HTMLElement).dataset.busy !== '1' ? tl.play() : tl.pause()), {
+    threshold: 0.2,
+  }).observe(root);
 }
 
 /** Light a node's box up, then let it settle back. */

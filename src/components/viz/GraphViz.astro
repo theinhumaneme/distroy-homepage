@@ -4,7 +4,7 @@ const fields = ['topic', 'research', 'code', 'article', 'diagrams', 'errors[]'];
 
 <div class="viz" data-viz="graph">
   <p class="viz-status" data-status>PipelineState ← topic</p>
-  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: a LangGraph pipeline. Research and teaching, then code with a JSON repair loop, then writing, then Mermaid validation with a fix loop back to writing, then a published article. All agents share one typed state.">
+  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: research and teaching, then code generation with a bounded JSON repair loop, then writing, then a separate Mermaid validation tool step with a bounded fix loop back to writing, then the finished article. The stages share one typed state.">
     <path class="wire" data-p="e1" d="M170 106 L205 106" />
     <path class="wire" data-p="e2" d="M335 106 L370 106" />
     <path class="wire" data-p="e3" d="M445 132 L445 200" />
@@ -15,8 +15,8 @@ const fields = ['topic', 'research', 'code', 'article', 'diagrams', 'errors[]'];
     <text x="548" y="170" text-anchor="end" style="fill:var(--t4)">fix ≤ 5</text>
 
     <g><rect class="box" data-n="rt" x="20" y="80" width="150" height="52" rx="12" /><text class="lbl" x="95" y="103" text-anchor="middle">research_teaching</text><text class="sub" x="95" y="119" text-anchor="middle">agent</text></g>
-    <g><rect class="box" data-n="code" x="205" y="80" width="130" height="52" rx="12" /><text class="lbl" x="270" y="103" text-anchor="middle">code</text><text class="sub" x="270" y="119" text-anchor="middle">source of truth</text></g>
-    <g><rect class="box" data-n="write" x="370" y="80" width="150" height="52" rx="12" /><text class="lbl" x="445" y="103" text-anchor="middle">writing</text><text class="sub" x="445" y="119" text-anchor="middle">embeds code verbatim</text></g>
+    <g><rect class="box" data-n="code" x="205" y="80" width="130" height="52" rx="12" /><text class="lbl" x="270" y="103" text-anchor="middle">code</text><text class="sub" x="270" y="119" text-anchor="middle">generates code</text></g>
+    <g><rect class="box" data-n="write" x="370" y="80" width="150" height="52" rx="12" /><text class="lbl" x="445" y="103" text-anchor="middle">writing</text><text class="sub" x="445" y="119" text-anchor="middle">reuses code verbatim</text></g>
     <g><rect class="box" data-n="mv" x="370" y="200" width="150" height="52" rx="12" /><text class="lbl" x="445" y="223" text-anchor="middle">mermaid_validation</text><text class="sub" x="445" y="239" text-anchor="middle">mmdc · tool node</text></g>
     <g><rect class="box" data-n="out" x="152" y="200" width="170" height="52" rx="12" /><text class="lbl" x="237" y="223" text-anchor="middle">article.md</text><text class="sub" x="237" y="239" text-anchor="middle">→ Hugo static site</text></g>
 
@@ -74,7 +74,7 @@ const fields = ['topic', 'research', 'code', 'article', 'diagrams', 'errors[]'];
     light('code', C.t3);
     travel(tl, pkt, p('e2'), 0.45);
     glow(tl, n('write'), C.t1, '>', 0.3);
-    say(tl, status, 'writing agent embeds code verbatim', C.t1, '<');
+    say(tl, status, 'writing stage reuses the code verbatim', C.t1, '<');
     light('article', C.t1);
     travel(tl, pkt, p('e3'), 0.45);
     glow(tl, n('mv'), C.t4, '>', 0.3);
@@ -89,7 +89,7 @@ const fields = ['topic', 'research', 'code', 'article', 'diagrams', 'errors[]'];
     light('diagrams', C.t5);
     travel(tl, pkt, p('out'), 0.45);
     glow(tl, n('out'), C.t2, '>', 0.8);
-    say(tl, status, 'published · prose, code and diagrams in sync', C.t2, '<');
+    say(tl, status, 'article written · Hugo-ready Markdown', C.t2, '<');
     tl.to(pkt, { opacity: 0, duration: 0.3 }, '<');
     tl.to(root.querySelectorAll('[data-field-chip] rect'), { stroke: 'rgba(238,237,232,.12)', fill: 'rgba(255,255,255,.03)', duration: 0.5 }, '>0.6');
 

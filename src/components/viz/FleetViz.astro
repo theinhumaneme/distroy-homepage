@@ -14,20 +14,20 @@ const hex = Array.from({ length: 6 }, (_, i) => {
 ---
 
 <div class="viz" data-viz="fleet">
-  <p class="viz-status" data-status>git push → desired state</p>
-  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: a central control plane broadcasts encrypted config envelopes over WebSockets to agents. Each agent reconciles against its last-applied state. A disconnected agent reconnects with exponential backoff.">
+  <p class="viz-status" data-status>Configuration updated</p>
+  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: after the configuration is updated, a server pushes it to agents over persistent connections. Each agent compares it with its last-applied state and updates only the affected stacks. A disconnected agent reconnects automatically.">
     {agents.map((a, i) => <path class="wire" data-wire={i} d={`M${cx} ${cy} L${a.x} ${a.y}`} />)}
 
     <polygon points={hex} class="box" data-n="cp" />
-    <text class="lbl" x={cx} y={cy - 4} text-anchor="middle">control plane</text>
-    <text class="sub" x={cx} y={cy + 12} text-anchor="middle">Axum · PostgreSQL</text>
+    <text class="lbl" x={cx} y={cy - 4} text-anchor="middle">server</text>
+    <text class="sub" x={cx} y={cy + 12} text-anchor="middle">one configuration</text>
 
     {
       agents.map((a, i) => (
         <g data-agent={i}>
           <circle cx={a.x} cy={a.y} r="26" class="box" data-ring={i} />
           <text class="lbl" x={a.x} y={a.y + 4} text-anchor="middle">agent</text>
-          <text class="sub" x={a.x} y={a.y + 44} text-anchor="middle" data-agent-lbl={i}>reconciled</text>
+          <text class="sub" x={a.x} y={a.y + 44} text-anchor="middle" data-agent-lbl={i}>up to date</text>
         </g>
       ))
     }
@@ -40,7 +40,7 @@ const hex = Array.from({ length: 6 }, (_, i) => {
         </g>
       ))
     }
-    <text x="20" y="390" class="sub">AES-256-CBC payload · RSA-4096 OAEP key envelope · WebSockets</text>
+    <text x="20" y="390" class="sub">illustrative · agents on each machine, persistent connections</text>
   </svg>
 </div>
 
@@ -67,28 +67,28 @@ const hex = Array.from({ length: 6 }, (_, i) => {
           label,
         );
         tl.to(e, { opacity: 0, duration: 0.15 }, `${label}+=0.8`);
-        tl.call(() => (lbls[i].textContent = 'diff → apply'), [], `${label}+=0.8`);
+        tl.call(() => (lbls[i].textContent = 'update changed stacks'), [], `${label}+=0.8`);
         glow(tl, rings[i], C.t2, `${label}+=0.8`, 0.5);
-        tl.call(() => (lbls[i].textContent = 'reconciled'), [], `${label}+=1.9`);
+        tl.call(() => (lbls[i].textContent = 'up to date'), [], `${label}+=1.9`);
       });
     };
 
     const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
-    say(tl, status, 'git push → new desired state', C.ink);
+    say(tl, status, 'Configuration updated', C.ink);
     glow(tl, $('[data-n="cp"]'), C.t3, '>0.2', 0.4);
-    say(tl, status, 'broadcast sealed config to every agent', C.t3, '<');
+    say(tl, status, 'pushing the update to every agent', C.t3, '<');
     broadcast(tl, [], '<');
     // one agent drops off and comes back
     say(tl, status, 'agent lost connection', C.t4, '>0.6');
     tl.to(wires[DOWN], { opacity: 0.15, duration: 0.3 }, '<')
       .to(root.querySelector(`[data-agent="${DOWN}"]`), { opacity: 0.35, duration: 0.3 }, '<')
       .call(() => (lbls[DOWN].textContent = 'offline'), [], '<');
-    ['retry in 1s', 'retry in 2s', 'retry in 4s'].forEach((t, i) => {
+    ['reconnecting…', 'reconnecting…', 'reconnecting…'].forEach((t, i) => {
       tl.call(() => (lbls[DOWN].textContent = t), [], `>${i ? 0.5 : 0.3}`);
     });
-    say(tl, status, 'reconnected · exponential backoff', C.t2, '>0.5');
+    say(tl, status, 'agent reconnected automatically', C.t2, '>0.5');
     tl.to(wires[DOWN], { opacity: 1, duration: 0.3 }, '<').to(root.querySelector(`[data-agent="${DOWN}"]`), { opacity: 1, duration: 0.3 }, '<');
-    say(tl, status, 'reconcile against last-applied state', C.t2, '>0.2');
+    say(tl, status, 'compare with last-applied state, update what changed', C.t2, '>0.2');
     broadcast(
       tl,
       envs.map((_, i) => i).filter((i) => i !== DOWN),

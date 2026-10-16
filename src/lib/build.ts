@@ -2,7 +2,7 @@
 // tokenizer tables and the maths never reach the browser.
 import { encode, decode } from 'gpt-tokenizer/encoding/o200k_base';
 import { terms } from './text';
-import { docs, roles, themes, skillRows, type Cluster } from '../data/content';
+import { docs, skillRows, type Cluster } from '../data/content';
 
 /* ---------------------------------------------------------------- tokens */
 
@@ -83,6 +83,7 @@ const ANCHOR: Record<Cluster, [number, number, number]> = {
   systems: [0.95, -0.15, -0.25],
   product: [0.05, 0.95, 0.05],
   teaching: [0.35, -1.05, 0.4],
+  academic: [-0.55, 0.9, -0.45],
 };
 
 export const buildIndex = () => {
@@ -169,14 +170,3 @@ export const buildSkills = () => {
   }));
   return { rows, max, dims: rows.reduce((a, r) => a + r.cells.length, 0) };
 };
-
-/* ------------------------------------------------------------- attention */
-
-/** softmax(evidence / tau) per role: each row of the heatmap sums to 1. */
-export const buildAttention = (tau = 0.85) =>
-  roles.map((r) => {
-    const counts = themes.map((t) => r.evidence.filter((e) => e.includes(t)).length);
-    const ex = counts.map((c) => Math.exp(c / tau));
-    const z = ex.reduce((a, b) => a + b, 0);
-    return { key: r.key, counts, weights: ex.map((e) => +(e / z).toFixed(3)) };
-  });

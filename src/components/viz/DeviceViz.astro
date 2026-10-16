@@ -4,60 +4,78 @@ const json = ['{', '  "vendor": "…",', '  "date": "…",', '  "line_items": [�
 
 <div class="viz" data-viz="device">
   <p class="viz-status" data-status>waiting for a file</p>
-  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: a file is dropped inside a boundary labelled your machine. A local vision model reads it and structured JSON comes out. Only an optional MCP sync crosses the boundary.">
-    <rect x="16" y="58" width="404" height="326" rx="20" fill="rgba(111,227,193,.025)" stroke="var(--t2)" stroke-opacity=".45" stroke-dasharray="5 6" />
-    <text x="36" y="84" style="fill:var(--t2)">your machine · on-device</text>
+  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: a file is dropped inside a boundary labelled your machine. A local vision model reads it and structured data comes out. Sending results to Google Sheets is a separate, optional action.">
+    <rect x="16" y="40" width="404" height="344" rx="20" fill="rgba(111,227,193,.025)" stroke="var(--t2)" stroke-opacity=".45" stroke-dasharray="5 6" />
+    <text x="36" y="66" style="fill:var(--t2)">your machine</text>
 
-    <!-- drop zone -->
-    <rect x="40" y="104" width="130" height="150" rx="14" fill="none" stroke="rgba(238,237,232,.14)" stroke-dasharray="4 5" data-drop />
-    <text x="105" y="276" text-anchor="middle" class="sub">drop a file</text>
+    <rect x="40" y="96" width="130" height="150" rx="14" fill="none" stroke="rgba(238,237,232,.14)" stroke-dasharray="4 5" data-drop />
+    <text x="105" y="268" text-anchor="middle" class="sub">drop a file</text>
 
     <g data-doc>
-      <rect x="66" y="122" width="78" height="104" rx="8" fill="#16161f" stroke="rgba(238,237,232,.22)" />
-      <rect x="78" y="138" width="40" height="6" rx="3" fill="rgba(238,237,232,.4)" />
-      <rect x="78" y="154" width="54" height="4" rx="2" fill="rgba(238,237,232,.16)" />
-      <rect x="78" y="164" width="48" height="4" rx="2" fill="rgba(238,237,232,.16)" />
-      <rect x="78" y="174" width="54" height="4" rx="2" fill="rgba(238,237,232,.16)" />
-      <rect x="78" y="196" width="24" height="4" rx="2" fill="rgba(238,237,232,.16)" />
-      <rect x="110" y="194" width="22" height="8" rx="2" fill="var(--t3)" fill-opacity=".6" />
-      <text x="105" y="218" text-anchor="middle" class="sub">invoice.pdf</text>
-      <rect x="66" y="122" width="78" height="3" fill="var(--t2)" data-scan style="opacity:0" />
+      <rect x="66" y="114" width="78" height="104" rx="8" fill="#16161f" stroke="rgba(238,237,232,.22)" />
+      <rect x="78" y="130" width="40" height="6" rx="3" fill="rgba(238,237,232,.4)" />
+      <rect x="78" y="146" width="54" height="4" rx="2" fill="rgba(238,237,232,.16)" />
+      <rect x="78" y="156" width="48" height="4" rx="2" fill="rgba(238,237,232,.16)" />
+      <rect x="78" y="166" width="54" height="4" rx="2" fill="rgba(238,237,232,.16)" />
+      <rect x="78" y="188" width="24" height="4" rx="2" fill="rgba(238,237,232,.16)" />
+      <rect x="110" y="186" width="22" height="8" rx="2" fill="var(--t3)" fill-opacity=".6" />
+      <text x="105" y="210" text-anchor="middle" class="sub">invoice</text>
+      <rect x="66" y="114" width="78" height="3" fill="var(--t2)" data-scan style="opacity:0" />
     </g>
 
-    <!-- model -->
-    <path class="wire" data-p="dm" d="M170 180 L206 180" />
+    <path class="wire" data-p="dm" d="M170 172 L206 172" />
     <g>
-      <rect class="box" data-n="model" x="206" y="118" width="190" height="64" rx="14" />
-      <text class="lbl" x="301" y="144" text-anchor="middle">Llama 3.2 Vision 11B</text>
-      <text class="sub" x="301" y="162" text-anchor="middle">local · Podman AI Lab</text>
+      <rect class="box" data-n="model" x="206" y="110" width="190" height="64" rx="14" />
+      <text class="lbl" x="301" y="136" text-anchor="middle">local vision model</text>
+      <text class="sub" x="301" y="154" text-anchor="middle">served on-device</text>
     </g>
-    <path class="wire" data-p="mj" d="M301 182 L301 214" />
+    <path class="wire" data-p="mj" d="M301 174 L301 206" />
 
-    <!-- json -->
     <g>
-      <rect class="box" data-n="json" x="206" y="214" width="190" height="146" rx="14" />
-      {json.map((l, i) => <text x="224" y={240 + i * 19} data-json-line style="fill:var(--ink-2);opacity:0">{l}</text>)}
+      <rect class="box" data-n="json" x="206" y="206" width="190" height="154" rx="14" />
+      {json.map((l, i) => <text x="224" y={232 + i * 19} data-json-line style="fill:var(--ink-2);opacity:0">{l}</text>)}
       <text x="380" y="350" text-anchor="end" class="sub">illustrative shape</text>
     </g>
 
-    <!-- outside -->
-    <path class="wire dash" data-p="mcp" d="M396 287 C440 287 448 240 470 240" />
-    <text x="430" y="306" class="sub">optional · MCP</text>
-    <g>
-      <rect class="box" data-n="sheets" x="440" y="206" width="104" height="54" rx="12" />
-      <text class="lbl" x="492" y="230" text-anchor="middle">Sheets</text>
-      <text class="sub" x="492" y="246" text-anchor="middle">only if you ask</text>
-    </g>
-
-    <g transform="translate(468 104)">
-      <path d="M8 26 a12 12 0 0 1 4-23 a16 16 0 0 1 30 4 a10 10 0 0 1 2 19 z" fill="none" stroke="rgba(238,237,232,.25)" />
-      <line x1="2" y1="32" x2="50" y2="-4" stroke="var(--t4)" stroke-width="1.6" />
-      <text x="26" y="52" text-anchor="middle" class="sub">no cloud</text>
+    <path class="wire dash" data-p="mcp" d="M396 283 C440 283 448 236 470 236" style="opacity:.35" data-mcp-wire />
+    <g style="opacity:.45" data-sheets>
+      <rect class="box" data-n="sheets" x="440" y="202" width="104" height="54" rx="12" />
+      <text class="lbl" x="492" y="226" text-anchor="middle">Sheets</text>
+      <text class="sub" x="492" y="242" text-anchor="middle">via MCP</text>
     </g>
 
     <circle class="pkt" r="5.5" cx="0" cy="0" data-pkt style="opacity:0" />
   </svg>
+  <button type="button" class="sync mono" data-sync>Send results to Sheets <span class="faint">(optional)</span></button>
 </div>
+
+<style>
+  .sync {
+    position: absolute;
+    right: 8px;
+    top: -40px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    color: var(--t3);
+    background: color-mix(in oklab, var(--t3) 8%, transparent);
+    border: 1px solid color-mix(in oklab, var(--t3) 35%, transparent);
+    transition: background 0.2s;
+  }
+  .sync:hover {
+    background: color-mix(in oklab, var(--t3) 16%, transparent);
+  }
+  .sync[disabled] {
+    opacity: 0.5;
+    cursor: default;
+  }
+  @media (max-width: 520px) {
+    .sync {
+      position: static;
+      margin: 8px 0 0 8px;
+    }
+  }
+</style>
 
 <script>
   import { gsap, C, playWhenVisible, glow, travel, say } from '../../scripts/viz';
@@ -71,27 +89,49 @@ const json = ['{', '  "vendor": "…",', '  "date": "…",', '  "line_items": [�
     const doc = $('[data-doc]')!;
     const scan = $('[data-scan]')!;
     const lines = root.querySelectorAll('[data-json-line]');
+    const btn = $('[data-sync]') as HTMLButtonElement;
 
-    const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
+    // The default loop never leaves the machine.
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.4 });
     say(tl, status, 'drop a file', C.ink);
     tl.set(lines, { opacity: 0 })
       .fromTo(doc, { y: -70, opacity: 0, rotate: -6, transformOrigin: '50% 50%' }, { y: 0, opacity: 1, rotate: 0, duration: 0.8, ease: 'bounce.out' })
       .to($('[data-drop]'), { stroke: C.t2, duration: 0.3 }, '<0.4')
       .to($('[data-drop]'), { stroke: 'rgba(238,237,232,.14)', duration: 0.6 }, '>0.4');
-    say(tl, status, 'vision model reading on-device', C.t1, '<');
+    say(tl, status, 'local vision model reading the invoice', C.t1, '<');
     glow(tl, n('model'), C.t1, '<', 1.4);
     tl.set(scan, { opacity: 1, y: 0 }, '<').to(scan, { y: 100, duration: 0.7, ease: 'sine.inOut', repeat: 2, yoyo: true }, '<');
     tl.set(scan, { opacity: 0 });
     travel(tl, pkt, p('mj'), 0.35);
-    say(tl, status, 'structured JSON · re-prompt once if malformed', C.t2, '<');
-    glow(tl, n('json'), C.t2, '>', 1.4);
+    say(tl, status, 'structured data · re-prompt once if malformed', C.t2, '<');
+    glow(tl, n('json'), C.t2, '>', 1.6);
     tl.to(lines, { opacity: 1, duration: 0.15, stagger: 0.14 }, '<');
     tl.to(pkt, { opacity: 0, duration: 0.2 }, '<');
-    say(tl, status, 'optional: sync to Sheets over MCP', C.t3, '>0.2');
-    travel(tl, pkt, p('mcp'), 0.7, '<');
-    glow(tl, n('sheets'), C.t3, '>', 0.6);
-    tl.to([pkt, doc], { opacity: 0, duration: 0.4 }, '>0.2');
+    tl.to(doc, { opacity: 0, duration: 0.4 }, '>0.6');
 
     playWhenVisible(root, tl);
+
+    // Syncing happens only when asked.
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      root.dataset.busy = '1';
+      tl.pause();
+      const s = gsap.timeline({
+        onComplete: () => {
+          btn.disabled = false;
+          root.dataset.busy = '';
+          tl.play();
+        },
+      });
+      s.set(lines, { opacity: 1 });
+      say(s, status, 'sending extracted results over MCP', C.t3);
+      s.to([$('[data-mcp-wire]'), $('[data-sheets]')], { opacity: 1, duration: 0.3 });
+      s.set(pkt, { x: 396, y: 283 });
+      travel(s, pkt, p('mcp'), 0.8);
+      glow(s, n('sheets'), C.t3, '>', 0.8);
+      say(s, status, 'synced to Google Sheets', C.t3, '<');
+      s.to(pkt, { opacity: 0, duration: 0.2 }, '<');
+      s.to([$('[data-mcp-wire]'), $('[data-sheets]')], { opacity: (i: number) => (i === 0 ? 0.35 : 0.45), duration: 0.5 }, '>0.4');
+    });
   });
 </script>

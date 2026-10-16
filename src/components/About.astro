@@ -1,0 +1,296 @@
+---
+import ChapterHead from './ChapterHead.astro';
+import { about } from '../data/content';
+import { tokenize } from '../lib/build';
+
+const toks = tokenize(about.intro);
+---
+
+<section id="about" class="chapter" data-stage="about" data-field="1" data-field-level="0.22" aria-labelledby="about-title">
+  <div class="wrap">
+    <ChapterHead id="about" color="var(--t4)">
+      <span slot="title" id="about-title">About <span class="serif">me.</span></span>
+    </ChapterHead>
+
+    <div class="intro-wrap">
+      <div class="modes mono" role="group" aria-label="How to show this paragraph" data-reveal>
+        <button type="button" data-mode="text" aria-pressed="true">text</button>
+        <button type="button" data-mode="tokens" aria-pressed="false">tokens</button>
+      </div>
+      <p class="intro" data-intro data-reveal>
+        <span class="as-text">{about.intro}</span>
+        <span class="as-tokens" aria-hidden="true">
+          {toks.map((t, i) => <span class={`tk c${(i % 5) + 1}`} title={`token ${t.id}`}>{t.t}</span>)}
+        </span>
+      </p>
+      <p class="tok-note mono faint" data-tok-note hidden>{toks.length} o200k tokens · {about.intro.length} characters</p>
+    </div>
+
+    <div class="ab-grid">
+      <section class="col" data-reveal>
+        <h3 class="mono">Education</h3>
+        <ul class="edu">
+          {
+            about.education.map((e) => (
+              <li>
+                <p class="e-n">{e.name}</p>
+                <p class="e-w">{e.what}</p>
+                <p class="mono faint e-d">{e.when}</p>
+              </li>
+            ))
+          }
+        </ul>
+        <h3 class="mono">Current coursework</h3>
+        <ul class="course">
+          {
+            about.coursework.map((c) => (
+              <li>
+                <span class="mono code">{c.code}</span>
+                <span>{c.title}</span>
+                {c.now && <span class="now mono">in progress</span>}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section class="col" data-reveal data-reveal-delay="0.06">
+        <h3 class="mono">Awards and certifications</h3>
+        <ul class="awards">
+          {
+            about.awards.map((a) => (
+              <li>
+                <span class="a-n">{a.name}</span>
+                <span class="a-b">
+                  {a.by} · {a.when}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section class="col" data-reveal data-reveal-delay="0.12">
+        <h3 class="mono">Areas of interest</h3>
+        <ul class="plain">{about.interests.map((x) => <li>{x}</li>)}</ul>
+        <h3 class="mono">Publication</h3>
+        <a class="pub" href={about.publication.url} target="_blank" rel="noopener">
+          <span class="p-t">{about.publication.title} <span aria-hidden="true">↗</span></span>
+          <span class="mono faint">{about.publication.venue}</span>
+          <span class="p-n">{about.publication.note}</span>
+        </a>
+        <h3 class="mono">Leadership</h3>
+        <ul class="plain">{about.leadership.map((x) => <li>{x}</li>)}</ul>
+        <h3 class="mono">Writing</h3>
+        <ul class="plain writing">
+          {
+            about.writing.map((w) => (
+              <li>
+                <a class="link" href={w.url} target="_blank" rel="noopener">
+                  {w.title} ↗
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+  </div>
+</section>
+
+<style>
+  .intro-wrap {
+    max-width: 980px;
+    margin-bottom: clamp(48px, 8vh, 88px);
+  }
+  .modes {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    margin-bottom: 18px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    font-size: 0.7rem;
+  }
+  .modes button {
+    padding: 5px 10px;
+    border-radius: 6px;
+    color: var(--ink-3);
+  }
+  .modes button[aria-pressed='true'] {
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.09);
+  }
+  .intro {
+    font-size: clamp(1.35rem, 2.4vw, 2.1rem);
+    line-height: 1.42;
+    letter-spacing: -0.02em;
+    text-wrap: pretty;
+  }
+  .as-tokens {
+    display: none;
+  }
+  .intro.show-tokens .as-text {
+    display: none;
+  }
+  .intro.show-tokens .as-tokens {
+    display: inline;
+  }
+  .tk {
+    --c: var(--t1);
+    border-radius: 4px;
+    white-space: pre-wrap;
+    background: color-mix(in oklab, var(--c) 18%, transparent);
+    box-shadow: inset 0 -2px 0 color-mix(in oklab, var(--c) 70%, transparent);
+  }
+  .tok-note {
+    margin-top: 12px;
+    font-size: 0.72rem;
+  }
+
+  .ab-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(24px, 3.5vw, 56px);
+  }
+  .col {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+  }
+  .col h3 {
+    margin: 18px 0 0;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .col h3:first-child {
+    margin-top: 0;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .edu {
+    display: grid;
+    gap: 18px;
+  }
+  .e-n {
+    font-weight: 560;
+  }
+  .e-w {
+    color: var(--ink-2);
+    font-size: 0.94rem;
+  }
+  .e-d {
+    font-size: 0.7rem;
+    margin-top: 4px;
+  }
+  .course {
+    display: grid;
+    gap: 8px;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+  .course li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    align-items: baseline;
+  }
+  .code {
+    font-size: 0.7rem;
+    color: var(--ink-3);
+    width: 52px;
+  }
+  .now {
+    font-size: 0.64rem;
+    color: var(--t2);
+    padding: 2px 6px;
+    border-radius: 5px;
+    border: 1px solid color-mix(in oklab, var(--t2) 40%, transparent);
+  }
+  .awards {
+    display: grid;
+  }
+  .awards li {
+    display: grid;
+    gap: 2px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .awards li:first-child {
+    padding-top: 0;
+  }
+  .a-n {
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+  .a-b {
+    font-size: 0.78rem;
+    color: var(--ink-3);
+  }
+  .plain {
+    display: grid;
+    gap: 8px;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+  .pub {
+    display: grid;
+    gap: 6px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+    transition: border-color 0.3s;
+  }
+  .pub:hover {
+    border-color: var(--line-3);
+  }
+  .p-t {
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+  .pub .mono {
+    font-size: 0.7rem;
+  }
+  .p-n {
+    font-size: 0.78rem;
+    color: var(--ink-3);
+  }
+  .writing .link {
+    font-family: var(--f-sans);
+    font-size: 0.88rem;
+  }
+
+  @media (max-width: 1000px) {
+    .ab-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 680px) {
+    .ab-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const intro = document.querySelector<HTMLElement>('[data-intro]');
+  const note = document.querySelector<HTMLElement>('[data-tok-note]');
+  document.querySelectorAll<HTMLButtonElement>('#about [data-mode]').forEach((b, _, all) =>
+    b.addEventListener('click', () => {
+      const tokens = b.dataset.mode === 'tokens';
+      all.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      intro?.classList.toggle('show-tokens', tokens);
+      if (note) note.hidden = !tokens;
+    }),
+  );
+</script>

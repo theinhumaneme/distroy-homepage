@@ -85,30 +85,29 @@ function reveals() {
 }
 
 function hud() {
-  const meter = document.querySelector<HTMLElement>('[data-ctx-fill]');
-  const count = document.querySelector<HTMLElement>('[data-ctx-count]');
-  const total = Number(count?.dataset.total ?? 0);
-  const fmt = new Intl.NumberFormat('en-US');
+  const fill = document.querySelector<HTMLElement>('[data-progress]');
+  const where = document.querySelector<HTMLElement>('[data-where]');
   ScrollTrigger.create({
     start: 0,
     end: 'max',
     onUpdate: (self) => {
-      if (meter) meter.style.transform = `scaleX(${self.progress})`;
-      if (count) count.textContent = fmt.format(Math.round(self.progress * total));
+      if (fill) fill.style.transform = `scaleX(${self.progress})`;
     },
   });
 
   const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-stage-link]')];
+  const total = String(links.length).padStart(2, '0');
   document.querySelectorAll<HTMLElement>('[data-stage]').forEach((sec) => {
-    const a = links.find((l) => l.getAttribute('href') === `#${sec.dataset.stage}`);
-    if (!a) return;
+    const i = links.findIndex((l) => l.getAttribute('href') === `#${sec.dataset.stage}`);
+    if (i < 0) return;
     ScrollTrigger.create({
       trigger: sec,
       start: 'top 50%',
       end: 'bottom 50%',
       onToggle: (self) => {
         if (!self.isActive) return;
-        links.forEach((l) => l.classList.toggle('on', l === a));
+        links.forEach((l, k) => l.classList.toggle('on', k === i));
+        if (where) where.textContent = `${String(i + 1).padStart(2, '0')} / ${total} · ${sec.dataset.stageLabel ?? links[i].textContent?.trim()}`;
       },
     });
   });
