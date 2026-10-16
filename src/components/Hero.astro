@@ -288,36 +288,33 @@ const [s1, s2, s3] = hero.statement;
     const split = SplitText.create(statement, { type: 'words', mask: 'words' });
 
     if (html.classList.contains('intro')) {
-      // First visit: the page answers its own question. The field gathers,
-      // the question is typed, a beat passes, then the answer streams in a
-      // token at a time and the page chrome arrives last.
-      try {
-        sessionStorage.setItem('intro-seen', '1');
-      } catch {}
+      // The page answers its own question. The field gathers, the question is
+      // typed, a beat passes, then the answer streams in a token at a time and
+      // the page chrome arrives last.
       const ids = toks.map((t) => t.querySelector<HTMLElement>('.tid'));
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
 
-      tl.from('#field', { opacity: 0, duration: 1.6, ease: 'power2.out', clearProps: 'opacity' }, 0);
-      tl.from(prompt, { opacity: 0, y: 10, duration: 0.7 }, 0.2);
+      tl.from('#field', { opacity: 0, duration: 2.6, ease: 'power2.out', clearProps: 'opacity' }, 0);
+      tl.from(prompt, { opacity: 0, y: 10, duration: 1 }, 0.35);
 
       // keystrokes at an uneven, human pace, with a longer gap after spaces
       q.textContent = '';
-      let at = 0.45;
+      let at = 0.8;
       for (let i = 0; i < full.length; i++) {
         tl.call(() => void (q.textContent = full.slice(0, i + 1)), [], at);
-        at += 0.028 + ((i * 37) % 7) * 0.004 + (full[i] === ' ' ? 0.04 : 0);
+        at += 0.065 + ((i * 37) % 7) * 0.01 + (full[i] === ' ' ? 0.13 : 0);
       }
-      at += 0.3; // the pause before an answer
+      at += 0.75; // the pause before an answer
 
       toks.forEach((t, i) => {
-        tl.from(t, { opacity: 0, y: '0.18em', duration: 0.7 }, at + i * 0.09);
-        if (ids[i]) tl.from(ids[i], { opacity: 0, y: 6, duration: 0.5 }, at + i * 0.09 + 0.12);
+        tl.from(t, { opacity: 0, y: '0.18em', duration: 1 }, at + i * 0.2);
+        if (ids[i]) tl.from(ids[i], { opacity: 0, y: 6, duration: 0.65 }, at + i * 0.2 + 0.25);
       });
-      at += 0.3; // the statement follows the name, overlapping it
-      tl.from(split.words, { yPercent: 110, duration: 0.9, stagger: 0.04 }, at);
-      at += 0.3;
-      tl.from(late, { opacity: 0, y: 16, duration: 0.9 }, at);
-      tl.from(['.hud', '.hero .scroll'], { opacity: 0, duration: 0.8, ease: 'power2.out', stagger: 0.15, clearProps: 'opacity' }, at + 0.2);
+      at += 0.95; // the statement follows the name, overlapping it
+      tl.from(split.words, { yPercent: 110, duration: 1.2, stagger: 0.085 }, at);
+      at += 0.75;
+      tl.from(late, { opacity: 0, y: 16, duration: 1.2 }, at);
+      tl.from(['.hud', '.hero .scroll'], { opacity: 0, duration: 0.8, ease: 'power2.out', stagger: 0.18, clearProps: 'opacity' }, at + 0.35);
 
       // the from-states are set; hand the elements over from the stylesheet
       html.classList.remove('intro');
@@ -329,7 +326,7 @@ const [s1, s2, s3] = hero.statement;
       };
       ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((e) => addEventListener(e, hurry, { passive: true }));
     } else {
-      // Later visits and deep links: everything enters together within a second.
+      // Deep links: everything enters together within a second.
       const typed = { n: 0 };
       q.textContent = '';
       gsap.to(typed, {

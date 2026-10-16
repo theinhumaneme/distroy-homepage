@@ -18,11 +18,10 @@ import Contact from '../components/Contact.astro';
   description="Kalyan Mudumby builds AI systems, backend applications and infrastructure: city-service chatbots, digital libraries, deployment tools and interactive data visualizations."
 >
   <script is:inline slot="head">
-    // First visit of the session, landing at the top: hold the hero back so the
-    // intro in Hero.astro can play it in. The timeout shows everything anyway if
-    // that script never runs.
+    // Landing at the top: hold the hero back so the intro in Hero.astro can
+    // play it in. The timeout shows everything anyway if that script never runs.
     try {
-      if (!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches && !sessionStorage.getItem('intro-seen')) {
+      if (!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('intro');
         setTimeout(() => document.documentElement.classList.remove('intro'), 4000);
       }
