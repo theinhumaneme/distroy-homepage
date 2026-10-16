@@ -10,6 +10,12 @@ interface Props {
 const { title, description, canonical } = Astro.props;
 const url = canonical ?? (Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined);
 
+// Google Analytics 4, the same property as the Hugo blog. Production builds
+// only, and only on distroy.dev itself, so local previews and Cloudflare
+// preview deploys are not counted.
+const GA_ID = 'G-ZG7H58F4SW';
+const analytics = import.meta.env.PROD;
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
@@ -39,6 +45,24 @@ const jsonLd = {
     <meta name="twitter:card" content="summary_large_image" />
     <script is:inline>document.documentElement.classList.add('js');</script>
     <slot name="head" />
+    {
+      analytics && (
+        <script is:inline define:vars={{ GA_ID }}>
+          if (/^(www\.)?distroy\.dev$/.test(location.hostname)) {
+            const tag = document.createElement('script');
+            tag.async = true;
+            tag.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+            document.head.appendChild(tag);
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () {
+              window.dataLayer.push(arguments);
+            };
+            window.gtag('js', new Date());
+            window.gtag('config', GA_ID);
+          }
+        </script>
+      )
+    }
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
