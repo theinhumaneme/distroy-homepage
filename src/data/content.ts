@@ -60,10 +60,10 @@ export const sourceById = (id: string) => sources.find((s) => s.id === id);
 
 export const hero = {
   prompt: 'who is kalyan mudumby?',
-  statement: ['I build', 'AI systems,', 'backend applications, and infrastructure.'],
+  statement: ['I build', 'AI systems,', 'backends, and the infrastructure behind them.'],
   intro:
-    'My work makes information easier to use and systems easier to operate, from city-service chatbots and digital libraries to deployment tools and interactive data visualizations.',
-  meta: ['Boston', 'MS Computer Science, Northeastern', 'Expected May 2027'],
+    'From a city’s 311 chatbot to a college digital library, I build tools that make information easier to find and systems easier to run.',
+  meta: ['Boston, MA', 'MS Computer Science · Northeastern', 'Expected May 2027'],
 };
 
 /* ------------------------------------------------------------------------ */
@@ -90,7 +90,7 @@ export type Case = {
 };
 
 export const casesCopy = {
-  title: 'Featured work.',
+  title: 'Selected work.',
 };
 
 export const cases: Case[] = [
@@ -103,13 +103,13 @@ export const cases: Case[] = [
     headline: 'City-service information, in plain language.',
     body: [
       {
-        text: "SMART AI Chat helped Fort Wayne residents find information through the city's 311 service. It used retrieval-augmented generation to answer questions, cached repeated queries, and expanded its database around the information residents requested most.",
+        text: "I helped build a chatbot for Fort Wayne’s 311 service that answered residents’ questions using retrieval-augmented generation. A query cache handled repeated questions, while the knowledge base grew around the information residents asked for most.",
       },
     ],
     points: [],
     note: {
       label: 'Implementation note',
-      text: 'There was very little documentation for what we were building, so the team got there through extensive reading and experimentation with retrieval and LLM tooling.',
+      text: 'With little existing documentation to work from, we developed the system through research and hands-on experiments with retrieval and LLM tools.',
     },
     stack: ['Python', 'LangChain', 'OpenAI API', 'RAG', 'FastAPI'],
     links: [],
@@ -121,7 +121,7 @@ export const cases: Case[] = [
     title: 'LangChain',
     org: 'Open-source contribution',
     period: 'March 2024',
-    headline: 'Fixed a cache integration error upstream.',
+    headline: 'A cache fix, contributed upstream.',
     body: [
       {
         text: "Corrected a validation error in LangChain's GPTCache integration when handling chat-generation results. PR #19427 was merged in March 2024.",
@@ -137,17 +137,17 @@ export const cases: Case[] = [
     anchor: 'work-patternsmith',
     title: 'Patternsmith',
     org: 'Personal project · open source (MIT)',
-    headline: 'Programming tutorials with explanations, code, and diagrams.',
+    headline: 'From a design pattern to an illustrated tutorial.',
     body: [
       {
-        text: 'Give Patternsmith a software design pattern or code smell, and it produces an illustrated tutorial. Separate stages develop the explanation, generate code, and assemble the article. Validation and bounded repair loops handle malformed output, while a failed topic can be isolated so the batch continues.',
+        text: 'Patternsmith turns software design patterns and code smells into tutorials with explanations, code, and diagrams. A staged pipeline develops and assembles each article, checks the output, and retries errors within set limits. If one topic fails, the rest of the batch can continue.',
       },
     ],
     points: [
-      { text: 'Research and teaching, code generation, and writing feed into a separate diagram-validation step.', src: 'patternsmith' },
+      { text: 'Research, code generation, and writing share a typed state, followed by a separate diagram-validation step.', src: 'patternsmith' },
       { text: 'The article reuses generated code verbatim. Additional checks flag specific inconsistencies between code and diagrams.', src: 'patternsmith' },
-      { text: 'Malformed JSON and invalid diagrams enter bounded repair loops.', src: 'patternsmith' },
-      { text: 'The pipeline supports hosted APIs and local serving through vLLM and LM Studio. Quantized-model serving and multi-token prediction were used in LM Studio.', src: 'patternsmith' },
+      { text: 'Invalid JSON and diagrams are retried within fixed limits.', src: 'patternsmith' },
+      { text: 'Models can run through hosted APIs, vLLM, or LM Studio, including quantized models and multi-token prediction in LM Studio.', src: 'patternsmith' },
     ],
     stack: ['Python 3.11', 'LangGraph', 'Pydantic v2', 'vLLM', 'LM Studio', 'mypy --strict', 'pytest', 'Hugo'],
     links: [
@@ -162,21 +162,21 @@ export const cases: Case[] = [
     title: 'Documan',
     org: 'Personal project · original platform and rewrite',
     period: '2020 - 2026',
-    headline: 'A shared library for college course materials.',
+    headline: 'Course materials, in one searchable place.',
     body: [
-      { text: 'Documan brought scattered notes, lab manuals, and past papers into a searchable library accessible through the web and Telegram.' },
+      { text: 'I built Documan to bring scattered notes, lab manuals, and past papers into one library, available on the web and through Telegram.' },
       { label: 'Original platform', text: 'The Python/Flask system served 4,000+ students and delivered 200,000+ files before its retirement in May 2025.' },
       {
         label: 'Current rewrite',
-        text: 'The Java/Angular application adds four-tier role-based access control and keeps search aligned with saved content. It is publicly available and has no users yet.',
+        text: 'The Java/Angular rewrite adds four-tier access control and keeps search in sync with saved content. It is publicly available, with no users yet.',
       },
     ],
     pointsTitle: 'Design decisions',
     points: [
-      { label: 'Local reads', text: 'The original platform hydrated a local SQLite read copy from PostgreSQL on boot, taking a transcontinental database round trip out of every read.', src: 'documan-v1' },
-      { label: 'Background writes', text: 'Database and metrics writes moved onto a queue-backed worker, so request handlers returned without waiting on them.', src: 'documan-v1' },
-      { label: 'Separate refresh', text: 'Catalog refresh ran apart from serving, so the serving bot kept running when files changed in Drive.', src: 'documan-v1' },
-      { label: 'Rewrite', text: 'A transactional outbox keeps Meilisearch aligned with PostgreSQL: a rolled-back write is never indexed, and search being down never fails a write.', src: 'documan-v2' },
+      { label: 'Local reads', text: 'On startup, the original platform copied PostgreSQL data into local SQLite, removing a transcontinental round trip from each read.', src: 'documan-v1' },
+      { label: 'Background writes', text: 'A queue-backed worker handled database and metrics writes, so requests could return without waiting.', src: 'documan-v1' },
+      { label: 'Separate refresh', text: 'Catalog updates ran separately, keeping the bot available as files changed in Drive.', src: 'documan-v1' },
+      { label: 'Rewrite', text: 'A transactional outbox synchronizes Meilisearch with PostgreSQL. A rolled-back write is never indexed, and a search outage does not block writes.', src: 'documan-v2' },
     ],
     stack: ['Python', 'Flask', 'PostgreSQL', 'Meilisearch', 'Java 25', 'Spring Boot 4.1', 'Angular 21', 'Redis'],
     links: [
@@ -192,10 +192,10 @@ export const cases: Case[] = [
     title: 'Hikari',
     org: 'Personal project · open source (MIT)',
     period: '2024 - 2025',
-    headline: 'Describe what runs where. Update only what changed.',
+    headline: 'One configuration. Only the changes get deployed.',
     body: [
       {
-        text: 'Keeping container deployments consistent across machines can mean repeating the same manual edits. Hikari puts those definitions in one configuration and distributes updates to agents on each machine. Each agent updates the affected stacks, leaving unrelated services running.',
+        text: 'Hikari manages container deployments across machines from one configuration. It sends updates to an agent on each machine, which compares the new configuration with its last-applied state and updates only the affected stacks.',
       },
     ],
     points: [
@@ -219,7 +219,7 @@ export const cases: Case[] = [
     headline: 'Extract document data with local AI.',
     body: [
       {
-        text: "OAAM processes documents on the user's machine through a browser interface. A local vision model reads an invoice and returns structured data. An optional MCP integration can send extracted results to Google Sheets.",
+        text: "OAAM processes documents on the user's machine through a browser interface. A local vision model reads an invoice and returns structured data. An optional MCP integration sends extracted results to Google Sheets.",
       },
     ],
     badges: ['Best Podman Container Implementation', 'People’s Choice'],
@@ -238,10 +238,10 @@ export const cases: Case[] = [
     anchor: 'work-activity',
     title: 'Activity Visualizer',
     org: 'Personal project · distroy.dev',
-    headline: 'Understand a route. Replay the effort.',
+    headline: 'See the route. Understand the effort.',
     body: [
       {
-        text: 'Turn GPX and TCX exports into performance analysis, 3D flyovers, and shareable videos. A data-review step reports corrections to noisy readings. Privacy zones hide locations near the start and finish in maps and exports.',
+        text: 'Activity Visualizer turns GPX and TCX files into performance analysis, 3D route flyovers, and shareable videos. Review corrections to noisy readings before exploring the data, and use privacy zones to hide start and finish locations in maps and exports.',
       },
     ],
     privacy: 'Activity files are processed in your browser. A Cloudflare Worker serves the app and proxies map tiles.',
@@ -263,7 +263,7 @@ export const cases: Case[] = [
     headline: 'See how your training changes over time.',
     body: [
       {
-        text: 'Turn a Hevy workout export into exercise trends, personal records, comparisons, and an interactive training story. Review imported workouts and adjust how they are counted, with one analytics engine keeping every view consistent.',
+        text: 'Training Story turns Hevy workout exports into exercise trends, personal records, and comparisons. Review imported workouts, adjust how they count toward your progress, and explore every view through one shared analytics engine.',
       },
     ],
     privacy: 'Workout files are processed in your browser.',
@@ -396,7 +396,7 @@ export const docs: Doc[] = [
     chunks: [
       "OAAM extracts document data with local AI: documents are processed on the user's machine through a browser interface.",
       'A local vision model, Llama 3.2 Vision 11B served through Podman AI Lab, reads an invoice and returns structured data.',
-      'An optional MCP integration can send extracted results to Google Sheets. Won Best Podman Container Implementation and People\'s Choice.',
+      'An optional MCP integration sends extracted results to Google Sheets. Won Best Podman Container Implementation and People\'s Choice.',
     ],
   },
   {
@@ -529,12 +529,12 @@ export const clusterLabels: Record<Cluster, string> = { ai: 'AI', systems: 'Syst
 
 /* Copy for the Explore section. `{n}`-style tokens are filled in the browser. */
 export const queryCopy = {
-  title: 'Find the work relevant to you.',
-  lede: 'Search by problem, technology, or area of interest. Each project appears once, with the passages that matched and a link to the full write-up.',
+  title: 'Find your way through the work.',
+  lede: 'Looking for a particular technology or problem? Search the projects and roles below, then follow a result to the details.',
   inputLabel: 'Search my work',
-  placeholder: 'try: backend, deployment, RAG…',
+  placeholder: 'Search backend, deployment, RAG…',
   suggestedLabel: 'Suggested queries',
-  idle: 'results · ranked by TF-IDF cosine score',
+  idle: 'Choose a topic or enter a search to begin',
   meta: '{docs} of {total} projects and roles · {passages} matching passages',
   timing: '{ms} ms in your browser',
   matched: 'matched',
@@ -566,8 +566,8 @@ export const skillRows: { label: string; skills: string[] }[] = [
 ];
 
 export const skillsCopy = {
-  title: 'Skills connected to actual work.',
-  lede: 'Select a skill to see the projects and roles where I used it. The number beside each skill counts those listed examples; it is not a proficiency rating.',
+  title: 'The tools behind the work.',
+  lede: 'Select a technology to see where I’ve used it. Each number counts the projects and roles listed here.',
   bar: 'skills in practice · {n} technologies',
   groupLabel: 'Skills, grouped by area. Use the arrow keys to move between skills.',
   chipLabel: { one: '{skill}, 1 listed example', many: '{skill}, {n} listed examples' },
@@ -583,7 +583,7 @@ export const skillsCopy = {
 export type Role = { anchor: string; title: string; org: string; period: string; points: string[] };
 
 export const experienceCopy = {
-  title: 'Professional experience.',
+  title: 'Experience, from building to teaching.',
 };
 
 export const roles: Role[] = [
@@ -648,7 +648,7 @@ export const outcomes = [
 export const about = {
   title: 'About me.',
   intro:
-    'I started building Documan while studying electronics engineering, then worked on backend systems, deployment tooling, and a city-service chatbot at Nebulogic. I now study computer science at Northeastern and support students as a teaching assistant. My projects explore applied AI, infrastructure, and ways to make complex information easier to use.',
+    'I started Documan as an electronics engineering student who wanted a better way to share course materials. At Nebulogic, that interest grew into work on backend systems, deployment tools, and a city-service chatbot. Today, I’m studying computer science at Northeastern and teaching software engineering, while building projects across applied AI, infrastructure, and data visualization.',
   interests: ['Applied AI and LLM systems', 'Backend engineering', 'Infrastructure and deployment', 'Data visualization'],
   coursework: [
     { code: 'CS5330', title: 'Pattern Recognition and Computer Vision' },
@@ -694,7 +694,7 @@ export const about = {
 
 export const contact = {
   title: 'Let’s build something useful.',
-  text: 'Interested in my work across AI systems, backend engineering, or infrastructure? Get in touch to discuss a role, a project, or a technical problem.',
+  text: 'Have a role, a project, or a technical problem in mind? I’d like to hear about it.',
 };
 
 /* Chapters, in page order. `anno` is the small pipeline annotation. */
@@ -714,4 +714,7 @@ export const blogCopy = {
   all: 'All posts',
   back: 'All posts',
   original: 'Originally published on kalyanmudumby.com',
+  latest: 'Latest post',
+  minutes: '{n} min read',
+  writeup: '{name} write-up',
 };

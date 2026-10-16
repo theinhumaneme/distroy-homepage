@@ -1,4 +1,6 @@
 ---
+import { existsSync } from 'node:fs';
+const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', import.meta.url));
 import ChapterHead from './ChapterHead.astro';
 import { contact, person, sources } from '../data/content';
 
@@ -15,7 +17,7 @@ const links = sources.filter((s) => s.url);
       <a class="btn primary big" href={`mailto:${person.email}`}>{person.email} <span class="arr">→</span></a>
       <a class="btn" href={person.linkedin} target="_blank" rel="noopener">LinkedIn <span class="arr">↗</span></a>
       <a class="btn" href={person.github} target="_blank" rel="noopener">GitHub <span class="arr">↗</span></a>
-      <a class="btn" href={person.resume} download>Resume <span class="arr">↓</span></a>
+      {hasResume && <a class="btn" href={person.resume} download>Resume <span class="arr">↓</span></a>}
     </div>
   </div>
 </section>
@@ -36,7 +38,7 @@ const links = sources.filter((s) => s.url);
       }
     </ol>
     <div class="eot">
-      <p class="mono faint small">© 2026 {person.name} · Built with Astro and GSAP · The search runs in your browser</p>
+      <p class="mono faint small">© 2026 {person.name} · Boston, MA</p>
       <p class="mono eot-t" aria-hidden="true">&lt;|endoftext|&gt;</p>
     </div>
   </div>

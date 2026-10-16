@@ -1,6 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { ImageMetadata } from 'astro';
 import { dirname } from 'node:path';
+import { blogCopy, cases, moreWork } from '../data/content';
 
 export type Post = CollectionEntry<'blog'>;
 
@@ -19,4 +20,13 @@ const covers = import.meta.glob<ImageMetadata>('../content/blog/**/featured.{jpg
 export const coverOf = (p: Post) => {
   const dir = dirname(p.filePath ?? '').replace(/^src\/content\//, '../content/');
   return Object.entries(covers).find(([k]) => dirname(k) === dir)?.[1];
+};
+
+// about 230 words a minute; code blocks count as words, which is close enough
+export const readingTime = (p: Post) => blogCopy.minutes.replace('{n}', String(Math.max(1, Math.round((p.body ?? '').split(/\s+/).length / 230))));
+
+// the project a post was written about, when that project's entry links to it
+export const projectOf = (p: Post) => {
+  const url = originalHref(p);
+  return cases.find((c) => c.links.some((l) => l.url === url))?.title ?? moreWork.find((m) => m.url === url)?.title;
 };

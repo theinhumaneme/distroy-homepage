@@ -1,25 +1,40 @@
 ---
-import { postDate, postHref, type Post } from '../lib/blog';
+import { blogCopy } from '../data/content';
+import { postDate, postHref, projectOf, readingTime, type Post } from '../lib/blog';
 interface Props {
   posts: Post[];
+  // compact rows drop the description and tags (the homepage list)
+  compact?: boolean;
 }
-const { posts } = Astro.props;
+const { posts, compact = false } = Astro.props;
 ---
 
-<ol class="posts">
+<ol class:list={['posts', { short: compact }]}>
   {
-    posts.map((p, i) => (
-      <li data-reveal data-reveal-delay={String(Math.min(i, 6) * 0.04)}>
-        <a href={postHref(p)}>
-          <time class="mono" datetime={p.data.date.toISOString()}>
-            {postDate(p.data.date)}
-          </time>
-          <span class="t">{p.data.title}</span>
-          {p.data.description && <span class="d">{p.data.description}</span>}
-          {p.data.tags.length > 0 && <span class="tags mono">{p.data.tags.slice(0, 4).join(', ')}</span>}
-        </a>
-      </li>
-    ))
+    posts.map((p, i) => {
+      const project = projectOf(p);
+      return (
+        <li data-reveal data-reveal-delay={String(Math.min(i, 6) * 0.04)}>
+          <a href={postHref(p)}>
+            <span class="when mono">
+              <time datetime={p.data.date.toISOString()}>{postDate(p.data.date)}</time>
+              <span class="rt">{readingTime(p)}</span>
+            </span>
+            <span class="main">
+              <span class="t">{p.data.title}</span>
+              {!compact && p.data.description && <span class="d">{p.data.description}</span>}
+              {(project || (!compact && p.data.tags.length > 0)) && (
+                <span class="meta">
+                  {project && <span class="wu mono tok c1">{blogCopy.writeup.replace('{name}', project)}</span>}
+                  {!compact && p.data.tags.slice(0, 3).map((t) => <span class="chip">{t}</span>)}
+                </span>
+              )}
+            </span>
+            <span class="go" aria-hidden="true">→</span>
+          </a>
+        </li>
+      );
+    })
   }
 </ol>
 
@@ -32,51 +47,97 @@ const { posts } = Astro.props;
   }
   .posts a {
     display: grid;
-    grid-template-columns: 9.5em minmax(0, 1fr);
-    column-gap: clamp(16px, 3vw, 40px);
-    row-gap: 6px;
-    padding: 20px 0;
+    grid-template-columns: 8.5em minmax(0, 1fr) auto;
+    column-gap: clamp(16px, 3vw, 36px);
+    align-items: baseline;
+    padding: 22px 4px;
     border-top: 1px solid var(--line);
-    transition: border-color 0.2s;
+    transition: background 0.25s;
   }
-  .posts a:hover {
-    border-top-color: var(--line-3);
+  .short a {
+    padding-block: 16px;
   }
-  time {
-    grid-row: span 3;
-    padding-top: 0.3em;
+  .posts a:hover,
+  .posts a:focus-visible {
+    background: rgba(255, 255, 255, 0.025);
+  }
+  .when {
+    display: grid;
+    gap: 2px;
     font-size: var(--fs-xs);
     color: var(--ink-3);
     font-variant-numeric: tabular-nums;
+  }
+  .rt {
+    font-size: var(--fs-micro);
+  }
+  .main {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
   }
   .t {
     font-size: var(--fs-title);
     font-weight: var(--fw-head);
     letter-spacing: var(--tr-snug);
-    line-height: 1.2;
+    line-height: 1.22;
     text-wrap: balance;
     transition: color 0.2s;
   }
-  .posts a:hover .t {
-    color: var(--t5);
+  .short .t {
+    font-size: var(--fs-title-s);
   }
   .d {
-    max-width: 68ch;
+    max-width: 66ch;
     font-size: var(--fs-body-s);
+    line-height: 1.6;
     color: var(--ink-2);
     text-wrap: pretty;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
-  .tags {
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .wu {
+    padding: 3px 8px;
     font-size: var(--fs-micro);
+    color: var(--ink);
+  }
+  .go {
+    align-self: center;
     color: var(--ink-3);
+    transition:
+      transform 0.3s var(--ease-out),
+      color 0.2s;
+  }
+  .posts a:hover .t,
+  .posts a:focus-visible .t {
+    color: var(--t5);
+  }
+  .posts a:hover .go,
+  .posts a:focus-visible .go {
+    color: var(--t5);
+    transform: translateX(4px);
   }
   @media (max-width: 640px) {
     .posts a {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr) auto;
+      row-gap: 8px;
     }
-    time {
-      grid-row: auto;
-      padding-top: 0;
+    .when {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 12px;
+    }
+    .go {
+      grid-row: 2;
+      grid-column: 2;
     }
   }
 </style>

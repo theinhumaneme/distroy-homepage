@@ -7,6 +7,7 @@ import { blogCopy, person } from '../../data/content';
 import { getPosts } from '../../lib/blog';
 
 const posts = await getPosts();
+const years = [...new Set(posts.map((p) => p.data.date.getUTCFullYear()))];
 ---
 
 <Base title={`${blogCopy.title} · ${person.name}`} description={blogCopy.lede}>
@@ -18,7 +19,14 @@ const posts = await getPosts();
           <span slot="title" id="blog-title">{blogCopy.title}</span>
           {blogCopy.lede}
         </ChapterHead>
-        <PostList posts={posts} />
+        {
+          years.map((y) => (
+            <section class="year" aria-labelledby={`y-${y}`}>
+              <h2 id={`y-${y}`} class="year-h mono">{y}</h2>
+              <PostList posts={posts.filter((p) => p.data.date.getUTCFullYear() === y)} />
+            </section>
+          ))
+        }
       </div>
     </section>
   </main>
@@ -27,6 +35,15 @@ const posts = await getPosts();
 <style>
   .blog-index {
     padding-top: calc(var(--hud-h) + clamp(48px, 10vh, 120px));
+  }
+  .year + .year {
+    margin-top: clamp(40px, 7vh, 72px);
+  }
+  .year-h {
+    margin-bottom: 12px;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
+    color: var(--t5);
   }
 </style>
 

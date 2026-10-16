@@ -38,6 +38,7 @@ const jsonLd = {
     {url && <meta property="og:url" content={url} />}
     <meta name="twitter:card" content="summary_large_image" />
     <script is:inline>document.documentElement.classList.add('js');</script>
+    <slot name="head" />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>

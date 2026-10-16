@@ -1,10 +1,14 @@
 ---
+import { Image } from 'astro:assets';
 import ChapterHead from './ChapterHead.astro';
 import PostList from './PostList.astro';
 import { blogCopy } from '../data/content';
-import { getPosts } from '../lib/blog';
+import { coverOf, getPosts, postDate, postHref, projectOf, readingTime } from '../lib/blog';
 
 const posts = await getPosts();
+const [latest, ...rest] = posts;
+const cover = coverOf(latest);
+const project = projectOf(latest);
 ---
 
 <section id="blog" class="chapter" data-stage="blog" data-field="5" data-field-level="0.25" aria-labelledby="blog-title">
@@ -13,15 +17,109 @@ const posts = await getPosts();
       <span slot="title" id="blog-title">{blogCopy.title}</span>
       {blogCopy.lede}
     </ChapterHead>
-    <PostList posts={posts.slice(0, 6)} />
-    <p class="all" data-reveal>
-      <a class="link" href="/blog/">{blogCopy.all} ({posts.length}) <span aria-hidden="true">→</span></a>
-    </p>
+
+    <div class="blog-grid">
+      <a class="feature panel" href={postHref(latest)} data-reveal>
+        {cover && <Image class="cover" src={cover} alt="" widths={[480, 800, 1100]} sizes="(max-width: 960px) 100vw, 640px" />}
+        <span class="f-body">
+          <span class="f-k mono">
+            <span class="f-label">{blogCopy.latest}</span>
+            <time datetime={latest.data.date.toISOString()}>{postDate(latest.data.date)}</time>
+            <span>{readingTime(latest)}</span>
+          </span>
+          <span class="f-t">{latest.data.title}</span>
+          {latest.data.description && <span class="f-d">{latest.data.description}</span>}
+          <span class="f-meta">
+            {project && <span class="wu mono tok c1">{blogCopy.writeup.replace('{name}', project)}</span>}
+            {latest.data.tags.slice(0, 3).map((t) => <span class="chip">{t}</span>)}
+          </span>
+        </span>
+      </a>
+
+      <div class="recent">
+        <PostList posts={rest.slice(0, 5)} compact />
+        <p class="all" data-reveal>
+          <a class="btn" href="/blog/">{blogCopy.all} ({posts.length}) <span class="arr" aria-hidden="true">→</span></a>
+        </p>
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
+  .blog-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: start;
+  }
+  .feature {
+    display: block;
+    overflow: hidden;
+    transition: border-color 0.25s;
+  }
+  .feature:hover,
+  .feature:focus-visible {
+    border-color: var(--line-3);
+  }
+  .cover {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-bottom: 1px solid var(--line);
+  }
+  .f-body {
+    display: grid;
+    gap: 12px;
+    padding: clamp(20px, 2.4vw, 28px);
+  }
+  .f-k {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: var(--fs-xs);
+    color: var(--ink-3);
+  }
+  .f-label {
+    color: var(--t5);
+  }
+  .f-t {
+    font-size: var(--fs-title);
+    font-weight: var(--fw-head);
+    letter-spacing: var(--tr-snug);
+    line-height: 1.2;
+    text-wrap: balance;
+    transition: color 0.2s;
+  }
+  .feature:hover .f-t,
+  .feature:focus-visible .f-t {
+    color: var(--t5);
+  }
+  .f-d {
+    font-size: var(--fs-body-s);
+    line-height: 1.6;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .f-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .wu {
+    padding: 3px 8px;
+    font-size: var(--fs-micro);
+    color: var(--ink);
+  }
   .all {
-    margin-top: 28px;
+    margin-top: 24px;
+  }
+  @media (max-width: 960px) {
+    .blog-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

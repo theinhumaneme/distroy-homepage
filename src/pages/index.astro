@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import '../styles/homepage.css';
 import Hud from '../components/Hud.astro';
 import Hero from '../components/Hero.astro';
 import Cases from '../components/Cases.astro';
@@ -16,6 +17,18 @@ import Contact from '../components/Contact.astro';
   title="Kalyan Mudumby · AI, Backend & Infrastructure Engineer"
   description="Kalyan Mudumby builds AI systems, backend applications and infrastructure: city-service chatbots, digital libraries, deployment tools and interactive data visualizations."
 >
+  <script is:inline slot="head">
+    // First visit of the session, landing at the top: hold the hero back so the
+    // intro in Hero.astro can play it in. The timeout shows everything anyway if
+    // that script never runs.
+    try {
+      if (!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches && !sessionStorage.getItem('intro-seen')) {
+        document.documentElement.classList.add('intro');
+        setTimeout(() => document.documentElement.classList.remove('intro'), 4000);
+      }
+    } catch {}
+  </script>
+  <div class="homepage">
   <canvas id="field" aria-hidden="true"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <Hud />
@@ -30,6 +43,7 @@ import Contact from '../components/Contact.astro';
     <Blog />
   </main>
   <Contact />
+  </div>
 </Base>
 
 <style is:global>

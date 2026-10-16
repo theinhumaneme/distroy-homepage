@@ -19,10 +19,14 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
   <div class="wrap">
     <ChapterHead id="work" color="var(--t1)">
       <span slot="title" id="work-title">{casesCopy.title}</span>
-      Professional and personal projects across AI systems, backend applications and infrastructure: what each one does, then how it
-      was built.
+      AI applications, backend systems, and tools I’ve built to solve problems in everyday work. Explore what they do and the decisions behind them.
     </ChapterHead>
 
+    <nav class="project-index" aria-label="Selected projects" data-reveal>
+      {numbered.filter((c) => !c.compact).map((c) => (
+        <a href={`#${c.anchor}`}><span class="mono">{c.n}</span>{c.title}<span class="index-arrow" aria-hidden="true">↗</span></a>
+      ))}
+    </nav>
     {
       numbered.map((c, i) => {
         const Viz = c.viz ? VIZ[c.viz] : null;

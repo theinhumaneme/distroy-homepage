@@ -24,6 +24,13 @@ const { base = '', where = `01 / ${String(chapters.length).padStart(2, '0')} · 
     }
   </nav>
 
+  {!base && <details class="mobile-nav mono">
+    <summary>Menu <span aria-hidden="true">+</span></summary>
+    <nav aria-label="Mobile sections">
+      {chapters.map((c) => <a href={`#${c.id}`}>{c.label}</a>)}
+    </nav>
+  </details>}
+
   <div class="where mono" aria-hidden="true">
     <span class="num" data-where>{where}</span>
     <span class="track"><span class="fill" data-progress></span></span>
@@ -148,3 +155,19 @@ const { base = '', where = `01 / ${String(chapters.length).padStart(2, '0')} · 
     }
   }
 </style>
+
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('.mobile-nav');
+  menu?.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('a')) menu.open = false;
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && menu?.open) {
+      menu.open = false;
+      menu.querySelector('summary')?.focus();
+    }
+  });
+  document.addEventListener('click', (event) => {
+    if (menu?.open && !menu.contains(event.target as Node)) menu.open = false;
+  });
+</script>
