@@ -264,6 +264,15 @@ const { title, description, date, tags } = post.data;
   .prose :global(pre code) {
     font-family: var(--f-mono);
   }
+  /* Shiki emits both themes as variables (astro.config.mjs) */
+  .prose :global(pre.astro-code),
+  .prose :global(pre.astro-code span) {
+    color: var(--shiki-dark);
+  }
+  :global(:root[data-theme='light']) .prose :global(pre.astro-code),
+  :global(:root[data-theme='light']) .prose :global(pre.astro-code span) {
+    color: var(--shiki-light);
+  }
   .prose :global(table) {
     display: block;
     width: max-content;
@@ -337,51 +346,66 @@ const { title, description, date, tags } = post.data;
 
 <script>
   import { initMotion } from '../../../scripts/motion';
+  import { cssVar, currentTheme, onThemeChange } from '../../../scripts/theme';
   initMotion();
 
   // Draw the post's mermaid blocks once one is near the viewport; posts
-  // without diagrams never load mermaid.
+  // without diagrams never load mermaid. Diagrams take their colours from the
+  // theme tokens, so they are drawn again when the theme changes.
   const blocks = [...document.querySelectorAll<HTMLElement>('.prose code.language-mermaid')];
   if (blocks.length) {
+    const sources = blocks.map((b) => b.textContent ?? '');
+    const figs = blocks.map((code) => {
+      const fig = document.createElement('figure');
+      fig.className = 'mermaid';
+      fig.setAttribute('role', 'img');
+      fig.setAttribute('aria-label', 'Diagram');
+      return fig;
+    });
+    let drawn = false;
+    let pass = 0;
+
+    const draw = async () => {
+      const { default: mermaid } = await import('mermaid');
+      const v = (name: string) => cssVar(name);
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        fontFamily: v('--f-mono'),
+        themeVariables: {
+          darkMode: currentTheme() === 'dark',
+          fontSize: '13px',
+          background: v('--bg-1'),
+          primaryColor: v('--bg-3'),
+          primaryTextColor: v('--ink'),
+          primaryBorderColor: v('--ink-4'),
+          secondaryColor: v('--bg-2'),
+          tertiaryColor: v('--bg-1'),
+          lineColor: v('--ink-3'),
+          textColor: v('--ink-2'),
+          clusterBkg: v('--bg-2'),
+          clusterBorder: v('--ink-4'),
+          edgeLabelBackground: v('--bg-1'),
+        },
+      });
+      pass++;
+      for (const [i, src] of sources.entries()) {
+        const { svg } = await mermaid.render(`mermaid-${pass}-${i}`, src);
+        figs[i].innerHTML = svg;
+        if (!drawn) blocks[i].closest('pre')?.replaceWith(figs[i]);
+      }
+      drawn = true;
+    };
+
     const io = new IntersectionObserver(
-      async (entries) => {
+      (entries) => {
         if (!entries.some((e) => e.isIntersecting)) return;
         io.disconnect();
-        const { default: mermaid } = await import('mermaid');
-        const css = getComputedStyle(document.documentElement);
-        const v = (name: string) => css.getPropertyValue(name).trim();
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: 'base',
-          fontFamily: v('--f-mono'),
-          themeVariables: {
-            darkMode: true,
-            fontSize: '13px',
-            background: v('--bg-1'),
-            primaryColor: v('--bg-3'),
-            primaryTextColor: v('--ink'),
-            primaryBorderColor: v('--ink-4'),
-            secondaryColor: v('--bg-2'),
-            tertiaryColor: v('--bg-1'),
-            lineColor: v('--ink-3'),
-            textColor: v('--ink-2'),
-            clusterBkg: v('--bg-2'),
-            clusterBorder: v('--ink-4'),
-            edgeLabelBackground: v('--bg-1'),
-          },
-        });
-        for (const [i, code] of blocks.entries()) {
-          const { svg } = await mermaid.render(`mermaid-${i}`, code.textContent ?? '');
-          const fig = document.createElement('figure');
-          fig.className = 'mermaid';
-          fig.setAttribute('role', 'img');
-          fig.setAttribute('aria-label', 'Diagram');
-          fig.innerHTML = svg;
-          code.closest('pre')?.replaceWith(fig);
-        }
+        draw();
       },
       { rootMargin: '600px 0px' },
     );
     blocks.forEach((b) => io.observe(b));
+    onThemeChange(() => drawn && draw());
   }
 </script>

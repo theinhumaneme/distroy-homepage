@@ -138,7 +138,7 @@ const first = cells.find((c) => c.skill === top)!;
     font-size: var(--fs-small);
     font-weight: var(--fw-medium);
     color: var(--ink-2);
-    background: rgba(255, 255, 255, 0.025);
+    background: rgb(var(--wash-rgb) / 0.025);
     border: 1px solid color-mix(in oklab, var(--t2) calc(var(--w) * 45%), var(--line-2));
     transition:
       opacity 0.3s var(--ease-out),
@@ -154,7 +154,7 @@ const first = cells.find((c) => c.skill === top)!;
     font-size: var(--fs-micro);
     text-align: center;
     color: var(--ink-3);
-    background: color-mix(in oklab, var(--t2) calc(var(--w) * 22%), rgba(255, 255, 255, 0.04));
+    background: color-mix(in oklab, var(--t2) calc(var(--w) * 22%), rgb(var(--wash-rgb) / 0.04));
     font-variant-numeric: tabular-nums;
   }
   .cell:hover {
@@ -218,7 +218,7 @@ const first = cells.find((c) => c.skill === top)!;
       padding 0.3s var(--ease-out);
   }
   .ev :global(.ev-list a:hover) {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgb(var(--wash-rgb) / 0.03);
     padding-left: 8px;
   }
   .ev :global(.ev-list i) {
@@ -274,7 +274,7 @@ const first = cells.find((c) => c.skill === top)!;
       bottom: 12px;
       max-height: 52vh;
       overflow: auto;
-      box-shadow: 0 -20px 60px -20px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 -20px 60px -20px rgb(0 0 0 / calc(0.9 * var(--shadow-k)));
     }
     .ev {
       max-height: 40vh;

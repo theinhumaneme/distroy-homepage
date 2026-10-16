@@ -58,8 +58,8 @@ import Contact from '../components/Contact.astro';
     z-index: 1;
     pointer-events: none;
     background:
-      radial-gradient(140% 100% at 50% 45%, transparent 55%, rgba(6, 6, 9, 0.5) 100%),
-      linear-gradient(180deg, rgba(6, 6, 9, 0) 70%, rgba(6, 6, 9, 0.6));
+      radial-gradient(140% 100% at 50% 45%, transparent 55%, rgb(var(--bg-rgb) / 0.5) 100%),
+      linear-gradient(180deg, rgb(var(--bg-rgb) / 0) 70%, rgb(var(--bg-rgb) / 0.6));
   }
   main {
     position: relative;

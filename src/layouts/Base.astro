@@ -48,7 +48,20 @@ const jsonLd = {
     <meta property="og:description" content={description} />
     {url && <meta property="og:url" content={url} />}
     <meta name="twitter:card" content="summary_large_image" />
-    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script is:inline>
+      // Theme before first paint: a stored choice, else the system preference.
+      (function () {
+        var t = null;
+        try {
+          t = localStorage.getItem('theme');
+        } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        var root = document.documentElement;
+        root.dataset.theme = t;
+        root.classList.add('js');
+        if (t === 'light') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f7f6f2');
+      })();
+    </script>
     <slot name="head" />
     {
       analytics && (

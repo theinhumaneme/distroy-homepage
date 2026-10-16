@@ -113,13 +113,13 @@ export const cases: Case[] = [
     headline: 'City-service information, in plain language.',
     body: [
       {
-        text: "I helped build a chatbot for Fort Wayne’s 311 service that answered residents’ questions using retrieval-augmented generation. A query cache handled repeated questions, while the knowledge base grew around the information residents asked for most.",
+        text: "I built a chatbot for Fort Wayne’s 311 service that answered residents’ questions using retrieval-augmented generation, as a solo project I owned end to end. A query cache handled repeated questions, while the knowledge base grew around the information residents asked for most.",
       },
     ],
     points: [],
     note: {
       label: 'Implementation note',
-      text: 'With little existing documentation to work from, we developed the system through research and hands-on experiments with retrieval and LLM tools.',
+      text: 'I built it while LangChain was new and RAG and prompt engineering were still taking shape, so there was little documentation to work from. I designed and developed it through research and hands-on experiments with retrieval and LLM tools.',
     },
     stack: ['Python', 'LangChain', 'OpenAI API', 'RAG', 'FastAPI'],
     links: [],

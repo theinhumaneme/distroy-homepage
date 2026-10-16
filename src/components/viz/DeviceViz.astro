@@ -5,19 +5,19 @@ const json = ['{', '  "vendor": "…",', '  "date": "…",', '  "line_items": [�
 <div class="viz" data-viz="device">
   <p class="viz-status" data-status>waiting for a file</p>
   <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: a file is dropped inside a boundary labelled your machine. A local vision model reads it and structured data comes out. Sending results to Google Sheets is a separate, optional action.">
-    <rect x="16" y="40" width="404" height="344" rx="20" fill="rgba(111,227,193,.025)" stroke="var(--t2)" stroke-opacity=".45" stroke-dasharray="5 6" />
+    <rect x="16" y="40" width="404" height="344" rx="20" fill="color-mix(in oklab, var(--t2) 2.5%, transparent)" stroke="var(--t2)" stroke-opacity=".45" stroke-dasharray="5 6" />
     <text x="36" y="66" style="fill:var(--t2)">your machine</text>
 
-    <rect x="40" y="96" width="130" height="150" rx="14" fill="none" stroke="rgba(238,237,232,.14)" stroke-dasharray="4 5" data-drop />
+    <rect x="40" y="96" width="130" height="150" rx="14" fill="none" stroke="rgb(var(--ink-rgb) / 0.14)" stroke-dasharray="4 5" data-drop />
     <text x="105" y="268" text-anchor="middle" class="sub">drop a file</text>
 
     <g data-doc>
-      <rect x="66" y="114" width="78" height="104" rx="8" fill="#16161f" stroke="rgba(238,237,232,.22)" />
-      <rect x="78" y="130" width="40" height="6" rx="3" fill="rgba(238,237,232,.4)" />
-      <rect x="78" y="146" width="54" height="4" rx="2" fill="rgba(238,237,232,.16)" />
-      <rect x="78" y="156" width="48" height="4" rx="2" fill="rgba(238,237,232,.16)" />
-      <rect x="78" y="166" width="54" height="4" rx="2" fill="rgba(238,237,232,.16)" />
-      <rect x="78" y="188" width="24" height="4" rx="2" fill="rgba(238,237,232,.16)" />
+      <rect x="66" y="114" width="78" height="104" rx="8" fill="var(--bg-3)" stroke="rgb(var(--ink-rgb) / 0.22)" />
+      <rect x="78" y="130" width="40" height="6" rx="3" fill="rgb(var(--ink-rgb) / 0.4)" />
+      <rect x="78" y="146" width="54" height="4" rx="2" fill="rgb(var(--ink-rgb) / 0.16)" />
+      <rect x="78" y="156" width="48" height="4" rx="2" fill="rgb(var(--ink-rgb) / 0.16)" />
+      <rect x="78" y="166" width="54" height="4" rx="2" fill="rgb(var(--ink-rgb) / 0.16)" />
+      <rect x="78" y="188" width="24" height="4" rx="2" fill="rgb(var(--ink-rgb) / 0.16)" />
       <rect x="110" y="186" width="22" height="8" rx="2" fill="var(--t3)" fill-opacity=".6" />
       <text x="105" y="210" text-anchor="middle" class="sub">invoice</text>
       <rect x="66" y="114" width="78" height="3" fill="var(--t2)" data-scan style="opacity:0" />
@@ -78,7 +78,7 @@ const json = ['{', '  "vendor": "…",', '  "date": "…",', '  "line_items": [�
 </style>
 
 <script>
-  import { gsap, C, playWhenVisible, glow, travel, say } from '../../scripts/viz';
+  import { gsap, C, col, paint, playWhenVisible, glow, travel, say } from '../../scripts/viz';
 
   document.querySelectorAll<HTMLElement>('[data-viz="device"]').forEach((root) => {
     const $ = (s: string) => root.querySelector(s);
@@ -96,8 +96,8 @@ const json = ['{', '  "vendor": "…",', '  "date": "…",', '  "line_items": [�
     say(tl, status, 'drop a file', C.ink);
     tl.set(lines, { opacity: 0 })
       .fromTo(doc, { y: -70, opacity: 0, rotate: -6, transformOrigin: '50% 50%' }, { y: 0, opacity: 1, rotate: 0, duration: 0.8, ease: 'bounce.out' })
-      .to($('[data-drop]'), { stroke: C.t2, duration: 0.3 }, '<0.4')
-      .to($('[data-drop]'), { stroke: 'rgba(238,237,232,.14)', duration: 0.6 }, '>0.4');
+      .to(paint($('[data-drop]')), { stroke: col(C.t2), duration: 0.3 }, '<0.4')
+      .to($('[data-drop]'), { stroke: col('rgb(var(--ink-rgb) / 0.14)'), duration: 0.6 }, '>0.4');
     say(tl, status, 'local vision model reading the invoice', C.t1, '<');
     glow(tl, n('model'), C.t1, '<', 1.4);
     tl.set(scan, { opacity: 1, y: 0 }, '<').to(scan, { y: 100, duration: 0.7, ease: 'sine.inOut', repeat: 2, yoyo: true }, '<');

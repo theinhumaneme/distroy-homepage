@@ -2,9 +2,13 @@
 // chapter. 0 cloud → 1 token sequence → 2 embedding matrix → 3 vector
 // clusters → 4 attention arcs → 5 output stream.
 
+import { cssVar, currentTheme, onThemeChange } from './theme';
+
 type Formation = Float32Array;
 
-const PALETTE = ['#b6a4ff', '#6fe3c1', '#ffc96b', '#ff8a80', '#7cc4ff'];
+// the five token hues, read from the theme so light mode gets its deeper set
+const readPalette = () => ['--t1', '--t2', '--t3', '--t4', '--t5'].map((t) => cssVar(t));
+let PALETTE = readPalette();
 const ROTATE = [1.6, 0, 0.12, 1, 0.08, 0]; // how much each formation spins
 const TILT = [0.18, 0, 0.55, 0.22, 0, 0];
 // horizontal offset per formation (in field units) so shapes frame the copy
@@ -203,7 +207,7 @@ export function createField(canvas: HTMLCanvasElement) {
   });
 
   // soft bokeh sprites, one per hue, drawn for a few near particles
-  const sprites = PALETTE.map((c) => {
+  const makeSprite = (c: string) => {
     const o = document.createElement('canvas');
     o.width = o.height = 48;
     const g = o.getContext('2d')!;
@@ -214,6 +218,14 @@ export function createField(canvas: HTMLCanvasElement) {
     g.fillStyle = grd;
     g.fillRect(0, 0, 48, 48);
     return o;
+  };
+  let sprites = PALETTE.map(makeSprite);
+  // additive glow reads as light on a dark ground; on paper it would wash out
+  let blend: GlobalCompositeOperation = currentTheme() === 'light' ? 'source-over' : 'lighter';
+  onThemeChange((theme) => {
+    PALETTE = readPalette();
+    sprites = PALETTE.map(makeSprite);
+    blend = theme === 'light' ? 'source-over' : 'lighter';
   });
   const glowy = new Uint8Array(N).map((_, i) => (hash(i + 77) < 0.05 ? 1 : 0));
 
@@ -317,7 +329,7 @@ export function createField(canvas: HTMLCanvasElement) {
       }
     }
     // bokeh pass
-    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalCompositeOperation = blend;
     for (let i = 0; i < N; i++) {
       if (!glowy[i]) continue;
       const p = sz[i];

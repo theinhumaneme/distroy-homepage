@@ -108,7 +108,7 @@ const toks = tokenize(about.intro);
     padding: 3px;
     margin-bottom: 18px;
     border-radius: 9px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgb(var(--wash-rgb) / 0.04);
     border: 1px solid var(--line);
     font-size: var(--fs-micro);
   }
@@ -119,7 +119,7 @@ const toks = tokenize(about.intro);
   }
   .modes button[aria-pressed='true'] {
     color: var(--ink);
-    background: rgba(255, 255, 255, 0.09);
+    background: rgb(var(--wash-rgb) / 0.09);
   }
   .intro {
     font-size: var(--fs-lead);
@@ -239,7 +239,7 @@ const toks = tokenize(about.intro);
     padding: 16px;
     border-radius: 12px;
     border: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.02);
+    background: rgb(var(--wash-rgb) / 0.02);
     transition: border-color 0.3s;
   }
   .pub:hover {

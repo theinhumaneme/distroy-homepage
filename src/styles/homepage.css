@@ -1,6 +1,6 @@
 /* Homepage refinements. Keep the shared blog typography and layouts unchanged. */
 
-body .homepage #field { opacity: 0.72; }
+body .homepage #field { opacity: var(--field-opacity); }
 body .homepage .hero {
   min-height: max(820px, 100svh);
   padding-top: calc(var(--hud-h) + 48px);
@@ -11,7 +11,7 @@ body .homepage .hero::before {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, rgba(6, 6, 9, 0.45), transparent 75%);
+  background: linear-gradient(90deg, rgb(var(--bg-rgb) / 0.45), transparent 75%);
   pointer-events: none;
 }
 body .homepage .hero-in { gap: 26px; }
@@ -92,7 +92,7 @@ body .homepage .case .points { margin-top: 20px; }
 body .homepage .case .points li { color: var(--ink-2); padding-block: 15px; line-height: 1.65; }
 body .homepage .case .era { padding: 18px; line-height: 1.65; border-radius: 8px; }
 body .homepage .case-viz { margin-top: 6px; overflow: clip; }
-body .homepage .compact { background: linear-gradient(110deg, rgba(182,164,255,.06), rgba(10,10,15,.8)); margin-bottom: 48px; }
+body .homepage .compact { background: linear-gradient(110deg, color-mix(in oklab, var(--t1) 6%, transparent), rgb(var(--bg-rgb) / 0.8)); margin-bottom: 48px; }
 body .homepage .compact .body { line-height: 1.65; color: var(--ink-2); max-width: 38em; }
 body .homepage .compact .cp-right { border-left: 1px solid var(--line-2); padding-left: 28px; }
 body .homepage .more { padding-top: 0; padding-bottom: 72px; }
@@ -111,7 +111,7 @@ body .homepage .role > ul { gap: 12px; }
 body .homepage .role > ul li { line-height: 1.7; }
 body .homepage .r-title { font-size: var(--fs-title); line-height: 1.3; }
 body .homepage .r-top { line-height: 1.7; }
-body .homepage .outcomes { padding: 24px; background: rgba(14,14,21,.72); border: 1px solid var(--line-2); border-radius: 10px; }
+body .homepage .outcomes { padding: 24px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 10px; }
 body .homepage .outcomes .o:last-child { border-bottom: 0; padding-bottom: 0; }
 body .homepage .ov { line-height: 1.3; }
 body .homepage #about .intro-wrap { max-width: 900px; }
@@ -129,7 +129,7 @@ body .homepage > .foot { padding-top: 40px; }
   body .homepage .hero .name { font-size: 8rem; }
 }
 @media (max-width: 960px) {
-  body .homepage #field { opacity: 0.3; }
+  body .homepage #field { opacity: calc(var(--field-opacity) * 0.42); }
   body .homepage .hero { min-height: 100svh; padding-top: 112px; }
   body .homepage .hero .foot { grid-template-columns: 1fr; gap: 24px; }
   body .homepage .hero .meta-line { display: flex; flex-wrap: wrap; gap: 5px 16px; }

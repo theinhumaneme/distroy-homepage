@@ -22,6 +22,10 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
   </nav>
 
   <div class="acts">
+    <button class="act theme" type="button" data-theme-toggle aria-label="Switch to light theme">
+      <svg class="ico sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.6" /><path d="M10 1.8v2.2M10 16v2.2M1.8 10H4M16 10h2.2M4.2 4.2l1.6 1.6M14.2 14.2l1.6 1.6M4.2 15.8l1.6-1.6M14.2 5.8l1.6-1.6" /></svg>
+      <svg class="ico moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.4 12.6A6.8 6.8 0 0 1 7.4 3.6a6.8 6.8 0 1 0 9 9Z" /></svg>
+    </button>
     <a class="act blog" href="/blog/" aria-current={onBlog ? 'page' : undefined}>Blog</a>
     <a class="act mail" href={`mailto:${person.email}`}>Email</a>
     {hasResume && <a class="act resume" href={person.resume} download>Resume <span aria-hidden="true">↓</span></a>}
@@ -32,6 +36,11 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
           {chapters.map((c) => <a href={`${base}#${c.id}`} data-stage-link>{c.label}</a>)}
         </nav>
         <div class="reach">
+          <button class="row" type="button" data-theme-toggle aria-label="Switch to light theme">
+            <span data-theme-label>Light theme</span>
+            <svg class="ico sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.6" /><path d="M10 1.8v2.2M10 16v2.2M1.8 10H4M16 10h2.2M4.2 4.2l1.6 1.6M14.2 14.2l1.6 1.6M4.2 15.8l1.6-1.6M14.2 5.8l1.6-1.6" /></svg>
+      <svg class="ico moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.4 12.6A6.8 6.8 0 0 1 7.4 3.6a6.8 6.8 0 1 0 9 9Z" /></svg>
+          </button>
           <a href="/blog/" aria-current={onBlog ? 'page' : undefined}>Blog <span aria-hidden="true">→</span></a>
           <a href={`mailto:${person.email}`}>{person.email}</a>
           <a href={person.linkedin} target="_blank" rel="noopener">LinkedIn <span aria-hidden="true">↗</span></a>
@@ -52,7 +61,7 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     align-items: center;
     gap: 28px;
     padding-inline: var(--gutter);
-    background: rgba(6, 6, 9, 0.82);
+    background: rgb(var(--bg-rgb) / 0.82);
     -webkit-backdrop-filter: blur(18px);
     backdrop-filter: blur(18px);
     border-bottom: 1px solid var(--line);
@@ -104,7 +113,7 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
   }
   .stages a:global(.on) {
     color: var(--ink);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgb(var(--wash-rgb) / 0.08);
   }
 
   /* The two things a recruiter came for, reachable from every scroll position */
@@ -134,11 +143,30 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
   .act:hover {
     color: var(--ink);
     border-color: var(--line-3);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(var(--wash-rgb) / 0.05);
+  }
+  .act.theme {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+  .ico {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* show the theme you'd switch to */
+  :global(:root[data-theme='light']) .ico.sun,
+  :global(:root:not([data-theme='light'])) .ico.moon {
+    display: none;
   }
   .act[aria-current='page'] {
     color: var(--ink);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgb(var(--wash-rgb) / 0.08);
   }
   .act.resume {
     color: var(--bg);
@@ -146,7 +174,7 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     border-color: var(--ink);
   }
   .act.resume:hover {
-    background: #fff;
+    background: var(--ink-hi);
   }
 
   .mobile-nav {
@@ -182,12 +210,14 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     top: calc(var(--hud-h) - 4px);
     width: min(300px, calc(100vw - 2 * var(--gutter)));
     padding: 8px;
-    background: #101017;
+    background: var(--bg-2);
     border: 1px solid var(--line-2);
     border-radius: 12px;
-    box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 20px 60px -10px rgb(0 0 0 / calc(0.7 * var(--shadow-k)));
   }
-  .sheet a {
+  .sheet a,
+  .sheet .row {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -197,13 +227,18 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     border-radius: 6px;
     overflow-wrap: anywhere;
   }
-  .sheet a:hover {
+  .sheet .row {
+    text-align: left;
+    font-size: inherit;
+  }
+  .sheet a:hover,
+  .sheet .row:hover {
     color: var(--ink);
     background: var(--bg-3);
   }
   .sheet nav a:global(.on) {
     color: var(--ink);
-    background: rgba(255, 255, 255, 0.06);
+    background: rgb(var(--wash-rgb) / 0.06);
   }
   .sheet nav a:global(.on)::after {
     content: '';
@@ -242,7 +277,8 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
   }
   @media (max-width: 560px) {
     .act.mail,
-    .act.blog {
+    .act.blog,
+    .act.theme {
       display: none;
     }
     .act,
@@ -261,6 +297,19 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
 </style>
 
 <script>
+  import { currentTheme, followSystem, setTheme } from '../scripts/theme';
+
+  const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')];
+  const label = () => {
+    const next = currentTheme() === 'light' ? 'dark' : 'light';
+    toggles.forEach((b) => b.setAttribute('aria-label', `Switch to ${next} theme`));
+    document.querySelectorAll('[data-theme-label]').forEach((l) => (l.textContent = `${next === 'light' ? 'Light' : 'Dark'} theme`));
+  };
+  label();
+  toggles.forEach((b) => b.addEventListener('click', () => setTheme(currentTheme() === 'light' ? 'dark' : 'light')));
+  document.addEventListener('themechange', label);
+  followSystem();
+
   const menu = document.querySelector<HTMLDetailsElement>('.mobile-nav');
   menu?.addEventListener('click', (event) => {
     if ((event.target as HTMLElement).closest('a')) menu.open = false;

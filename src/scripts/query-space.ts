@@ -2,6 +2,7 @@
 // TF-IDF vectors are built at compile time; the query is embedded here with
 // the same analyser and ranked by cosine similarity. No network calls.
 import { terms, SYNONYMS } from '../lib/text';
+import { cssVar, onThemeChange } from './theme';
 
 type Index = {
   vocab: string[];
@@ -14,12 +15,15 @@ export type Hit = { chunk: number; score: number };
 export type QueryTerms = Map<number, boolean>;
 export type Result = { hits: Hit[]; terms: QueryTerms };
 
-const CLUSTER_COLOR: Record<string, string> = {
-  ai: '#b6a4ff',
-  systems: '#7cc4ff',
-  product: '#ffc96b',
-  teaching: '#6fe3c1',
-  academic: '#ff8a80',
+// cluster hues and inks come from the theme tokens, re-read when it changes
+const CLUSTER_TOKEN: Record<string, string> = { ai: '--t1', systems: '--t5', product: '--t3', teaching: '--t2', academic: '--t4' };
+const CLUSTER_COLOR: Record<string, string> = {};
+const INK = { ink: '', ink2: '', accent: '' };
+const readColors = () => {
+  for (const [k, t] of Object.entries(CLUSTER_TOKEN)) CLUSTER_COLOR[k] = cssVar(t);
+  INK.ink = cssVar('--ink');
+  INK.ink2 = cssVar('--ink-2');
+  INK.accent = cssVar('--t2');
 };
 
 export function createEngine(index: Index) {
@@ -196,6 +200,12 @@ export function createSpace(canvas: HTMLCanvasElement, index: Index, opts: { que
   document.addEventListener('visibilitychange', kick);
 
   // with reduced motion the map only redraws when something changes
+  readColors();
+  onThemeChange(() => {
+    readColors();
+    if (!running) requestAnimationFrame(draw);
+  });
+
   function kick() {
     if (running || !visible || document.hidden) return;
     running = true;
@@ -254,7 +264,7 @@ export function createSpace(canvas: HTMLCanvasElement, index: Index, opts: { que
       for (const hh of hits) {
         const doc = index.chunks[hh.chunk].doc;
         const dim = anyFocus ? 0.35 + 0.65 * focusAlpha[doc] : 1;
-        ctx.strokeStyle = '#eeede8';
+        ctx.strokeStyle = INK.ink;
         ctx.globalAlpha = qAlpha * (0.25 + 0.65 * (hh.score / top)) * dim;
         ctx.lineWidth = 0.6 + 1.6 * (hh.score / top);
         ctx.beginPath();
@@ -265,12 +275,12 @@ export function createSpace(canvas: HTMLCanvasElement, index: Index, opts: { que
       ctx.setLineDash([]);
       ctx.globalAlpha = qAlpha;
       const pulse = reduce ? 1 : 1 + Math.sin(now * 0.004) * 0.15;
-      ctx.strokeStyle = '#6fe3c1';
+      ctx.strokeStyle = INK.accent;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(q3[0], q3[1], 9 * pulse, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.fillStyle = '#6fe3c1';
+      ctx.fillStyle = INK.accent;
       ctx.beginPath();
       ctx.arc(q3[0], q3[1], 3.5, 0, Math.PI * 2);
       ctx.fill();
@@ -341,7 +351,7 @@ export function createSpace(canvas: HTMLCanvasElement, index: Index, opts: { que
       placed.push(b0, b1, b2, b3);
       const f = focusAlpha[di];
       ctx.globalAlpha = anyFocus ? 0.45 + 0.55 * f : anyHit ? 1 : Math.min(1, 0.5 + (s - 0.8));
-      ctx.fillStyle = lit || f > 0.5 ? '#eeede8' : '#b0afa8';
+      ctx.fillStyle = lit || f > 0.5 ? INK.ink : INK.ink2;
       ctx.fillText(label, lx, y - 8);
     }
     ctx.globalAlpha = 1;

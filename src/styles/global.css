@@ -15,11 +15,22 @@
   --bg-2: #101017;
   --bg-3: #16161f;
   --panel: rgba(14, 14, 21, 0.72);
+  --panel-top: rgba(20, 20, 30, 0.78);
+  --panel-bottom: rgba(10, 10, 15, 0.86);
 
   --ink: #eeede8;
   --ink-2: #bdbbb7;
   --ink-3: #92918e;
   --ink-4: #45454b;
+  /* the strongest ink, for hover on the solid buttons */
+  --ink-hi: #ffffff;
+
+  /* channel triplets, for translucent washes and veils: rgb(var(--x-rgb) / a) */
+  --bg-rgb: 6 6 9;
+  --ink-rgb: 238 237 232;
+  --wash-rgb: 255 255 255;
+  /* scales every drop-shadow's opacity; dark grounds need heavy shadows */
+  --shadow-k: 1;
 
   --line: rgba(238, 237, 232, 0.09);
   --line-2: rgba(238, 237, 232, 0.16);
@@ -31,9 +42,11 @@
   --t4: #ff8a80; /* coral  */
   --t5: #7cc4ff; /* sky    */
 
-  --ok: #6fe3c1;
-  --warn: #ffc96b;
-  --err: #ff8a80;
+  --ok: var(--t2);
+  --warn: var(--t3);
+  --err: var(--t4);
+
+  --field-opacity: 0.72;
 
   --f-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --f-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -73,6 +86,49 @@
   --fw-medium: 500;
   --fw-head: 550;
   --fw-display: 600;
+}
+
+/* Light theme: warm paper, near-black ink. The five token hues deepen so
+   they read as text and underlines on a light ground (each ≥4.5:1 on --bg). */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f7f6f2;
+  --bg-1: #f1f0eb;
+  --bg-2: #eae8e2;
+  --bg-3: #e2e0d9;
+  --panel: rgba(255, 255, 255, 0.7);
+  --panel-top: rgba(255, 255, 255, 0.82);
+  --panel-bottom: rgba(250, 249, 245, 0.9);
+
+  --ink: #15151a;
+  --ink-2: #3f3e3a;
+  --ink-3: #66655f;
+  --ink-4: #b4b2aa;
+  --ink-hi: #000000;
+
+  --bg-rgb: 247 246 242;
+  --ink-rgb: 21 21 26;
+  --wash-rgb: 21 21 26;
+  --shadow-k: 0.2;
+
+  --line: rgba(21, 21, 26, 0.1);
+  --line-2: rgba(21, 21, 26, 0.16);
+  --line-3: rgba(21, 21, 26, 0.26);
+
+  --t1: #6a4bd6;
+  --t2: #0b7a5e;
+  --t3: #94570a;
+  --t4: #bf3e2d;
+  --t5: #1a6bb8;
+
+  --field-opacity: 0.5;
+}
+
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
 }
 
 /* Phones: mono labels and meta text read small at 11–12px */
@@ -345,7 +401,7 @@ p {
   letter-spacing: 0;
   pointer-events: none;
   z-index: 20;
-  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 12px 30px -10px rgb(0 0 0 / calc(0.7 * var(--shadow-k)));
 }
 
 /* Chips / buttons ----------------------------------------------------------- */
@@ -376,12 +432,12 @@ p {
   font-size: var(--fs-small);
   font-weight: var(--fw-medium);
   border: 1px solid var(--line-2);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgb(var(--wash-rgb) / 0.02);
   transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.35s var(--ease-out);
 }
 .btn:hover {
   border-color: var(--line-3);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgb(var(--wash-rgb) / 0.06);
   transform: translateY(-2px);
 }
 .btn.primary {
@@ -390,7 +446,7 @@ p {
   border-color: var(--ink);
 }
 .btn.primary:hover {
-  background: #fff;
+  background: var(--ink-hi);
 }
 .btn .arr {
   transition: transform 0.35s var(--ease-out);
@@ -419,11 +475,11 @@ p {
 .panel {
   position: relative;
   border-radius: 20px;
-  background: linear-gradient(180deg, rgba(20, 20, 30, 0.78), rgba(10, 10, 15, 0.86));
+  background: linear-gradient(180deg, var(--panel-top), var(--panel-bottom));
   border: 1px solid var(--line);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 40px 80px -40px rgba(0, 0, 0, 0.8);
+    0 1px 0 rgb(var(--wash-rgb) / 0.04) inset,
+    0 40px 80px -40px rgb(0 0 0 / calc(0.8 * var(--shadow-k)));
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
@@ -487,13 +543,13 @@ p {
   fill: var(--ink-3);
 }
 .viz .box {
-  fill: #101017;
-  stroke: rgba(238, 237, 232, 0.14);
+  fill: var(--bg-2);
+  stroke: rgb(var(--ink-rgb) / 0.14);
   stroke-width: 1.2;
 }
 .viz .wire {
   fill: none;
-  stroke: rgba(238, 237, 232, 0.16);
+  stroke: rgb(var(--ink-rgb) / 0.16);
   stroke-width: 1.3;
 }
 .viz .wire.dash {
@@ -516,7 +572,7 @@ p {
   gap: 8px;
   padding: 6px 10px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgb(var(--wash-rgb) / 0.04);
   border: 1px solid var(--line);
   font-family: var(--f-mono);
   font-size: var(--fs-micro);
@@ -530,4 +586,11 @@ p {
   border-radius: 50%;
   background: var(--sc, var(--t2));
   box-shadow: 0 0 10px var(--sc, var(--t2));
+}
+/* On paper, glows read as smudges: packets and status dots go flat */
+:root[data-theme='light'] .viz .pkt {
+  filter: none;
+}
+:root[data-theme='light'] .viz-status::before {
+  box-shadow: none;
 }

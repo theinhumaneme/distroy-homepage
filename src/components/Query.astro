@@ -87,7 +87,7 @@ const KEYS = [
     height: 64px;
     padding: 0 16px 0 20px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--wash-rgb) / 0.035);
     border: 1px solid var(--line-2);
     transition:
       border-color 0.3s,
@@ -195,7 +195,7 @@ const KEYS = [
   }
   .results :global(li.res.hot .hit),
   .results :global(.hit:hover) {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgb(var(--wash-rgb) / 0.03);
   }
   .results :global(.rk) {
     font-family: var(--f-mono);
@@ -413,7 +413,7 @@ const KEYS = [
     line-height: 1.5;
     color: var(--ink-2);
     pointer-events: none;
-    box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 18px 40px -16px rgb(0 0 0 / calc(0.8 * var(--shadow-k)));
   }
   .tip :global(b) {
     display: block;
