@@ -22,7 +22,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
 
     <nav class="project-index" aria-label="Selected projects" data-reveal>
       {numbered.filter((c) => !c.compact).map((c) => (
-        <a href={`#${c.anchor}`}><span class="mono">{c.n}</span>{c.title}<span class="index-arrow" aria-hidden="true">↗</span></a>
+        <a href={`#${c.anchor}`}><span class="n mono">{c.n}</span><span class="t">{c.title}</span></a>
       ))}
     </nav>
     {
@@ -188,9 +188,10 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     color: var(--ink-3);
     font-variant-numeric: tabular-nums;
   }
-  .meta .org + .when::before {
+  /* the separator rides on the first part, so a wrapped line never starts with it */
+  .meta .org:has(+ .when)::after {
     content: '·';
-    margin-right: 12px;
+    margin-left: 12px;
     color: var(--ink-4);
   }
 

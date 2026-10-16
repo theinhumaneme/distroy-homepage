@@ -51,26 +51,40 @@ body .homepage .btn { min-height: 48px; height: auto; padding: 13px 19px; font-w
 body .homepage .link { line-height: 1.6; }
 body .homepage .panel { border-radius: 14px; border-color: var(--line-2); }
 
+/* A contents row for the five cases: the number quiet above, the name as
+   the thing to read. These jump down the page, so no outbound arrows. */
 body .homepage .project-index {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 0 24px;
-  padding-block: 16px;
   margin-bottom: 28px;
   border-block: 1px solid var(--line-2);
 }
 body .homepage .project-index a {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  padding-block: 9px;
-  font-size: var(--fs-small);
+  display: grid;
+  gap: 4px;
+  padding-block: 16px;
   color: var(--ink-2);
   transition: color 0.2s;
 }
-body .homepage .project-index .mono { font-size: var(--fs-micro); color: var(--t1); }
-body .homepage .project-index .index-arrow { color: var(--ink-3); font-size: var(--fs-xs); }
+body .homepage .project-index .n {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s;
+}
+body .homepage .project-index .t {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.01em;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.2s;
+}
 body .homepage .project-index a:hover { color: var(--ink); }
+body .homepage .project-index a:hover .n { color: var(--t1); }
+body .homepage .project-index a:hover .t { text-decoration-color: var(--t1); }
 body .homepage .case { padding-block: 60px 76px; }
 body .homepage .case + .case,
 body .homepage .compact + .case { border-top-style: solid; }
@@ -130,9 +144,8 @@ body .homepage > .foot { padding-top: 40px; }
 @media (max-width: 720px) {
   body .homepage .skills .row { grid-template-columns: 1fr; }
   body .homepage .chap-head { gap: 18px; margin-bottom: 36px; }
-  body .homepage .project-index { gap: 0 18px; }
-  body .homepage .project-index a { font-size: var(--fs-xs); }
-  body .homepage .project-index .index-arrow { display: none; }
+  body .homepage .project-index { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+  body .homepage .project-index a { padding-block: 12px; }
   body .homepage .hero .prompt .meta { display: none; }
   body .homepage .role { padding: 22px; }
 }
