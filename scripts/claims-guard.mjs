@@ -46,10 +46,16 @@ const RULES = [
   { re: /production (IaC|kubernetes)|kubernetes expert/i, why: 'cr-kubernetes-not-production / cr-terraform-basics' },
 ];
 
+// The rules cover the portfolio's own claims. The blog is published as the
+// author wrote it, and vendor chunks are third-party library code (see
+// astro.config.mjs), so neither is checked.
+const SKIP = [join(DIST, 'blog'), join(DIST, '_astro', 'vendor')];
+
 const files = [];
 const walk = (dir) => {
   for (const f of readdirSync(dir)) {
     const p = join(dir, f);
+    if (SKIP.includes(p)) continue;
     if (statSync(p).isDirectory()) walk(p);
     else if (/\.(html|js|json|xml|txt)$/.test(f)) files.push(p);
   }

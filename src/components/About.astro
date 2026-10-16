@@ -9,7 +9,7 @@ const toks = tokenize(about.intro);
 <section id="about" class="chapter" data-stage="about" data-field="1" data-field-level="0.22" aria-labelledby="about-title">
   <div class="wrap">
     <ChapterHead id="about" color="var(--t4)">
-      <span slot="title" id="about-title">About <span class="serif">me.</span></span>
+      <span slot="title" id="about-title">{about.title}</span>
     </ChapterHead>
 
     <div class="intro-wrap">
@@ -47,7 +47,6 @@ const toks = tokenize(about.intro);
               <li>
                 <span class="mono code">{c.code}</span>
                 <span>{c.title}</span>
-                {c.now && <span class="now mono">in progress</span>}
               </li>
             ))
           }
@@ -111,7 +110,7 @@ const toks = tokenize(about.intro);
     border-radius: 9px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--line);
-    font-size: 0.7rem;
+    font-size: var(--fs-micro);
   }
   .modes button {
     padding: 5px 10px;
@@ -123,9 +122,9 @@ const toks = tokenize(about.intro);
     background: rgba(255, 255, 255, 0.09);
   }
   .intro {
-    font-size: clamp(1.35rem, 2.4vw, 2.1rem);
+    font-size: var(--fs-lead);
     line-height: 1.42;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--tr-snug);
     text-wrap: pretty;
   }
   .as-tokens {
@@ -146,7 +145,7 @@ const toks = tokenize(about.intro);
   }
   .tok-note {
     margin-top: 12px;
-    font-size: 0.72rem;
+    font-size: var(--fs-micro);
   }
 
   .ab-grid {
@@ -161,10 +160,9 @@ const toks = tokenize(about.intro);
   }
   .col h3 {
     margin: 18px 0 0;
-    font-size: 0.68rem;
-    font-weight: 500;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-size: var(--fs-micro);
+    font-weight: var(--fw-medium);
+    letter-spacing: var(--tr-mono);
     color: var(--ink-3);
     padding-bottom: 10px;
     border-bottom: 1px solid var(--line);
@@ -182,20 +180,20 @@ const toks = tokenize(about.intro);
     gap: 18px;
   }
   .e-n {
-    font-weight: 560;
+    font-weight: var(--fw-head);
   }
   .e-w {
     color: var(--ink-2);
-    font-size: 0.94rem;
+    font-size: var(--fs-body-s);
   }
   .e-d {
-    font-size: 0.7rem;
+    font-size: var(--fs-micro);
     margin-top: 4px;
   }
   .course {
     display: grid;
     gap: 8px;
-    font-size: 0.92rem;
+    font-size: var(--fs-body-s);
     color: var(--ink-2);
   }
   .course li {
@@ -205,16 +203,9 @@ const toks = tokenize(about.intro);
     align-items: baseline;
   }
   .code {
-    font-size: 0.7rem;
+    font-size: var(--fs-micro);
     color: var(--ink-3);
     width: 52px;
-  }
-  .now {
-    font-size: 0.64rem;
-    color: var(--t2);
-    padding: 2px 6px;
-    border-radius: 5px;
-    border: 1px solid color-mix(in oklab, var(--t2) 40%, transparent);
   }
   .awards {
     display: grid;
@@ -229,17 +220,17 @@ const toks = tokenize(about.intro);
     padding-top: 0;
   }
   .a-n {
-    font-size: 0.95rem;
+    font-size: var(--fs-body-s);
     line-height: 1.35;
   }
   .a-b {
-    font-size: 0.78rem;
+    font-size: var(--fs-xs);
     color: var(--ink-3);
   }
   .plain {
     display: grid;
     gap: 8px;
-    font-size: 0.92rem;
+    font-size: var(--fs-body-s);
     color: var(--ink-2);
   }
   .pub {
@@ -255,19 +246,19 @@ const toks = tokenize(about.intro);
     border-color: var(--line-3);
   }
   .p-t {
-    font-size: 0.92rem;
+    font-size: var(--fs-body-s);
     line-height: 1.45;
   }
   .pub .mono {
-    font-size: 0.7rem;
+    font-size: var(--fs-micro);
   }
   .p-n {
-    font-size: 0.78rem;
+    font-size: var(--fs-xs);
     color: var(--ink-3);
   }
   .writing .link {
     font-family: var(--f-sans);
-    font-size: 0.88rem;
+    font-size: var(--fs-small);
   }
 
   @media (max-width: 1000px) {

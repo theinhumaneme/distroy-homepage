@@ -8,7 +8,7 @@ import FleetViz from './viz/FleetViz.astro';
 import CheckpointViz from './viz/CheckpointViz.astro';
 import RouteViz from './viz/RouteViz.astro';
 import BarsViz from './viz/BarsViz.astro';
-import { cases } from '../data/content';
+import { cases, casesCopy } from '../data/content';
 
 const VIZ = { rag: RagViz, graph: GraphViz, device: DeviceViz, fleet: FleetViz, checkpoint: CheckpointViz, route: RouteViz, bars: BarsViz };
 let n = 0;
@@ -18,7 +18,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
 <section id="work" class="chapter cases" data-stage="work" data-field="0" data-field-level="0.28" aria-labelledby="work-title">
   <div class="wrap">
     <ChapterHead id="work" color="var(--t1)">
-      <span slot="title" id="work-title">Featured <span class="serif">work.</span></span>
+      <span slot="title" id="work-title">{casesCopy.title}</span>
       Professional and personal projects across AI systems, backend applications and infrastructure: what each one does, then how it
       was built.
     </ChapterHead>
@@ -176,7 +176,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     background: var(--ink);
     padding: 3px 8px;
     border-radius: 5px;
-    font-weight: 500;
+    font-weight: var(--fw-medium);
   }
 
   .case-grid {
@@ -190,13 +190,13 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
   }
   .case-title {
     font-size: var(--fs-h3);
-    letter-spacing: -0.04em;
+    letter-spacing: var(--tr-head);
     line-height: 1;
-    font-weight: 580;
+    font-weight: var(--fw-head);
   }
   .headline {
     margin-top: 14px;
-    font-size: clamp(1.5rem, 2.6vw, 2.35rem);
+    font-size: var(--fs-quote);
     line-height: 1.12;
     color: var(--ink);
     text-wrap: balance;
@@ -218,14 +218,13 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.025);
     border: 1px solid var(--line);
-    font-size: 0.94rem;
+    font-size: var(--fs-body-s);
     line-height: 1.55;
     color: var(--ink-2);
   }
   .era-l {
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tr-mono);
     color: var(--t5);
     margin-bottom: 8px;
   }
@@ -241,7 +240,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     margin: 20px 0 0;
   }
   .badges li {
-    font-size: 0.74rem;
+    font-size: var(--fs-micro);
     padding: 7px 12px;
     border-radius: 8px;
     color: var(--t3);
@@ -250,7 +249,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
   }
   .privacy {
     margin-top: 18px;
-    font-size: 0.76rem;
+    font-size: var(--fs-xs);
     color: var(--t2);
     display: flex;
     gap: 10px;
@@ -258,9 +257,8 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
   }
   .pt-title {
     margin-top: 28px;
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tr-mono);
     color: var(--ink-3);
   }
   .points {
@@ -278,16 +276,16 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     gap: 8px;
     padding: 12px 0;
     border-top: 1px solid var(--line);
-    font-size: 0.98rem;
+    font-size: var(--fs-body-s);
     line-height: 1.55;
   }
   .pt-n {
-    font-size: 0.7rem;
-    color: var(--ink-4);
+    font-size: var(--fs-micro);
+    color: var(--ink-3);
     padding-top: 4px;
   }
   .pt-l {
-    font-weight: 560;
+    font-weight: var(--fw-head);
     color: var(--ink);
   }
   .note {
@@ -296,13 +294,12 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     border-left: 2px solid var(--t3);
     background: color-mix(in oklab, var(--t3) 5%, transparent);
     border-radius: 0 10px 10px 0;
-    font-size: 0.94rem;
+    font-size: var(--fs-body-s);
     color: var(--ink-2);
   }
   .note .mono {
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tr-mono);
     color: var(--t3);
     margin-bottom: 6px;
   }
@@ -338,10 +335,10 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     margin-bottom: 12px;
   }
   .cp-title {
-    font-size: clamp(1.35rem, 2.2vw, 1.9rem);
-    letter-spacing: -0.03em;
+    font-size: var(--fs-lead);
+    letter-spacing: var(--tr-head);
     line-height: 1.15;
-    font-weight: 560;
+    font-weight: var(--fw-head);
   }
   .compact .body {
     margin-top: 10px;
@@ -350,11 +347,11 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     display: grid;
     gap: 10px;
     justify-items: start;
-    font-size: 0.82rem;
+    font-size: var(--fs-xs);
     color: var(--ink-2);
   }
   .merged {
-    font-size: 0.72rem;
+    font-size: var(--fs-micro);
     padding: 5px 10px;
     border-radius: 999px;
     background: #8957e5;

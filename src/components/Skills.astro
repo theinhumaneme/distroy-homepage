@@ -13,16 +13,14 @@ const first = cells.find((c) => c.skill === top)!;
 <section id="skills" class="chapter skills" data-stage="explore" data-field="2" data-field-level="0.45" aria-labelledby="sk-title">
   <div class="wrap">
     <header class="sk-head">
-      <h3 id="sk-title" class="sub-title" data-reveal>{copy.titleLead} <span class="serif">{copy.titleEm}</span></h3>
+      <h3 id="sk-title" class="sub-title" data-reveal>{copy.title}</h3>
       <p class="lede" data-reveal>{copy.lede}</p>
     </header>
 
     <div class="sk-grid">
       <div class="panel sk-matrix" data-reveal>
         <div class="panel-bar">
-          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
           <span>{fill(copy.bar, { n: dims })}</span>
-          <span></span>
         </div>
         <div class="matrix" role="group" aria-label={copy.groupLabel} data-matrix>
           {
@@ -96,8 +94,8 @@ const first = cells.find((c) => c.skill === top)!;
   }
   .sub-title {
     font-size: var(--fs-h3);
-    letter-spacing: -0.04em;
-    font-weight: 560;
+    letter-spacing: var(--tr-head);
+    font-weight: var(--fw-head);
     line-height: 1.05;
   }
 
@@ -122,8 +120,7 @@ const first = cells.find((c) => c.skill === top)!;
   .rl {
     padding-top: 8px;
     font-size: var(--fs-micro);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    letter-spacing: var(--tr-mono);
     color: var(--ink-3);
   }
   .cells {
@@ -138,8 +135,8 @@ const first = cells.find((c) => c.skill === top)!;
     gap: 8px;
     padding: 6px 8px 6px 11px;
     border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 450;
+    font-size: var(--fs-small);
+    font-weight: var(--fw-medium);
     color: var(--ink-2);
     background: rgba(255, 255, 255, 0.025);
     border: 1px solid color-mix(in oklab, var(--t2) calc(var(--w) * 45%), var(--line-2));
@@ -154,7 +151,7 @@ const first = cells.find((c) => c.skill === top)!;
     min-width: 1.6em;
     padding: 1px 5px;
     border-radius: 5px;
-    font-size: 0.68rem;
+    font-size: var(--fs-micro);
     text-align: center;
     color: var(--ink-3);
     background: color-mix(in oklab, var(--t2) calc(var(--w) * 22%), rgba(255, 255, 255, 0.04));
@@ -191,14 +188,14 @@ const first = cells.find((c) => c.skill === top)!;
     padding: clamp(18px, 2.2vw, 26px);
   }
   .ev :global(.ev-skill) {
-    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
-    font-weight: 560;
-    letter-spacing: -0.035em;
+    font-size: var(--fs-lead);
+    font-weight: var(--fw-head);
+    letter-spacing: var(--tr-head);
     line-height: 1.1;
   }
   .ev :global(.ev-n) {
     margin-top: 6px;
-    font-size: 0.9rem;
+    font-size: var(--fs-small);
   }
   .ev :global(.ev-list) {
     list-style: none;
@@ -215,7 +212,7 @@ const first = cells.find((c) => c.skill === top)!;
     align-items: center;
     gap: 12px;
     padding: 11px 4px;
-    font-size: 0.92rem;
+    font-size: var(--fs-body-s);
     transition:
       background 0.2s,
       padding 0.3s var(--ease-out);
@@ -237,8 +234,7 @@ const first = cells.find((c) => c.skill === top)!;
   .ev :global(.ev-k) {
     margin-top: 20px;
     font-size: var(--fs-micro);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    letter-spacing: var(--tr-mono);
     color: var(--ink-3);
   }
   .ev :global(.ev-also) {
@@ -248,7 +244,7 @@ const first = cells.find((c) => c.skill === top)!;
     margin-top: 10px;
   }
   .ev :global(.ev-also button) {
-    font-size: 0.8rem;
+    font-size: var(--fs-xs);
     padding: 4px 9px;
     border-radius: 6px;
     color: var(--ink-2);
@@ -263,7 +259,7 @@ const first = cells.find((c) => c.skill === top)!;
   }
   .ev :global(.ev-none) {
     margin-top: 10px;
-    font-size: 0.85rem;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
 
@@ -288,12 +284,12 @@ const first = cells.find((c) => c.skill === top)!;
     }
     .ev :global(.ev-skill) {
       display: inline;
-      font-size: 1.25rem;
+      font-size: var(--fs-title-s);
     }
     .ev :global(.ev-n) {
       display: inline;
       margin-left: 10px;
-      font-size: 0.8rem;
+      font-size: var(--fs-xs);
     }
     /* examples wrap as compact links instead of full rows */
     .ev :global(.ev-list) {
@@ -310,7 +306,7 @@ const first = cells.find((c) => c.skill === top)!;
       grid-template-columns: 7px auto;
       gap: 8px;
       padding: 6px 10px;
-      font-size: 0.82rem;
+      font-size: var(--fs-xs);
       border-radius: 8px;
       border: 1px solid var(--line-2);
     }

@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import Hud from '../../components/Hud.astro';
+import ChapterHead from '../../components/ChapterHead.astro';
+import PostList from '../../components/PostList.astro';
+import { blogCopy, person } from '../../data/content';
+import { getPosts } from '../../lib/blog';
+
+const posts = await getPosts();
+---
+
+<Base title={`${blogCopy.title} · ${person.name}`} description={blogCopy.lede}>
+  <Hud base="/" where={blogCopy.title} />
+  <main id="main">
+    <section class="chapter blog-index" aria-labelledby="blog-title">
+      <div class="wrap">
+        <ChapterHead id="blog" color="var(--t5)">
+          <span slot="title" id="blog-title">{blogCopy.title}</span>
+          {blogCopy.lede}
+        </ChapterHead>
+        <PostList posts={posts} />
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .blog-index {
+    padding-top: calc(var(--hud-h) + clamp(48px, 10vh, 120px));
+  }
+</style>
+
+<script>
+  import { initMotion } from '../../scripts/motion';
+  initMotion();
+</script>

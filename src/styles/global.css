@@ -1,6 +1,5 @@
 @import '@fontsource-variable/geist';
 @import '@fontsource-variable/geist-mono';
-@import '@fontsource/instrument-serif/400.css';
 @import '@fontsource/instrument-serif/400-italic.css';
 
 /* ---------------------------------------------------------------------------
@@ -19,7 +18,7 @@
 
   --ink: #eeede8;
   --ink-2: #b0afa8;
-  --ink-3: #75746d;
+  --ink-3: #7f7e77;
   --ink-4: #45454b;
 
   --line: rgba(238, 237, 232, 0.07);
@@ -47,13 +46,30 @@
   --maxw: 1360px;
   --hud-h: 60px;
 
-  --fs-display: clamp(3.1rem, 10.5vw, 10.5rem);
+  /* Type scale: every font-size on the page resolves to one of these steps */
+  --fs-display: clamp(3rem, 8vw, 8.2rem);
   --fs-h2: clamp(2.5rem, 6.4vw, 6.25rem);
   --fs-h3: clamp(1.7rem, 3.1vw, 2.9rem);
+  --fs-quote: clamp(1.5rem, 2.6vw, 2.35rem);
+  --fs-lead: clamp(1.35rem, 2.4vw, 2.1rem);
+  --fs-title: clamp(1.25rem, 2vw, 1.65rem);
+  --fs-title-s: 1.2rem;
   --fs-lede: clamp(1.12rem, 1.55vw, 1.45rem);
   --fs-body: 1.0625rem;
+  --fs-body-s: 0.94rem;
   --fs-small: 0.875rem;
+  --fs-xs: 0.8rem;
   --fs-micro: 0.72rem;
+
+  --tr-display: -0.05em;
+  --tr-head: -0.035em;
+  --tr-snug: -0.02em;
+  --tr-mono: 0.02em;
+
+  --fw-body: 400;
+  --fw-medium: 500;
+  --fw-head: 560;
+  --fw-display: 600;
 }
 
 *,
@@ -83,7 +99,6 @@ body {
   font-family: var(--f-sans);
   font-size: var(--fs-body);
   line-height: 1.6;
-  font-feature-settings: 'ss01', 'cv11';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -176,14 +191,13 @@ p {
 
 .mono {
   font-family: var(--f-mono);
-  font-feature-settings: 'zero', 'ss02';
 }
 
 .serif {
   font-family: var(--f-serif);
-  font-weight: 400;
+  font-weight: var(--fw-body);
   font-style: italic;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--tr-snug);
 }
 
 .muted {
@@ -208,30 +222,20 @@ p {
   gap: 12px;
   font-family: var(--f-mono);
   font-size: var(--fs-micro);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: var(--tr-mono);
   color: var(--ink-3);
 }
 .chap-tag b {
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   color: var(--ink);
   padding: 3px 8px;
   border-radius: 5px;
   background: color-mix(in oklab, var(--c, var(--t1)) 20%, transparent);
   box-shadow: inset 0 -2px 0 color-mix(in oklab, var(--c, var(--t1)) 75%, transparent);
-  letter-spacing: 0.08em;
-}
-.chap-tag i {
-  font-style: normal;
-  width: 44px;
-  height: 1px;
-  background: var(--line-3);
 }
 .chap-tag .anno {
   font-style: normal;
-  text-transform: none;
-  letter-spacing: 0.02em;
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 .chap-tag .anno::before {
   content: '// ';
@@ -240,13 +244,9 @@ p {
 .chap-title {
   font-size: var(--fs-h2);
   line-height: 0.98;
-  letter-spacing: -0.045em;
-  font-weight: 560;
+  letter-spacing: var(--tr-display);
+  font-weight: var(--fw-head);
   text-wrap: balance;
-}
-.chap-title .serif {
-  font-weight: 400;
-  letter-spacing: -0.02em;
 }
 
 .lede {
@@ -258,7 +258,7 @@ p {
 }
 .lede strong {
   color: var(--ink);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 /* Tokens ------------------------------------------------------------------- */
@@ -289,7 +289,7 @@ p {
   border-radius: 0.36em;
   font-family: var(--f-mono);
   font-size: 0.66em;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   line-height: 1;
   vertical-align: 0.28em;
   color: var(--t2);
@@ -321,8 +321,8 @@ p {
   background: var(--bg-3);
   border: 1px solid var(--line-2);
   color: var(--ink);
-  font-size: 11px;
-  font-weight: 400;
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-body);
   letter-spacing: 0;
   pointer-events: none;
   z-index: 20;
@@ -337,7 +337,7 @@ p {
 }
 .chip {
   font-family: var(--f-mono);
-  font-size: 0.74rem;
+  font-size: var(--fs-micro);
   padding: 4px 9px;
   border-radius: 6px;
   color: var(--ink-2);
@@ -355,8 +355,8 @@ p {
   padding: 0 18px;
   border-radius: 999px;
   font-family: var(--f-mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.02em;
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tr-mono);
   border: 1px solid var(--line-2);
   background: rgba(255, 255, 255, 0.02);
   transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.35s var(--ease-out);
@@ -386,7 +386,7 @@ p {
   align-items: center;
   gap: 6px;
   font-family: var(--f-mono);
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
   color: var(--ink-2);
   border-bottom: 1px solid var(--line-2);
   padding-bottom: 2px;
@@ -420,19 +420,8 @@ p {
   font-family: var(--f-mono);
   font-size: var(--fs-micro);
   color: var(--ink-3);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--tr-mono);
 }
-.dots {
-  display: inline-flex;
-  gap: 6px;
-}
-.dots i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--ink-4);
-}
-
 /* Reveal defaults (JS adds .is-in; without JS everything is visible) -------- */
 .js [data-reveal] {
   opacity: 0;
@@ -468,12 +457,12 @@ p {
   font-family: var(--f-mono);
   font-size: 11px;
   fill: var(--ink-3);
-  letter-spacing: 0.01em;
+  letter-spacing: var(--tr-mono);
 }
 .viz .lbl {
   fill: var(--ink);
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 .viz .sub {
   font-size: 10px;
@@ -498,7 +487,7 @@ p {
 }
 .viz .tagtxt {
   font-size: 10.5px;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 .viz-status {
   position: absolute;
@@ -512,7 +501,7 @@ p {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--line);
   font-family: var(--f-mono);
-  font-size: 0.7rem;
+  font-size: var(--fs-micro);
   color: var(--ink-2);
   z-index: 2;
 }

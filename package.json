@@ -10,7 +10,8 @@
     "dev": "astro dev",
     "build": "astro build && node scripts/claims-guard.mjs",
     "preview": "astro preview",
-    "guard": "node scripts/claims-guard.mjs"
+    "guard": "node scripts/claims-guard.mjs",
+    "blog:sync": "rsync -a --delete --exclude .DS_Store ../blog/content/post/ src/content/blog/"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
@@ -18,7 +19,8 @@
     "@fontsource/instrument-serif": "^5.3.0",
     "astro": "^7.4.0",
     "gsap": "^3.15.0",
-    "lenis": "^1.3.27"
+    "lenis": "^1.3.27",
+    "mermaid": "12.0.0"
   },
   "devDependencies": {
     "gpt-tokenizer": "^4.0.3",

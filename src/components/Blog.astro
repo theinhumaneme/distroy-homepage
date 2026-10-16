@@ -1,0 +1,27 @@
+---
+import ChapterHead from './ChapterHead.astro';
+import PostList from './PostList.astro';
+import { blogCopy } from '../data/content';
+import { getPosts } from '../lib/blog';
+
+const posts = await getPosts();
+---
+
+<section id="blog" class="chapter" data-stage="blog" data-field="5" data-field-level="0.25" aria-labelledby="blog-title">
+  <div class="wrap">
+    <ChapterHead id="blog" color="var(--t5)">
+      <span slot="title" id="blog-title">{blogCopy.title}</span>
+      {blogCopy.lede}
+    </ChapterHead>
+    <PostList posts={posts.slice(0, 6)} />
+    <p class="all" data-reveal>
+      <a class="link" href="/blog/">{blogCopy.all} ({posts.length}) <span aria-hidden="true">→</span></a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .all {
+    margin-top: 28px;
+  }
+</style>

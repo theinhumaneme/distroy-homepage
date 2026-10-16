@@ -89,6 +89,10 @@ export type Case = {
   compact?: boolean;
 };
 
+export const casesCopy = {
+  title: 'Featured work.',
+};
+
 export const cases: Case[] = [
   {
     id: 'smartai',
@@ -525,8 +529,7 @@ export const clusterLabels: Record<Cluster, string> = { ai: 'AI', systems: 'Syst
 
 /* Copy for the Explore section. `{n}`-style tokens are filled in the browser. */
 export const queryCopy = {
-  titleLead: 'Find the work',
-  titleEm: 'relevant to you.',
+  title: 'Find the work relevant to you.',
   lede: 'Search by problem, technology, or area of interest. Each project appears once, with the passages that matched and a link to the full write-up.',
   inputLabel: 'Search my work',
   placeholder: 'try: backend, deployment, RAG…',
@@ -563,8 +566,7 @@ export const skillRows: { label: string; skills: string[] }[] = [
 ];
 
 export const skillsCopy = {
-  titleLead: 'Skills connected to',
-  titleEm: 'actual work.',
+  title: 'Skills connected to actual work.',
   lede: 'Select a skill to see the projects and roles where I used it. The number beside each skill counts those listed examples; it is not a proficiency rating.',
   bar: 'skills in practice · {n} technologies',
   groupLabel: 'Skills, grouped by area. Use the arrow keys to move between skills.',
@@ -579,6 +581,10 @@ export const skillsCopy = {
 /* ------------------------------------------------------------------------ */
 
 export type Role = { anchor: string; title: string; org: string; period: string; points: string[] };
+
+export const experienceCopy = {
+  title: 'Professional experience.',
+};
 
 export const roles: Role[] = [
   {
@@ -640,11 +646,12 @@ export const outcomes = [
 /* ------------------------------------------------------------------------ */
 
 export const about = {
+  title: 'About me.',
   intro:
     'I started building Documan while studying electronics engineering, then worked on backend systems, deployment tooling, and a city-service chatbot at Nebulogic. I now study computer science at Northeastern and support students as a teaching assistant. My projects explore applied AI, infrastructure, and ways to make complex information easier to use.',
   interests: ['Applied AI and LLM systems', 'Backend engineering', 'Infrastructure and deployment', 'Data visualization'],
   coursework: [
-    { code: 'CS5330', title: 'Pattern Recognition and Computer Vision', now: true },
+    { code: 'CS5330', title: 'Pattern Recognition and Computer Vision' },
     { code: 'CS6140', title: 'Machine Learning' },
     { code: 'CS5800', title: 'Algorithms' },
     { code: 'CS5200', title: 'Database Management Systems' },
@@ -686,7 +693,7 @@ export const about = {
 /* ------------------------------------------------------------------------ */
 
 export const contact = {
-  title: ['Let’s build', 'something useful.'],
+  title: 'Let’s build something useful.',
   text: 'Interested in my work across AI systems, backend engineering, or infrastructure? Get in touch to discuss a role, a project, or a technical problem.',
 };
 
@@ -697,5 +704,14 @@ export const chapters = [
   { id: 'explore', n: '03', label: 'Explore my work', anno: 'search' },
   { id: 'experience', n: '04', label: 'Experience', anno: 'context' },
   { id: 'about', n: '05', label: 'About', anno: 'tokenize' },
-  { id: 'contact', n: '06', label: 'Contact', anno: 'generate' },
+  { id: 'blog', n: '06', label: 'Blog', anno: 'decode' },
+  { id: 'contact', n: '07', label: 'Contact', anno: 'generate' },
 ];
+
+export const blogCopy = {
+  title: 'Blog',
+  lede: 'Tutorials and write-ups, from Telegram bots and Android ROMs to self-hosting, deployment tools, observability and Nix.',
+  all: 'All posts',
+  back: 'All posts',
+  original: 'Originally published on kalyanmudumby.com',
+};

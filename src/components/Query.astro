@@ -17,7 +17,7 @@ const KEYS = [
 <section id="explore" class="chapter query" data-stage="explore" data-field="3" data-field-level="0.45" aria-labelledby="q-title">
   <div class="wrap">
     <ChapterHead id="explore" color="var(--t5)">
-      <span slot="title" id="q-title">{copy.titleLead} <span class="serif">{copy.titleEm}</span></span>
+      <span slot="title" id="q-title">{copy.title}</span>
       {copy.lede}
     </ChapterHead>
 
@@ -57,7 +57,6 @@ const KEYS = [
 
       <figure class="panel space" data-reveal>
         <div class="panel-bar">
-          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
           <span>{copy.mapBar}</span>
           <span class="keys" aria-hidden="true">
             {KEYS.map(([k, c]) => <i style={`--c:${c}`}>{clusterLabels[k]}</i>)}
@@ -100,7 +99,7 @@ const KEYS = [
   }
   .gt {
     color: var(--t2);
-    font-size: 1.2rem;
+    font-size: var(--fs-title-s);
   }
   .q-box input {
     flex: 1;
@@ -110,7 +109,7 @@ const KEYS = [
     border: 0;
     outline: none;
     color: var(--ink);
-    font-size: 1.05rem;
+    font-size: var(--fs-body);
   }
   .q-box input::placeholder {
     color: var(--ink-3);
@@ -119,7 +118,7 @@ const KEYS = [
     display: none;
   }
   kbd {
-    font-size: 0.75rem;
+    font-size: var(--fs-micro);
     padding: 4px 8px;
     border-radius: 6px;
     border: 1px solid var(--line-2);
@@ -200,13 +199,13 @@ const KEYS = [
   }
   .results :global(.rk) {
     font-family: var(--f-mono);
-    font-size: 0.72rem;
+    font-size: var(--fs-micro);
     color: var(--ink-3);
     padding-top: 3px;
   }
   .results :global(.ttl) {
-    font-weight: 500;
-    font-size: 1rem;
+    font-weight: var(--fw-medium);
+    font-size: var(--fs-body);
     display: flex;
     flex-wrap: wrap;
     gap: 4px 10px;
@@ -222,12 +221,12 @@ const KEYS = [
     font-style: normal;
     font-family: var(--f-mono);
     font-size: var(--fs-micro);
-    font-weight: 400;
+    font-weight: var(--fw-body);
     color: var(--ink-3);
   }
   .results :global(.ttl .era) {
-    font-size: 0.8rem;
-    font-weight: 450;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
     padding: 1px 7px;
     border-radius: 5px;
     color: var(--ink-2);
@@ -246,7 +245,7 @@ const KEYS = [
   }
   .results :global(.sc) {
     font-family: var(--f-mono);
-    font-size: 0.72rem;
+    font-size: var(--fs-micro);
     color: var(--ink-3);
     display: flex;
     gap: 8px;
@@ -270,7 +269,7 @@ const KEYS = [
   }
   .results :global(.tx) {
     grid-column: 2 / -1;
-    font-size: 0.9rem;
+    font-size: var(--fs-small);
     line-height: 1.55;
     color: var(--ink-2);
   }
@@ -333,17 +332,17 @@ const KEYS = [
     border-left: 1px solid var(--line-2);
     display: grid;
     gap: 8px;
-    font-size: 0.86rem;
+    font-size: var(--fs-small);
     line-height: 1.5;
     color: var(--ink-2);
   }
   .empty {
     padding: 18px 4px;
-    font-size: 0.9rem;
+    font-size: var(--fs-small);
   }
   .keys-hint {
     margin-top: 10px;
-    font-size: 0.68rem;
+    font-size: var(--fs-micro);
   }
   @media (hover: none) {
     .keys-hint {
@@ -352,12 +351,12 @@ const KEYS = [
   }
   .how {
     margin-top: 18px;
-    font-size: 0.86rem;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .how summary {
     cursor: pointer;
-    font-size: 0.72rem;
+    font-size: var(--fs-micro);
     color: var(--ink-3);
   }
   .how summary:hover {
@@ -410,7 +409,7 @@ const KEYS = [
     border-radius: 10px;
     background: var(--bg-3);
     border: 1px solid var(--line-2);
-    font-size: 0.72rem;
+    font-size: var(--fs-micro);
     line-height: 1.5;
     color: var(--ink-2);
     pointer-events: none;
@@ -419,13 +418,13 @@ const KEYS = [
   .tip :global(b) {
     display: block;
     color: var(--ink);
-    font-weight: 500;
+    font-weight: var(--fw-medium);
     margin-bottom: 4px;
   }
   .space figcaption {
     padding: 12px 16px;
     border-top: 1px solid var(--line);
-    font-size: 0.68rem;
+    font-size: var(--fs-micro);
   }
 
   @media (min-width: 961px) {

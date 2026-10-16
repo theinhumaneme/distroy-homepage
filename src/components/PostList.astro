@@ -1,0 +1,82 @@
+---
+import { postDate, postHref, type Post } from '../lib/blog';
+interface Props {
+  posts: Post[];
+}
+const { posts } = Astro.props;
+---
+
+<ol class="posts">
+  {
+    posts.map((p, i) => (
+      <li data-reveal data-reveal-delay={String(Math.min(i, 6) * 0.04)}>
+        <a href={postHref(p)}>
+          <time class="mono" datetime={p.data.date.toISOString()}>
+            {postDate(p.data.date)}
+          </time>
+          <span class="t">{p.data.title}</span>
+          {p.data.description && <span class="d">{p.data.description}</span>}
+          {p.data.tags.length > 0 && <span class="tags mono">{p.data.tags.slice(0, 4).join(', ')}</span>}
+        </a>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .posts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .posts a {
+    display: grid;
+    grid-template-columns: 9.5em minmax(0, 1fr);
+    column-gap: clamp(16px, 3vw, 40px);
+    row-gap: 6px;
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+    transition: border-color 0.2s;
+  }
+  .posts a:hover {
+    border-top-color: var(--line-3);
+  }
+  time {
+    grid-row: span 3;
+    padding-top: 0.3em;
+    font-size: var(--fs-xs);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .t {
+    font-size: var(--fs-title);
+    font-weight: var(--fw-head);
+    letter-spacing: var(--tr-snug);
+    line-height: 1.2;
+    text-wrap: balance;
+    transition: color 0.2s;
+  }
+  .posts a:hover .t {
+    color: var(--t5);
+  }
+  .d {
+    max-width: 68ch;
+    font-size: var(--fs-body-s);
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .tags {
+    font-size: var(--fs-micro);
+    color: var(--ink-3);
+  }
+  @media (max-width: 640px) {
+    .posts a {
+      grid-template-columns: 1fr;
+    }
+    time {
+      grid-row: auto;
+      padding-top: 0;
+    }
+  }
+</style>

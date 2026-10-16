@@ -82,13 +82,12 @@ const [s1, s2, s3] = hero.statement;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--line-2);
-    font-size: clamp(0.78rem, 1vw, 0.9rem);
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .who {
-    font-size: 0.66rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tr-mono);
     padding: 3px 7px;
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.06);
@@ -109,8 +108,8 @@ const [s1, s2, s3] = hero.statement;
     margin-left: 10px;
     padding-left: 12px;
     border-left: 1px solid var(--line-2);
-    color: var(--ink-4);
-    font-size: 0.7rem;
+    color: var(--ink-3);
+    font-size: var(--fs-micro);
     white-space: nowrap;
   }
   @keyframes blink {
@@ -122,10 +121,10 @@ const [s1, s2, s3] = hero.statement;
   .name {
     display: grid;
     row-gap: 0.26em;
-    font-size: clamp(3rem, 8vw, 8.2rem);
+    font-size: var(--fs-display);
     line-height: 0.92;
-    letter-spacing: -0.055em;
-    font-weight: 600;
+    letter-spacing: var(--tr-display);
+    font-weight: var(--fw-display);
     margin-top: 0.1em;
   }
   .line {
@@ -150,8 +149,8 @@ const [s1, s2, s3] = hero.statement;
     left: 0.06em;
     bottom: -1.5em;
     font-size: max(10px, 0.085em);
-    letter-spacing: 0.02em;
-    font-weight: 400;
+    letter-spacing: var(--tr-mono);
+    font-weight: var(--fw-body);
     color: color-mix(in oklab, var(--c) 85%, var(--ink));
     opacity: 0.85;
   }
@@ -161,13 +160,13 @@ const [s1, s2, s3] = hero.statement;
     max-width: 26ch;
     font-size: clamp(1.8rem, 3.5vw, 3.3rem);
     line-height: 1.04;
-    letter-spacing: -0.04em;
-    font-weight: 540;
+    letter-spacing: var(--tr-head);
+    font-weight: var(--fw-head);
     text-wrap: balance;
   }
   .statement em {
     font-size: 1.1em;
-    letter-spacing: -0.015em;
+    letter-spacing: var(--tr-snug);
   }
   /* SplitText wraps the words in their own elements, so the clip goes on those */
   .shimmer,
@@ -206,9 +205,9 @@ const [s1, s2, s3] = hero.statement;
     justify-items: start;
   }
   .meta-line {
-    font-size: 0.76rem;
+    font-size: var(--fs-xs);
     color: var(--ink-3);
-    letter-spacing: 0.02em;
+    letter-spacing: var(--tr-mono);
   }
   .ctas {
     display: flex;
@@ -224,9 +223,8 @@ const [s1, s2, s3] = hero.statement;
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: var(--fs-micro);
+    letter-spacing: var(--tr-mono);
     color: var(--ink-3);
   }
   .scroll .bar {

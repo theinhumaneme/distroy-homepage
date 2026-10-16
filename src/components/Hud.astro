@@ -1,9 +1,15 @@
 ---
 import { chapters } from '../data/content';
+interface Props {
+  // pages other than the home page point the section links back at it
+  base?: string;
+  where?: string;
+}
+const { base = '', where = `01 / ${String(chapters.length).padStart(2, '0')} · ${chapters[0].label}` } = Astro.props;
 ---
 
 <header class="hud">
-  <a class="mark mono" href="#top" aria-label="Back to top">
+  <a class="mark mono" href={`${base}#top`} aria-label="Back to top">
     <span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>
     <span>kalyan<span class="faint">.</span>mudumby</span>
   </a>
@@ -11,7 +17,7 @@ import { chapters } from '../data/content';
   <nav class="stages" aria-label="Sections">
     {
       chapters.map((c) => (
-        <a href={`#${c.id}`} data-stage-link>
+        <a href={`${base}#${c.id}`} data-stage-link>
           {c.label === 'Explore my work' ? 'Explore' : c.label}
         </a>
       ))
@@ -19,7 +25,7 @@ import { chapters } from '../data/content';
   </nav>
 
   <div class="where mono" aria-hidden="true">
-    <span class="num" data-where>01 / 06 · Introduction</span>
+    <span class="num" data-where>{where}</span>
     <span class="track"><span class="fill" data-progress></span></span>
   </div>
 </header>

@@ -1,0 +1,53 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+processors:
+  # batch metrics before sending to reduce API usage
+  batch:
+connectors:
+  servicegraph:
+    latency_histogram_buckets: [0.1, 0.2, 0.4, 0.8, 1.6, 3.2, 6.4, 12.8]
+  spanmetrics:
+    namespace: traces.spanmetrics
+    histogram:
+      explicit:
+        buckets: [2ms, 4ms, 8ms, 16ms, 32ms, 64ms, 128ms, 256ms, 512ms, 1.02s, 2.05s, 4.10s]
+
+exporters:
+  logging:
+    loglevel: debug
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+  otlphttp:
+    endpoint: http://tempo:4318  # tempo container host and port
+    tls:
+      insecure: true
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
+
+extensions:
+  # responsible for responding to health check calls on behalf of the collector.
+  health_check:
+  # fetches the collector's performance data
+  pprof:
+  # serves as an http endpoint that provides live debugging data about instrumented components.
+  zpages:
+
+service:
+  extensions: [health_check, pprof, zpages]
+  pipelines:
+    # for now we only interested about metrics...
+    metrics:
+      receivers: [otlp,servicegraph,spanmetrics]
+      processors: [batch]
+      exporters: [prometheus]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp,spanmetrics,servicegraph]  # name here should match the exporter name for tempo which is otlphttp
+    logs:
+      receivers: [otlp]
+      exporters: [loki]
+
