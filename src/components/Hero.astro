@@ -68,8 +68,8 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
   <p class="cube-cap mono" data-cube-caption aria-hidden="true"></p>
 
   <a class="scroll" href="#work">
-    <span class="bar" aria-hidden="true"><i></i></span>
     Explore the work
+    <span class="arrow" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 2.5v10M3.5 8.5 8 13l4.5-4.5" /></svg></span>
   </a>
 </section>
 
@@ -278,14 +278,47 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
     transform: translateX(-50%);
     display: inline-flex;
     align-items: center;
-    gap: 12px;
-    font-size: var(--fs-xs);
+    gap: 10px;
+    font-size: var(--fs-small);
     font-weight: var(--fw-medium);
-    color: var(--ink-3);
+    color: var(--ink-2);
     transition: color 0.2s;
   }
   .scroll:hover {
     color: var(--ink);
+  }
+  /* a drawn arrow in a ring that nudges downward: unmistakably "scroll" */
+  .scroll .arrow {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--line-3);
+    color: var(--t2);
+    transition: border-color 0.2s;
+  }
+  .scroll:hover .arrow {
+    border-color: var(--t2);
+  }
+  .scroll .arrow svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: nudge 1.8s var(--ease-io) infinite;
+  }
+  @keyframes nudge {
+    0%,
+    100% {
+      transform: translateY(-1px);
+    }
+    50% {
+      transform: translateY(3px);
+    }
   }
   /* the background cube's current move, in standard notation */
   .cube-cap {
@@ -303,27 +336,6 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
     display: none;
   }
 
-  .scroll .bar {
-    position: relative;
-    width: 1px;
-    height: 34px;
-    background: var(--line-2);
-    overflow: hidden;
-  }
-  .scroll .bar i {
-    position: absolute;
-    left: 0;
-    top: -40%;
-    width: 1px;
-    height: 40%;
-    background: var(--t2);
-    animation: drip 2.2s var(--ease-io) infinite;
-  }
-  @keyframes drip {
-    to {
-      top: 110%;
-    }
-  }
 
   /* Held back until the intro takes over (set in index.astro, lifted by the
      script below, or after 2.5s if the script never runs) */

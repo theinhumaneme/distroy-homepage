@@ -2,13 +2,13 @@
 // 0 Rubik's cube → 1 token sequence → 2 embedding matrix → 3 vector
 // clusters → 4 (unused) → 5 output stream → 6 git commit graph (Experience)
 // → 7 the stack (Skills) → 8 a typing keyboard (About) → 9 a lens over
-// documents (Explore) → 10 a letter (Contact).
+// documents (Explore) → 10 a letter (Contact) → 11 an orrery (More to explore).
 // The cube is live: it plays a random scramble, then its exact inverse to
-// solve, turning one layer at a time (see Cube below). 6–10 are live scenes
+// solve, turning one layer at a time (see Cube below). 6–11 are live scenes
 // from art.ts, with their own colours.
 
 import { cssVar, currentTheme, onThemeChange } from './theme';
-import { graphScene, stackScene, keysScene, searchScene, mailScene, type Scene } from './art';
+import { graphScene, stackScene, keysScene, searchScene, mailScene, orbitScene, type Scene } from './art';
 
 type Formation = Float32Array;
 
@@ -17,15 +17,15 @@ type Formation = Float32Array;
 const readPalette = () => ['--t1', '--t2', '--t3', '--t4', '--t5', '--ink'].map((t) => cssVar(t));
 const COLORS = 6;
 let PALETTE = readPalette();
-const ROTATE = [0.9, 0, 0.12, 1, 0, 0, 0, 0, 0, 0, 0]; // how much each formation spins
-const TILT = [0.5, 0, 0.55, 0.22, 0, 0, 0, 0, 0, 0, 0]; // scenes (6–10) take their own
+const ROTATE = [0.9, 0, 0.12, 1, 0, 0, 0, 0, 0, 0, 0, 0]; // how much each formation spins
+const TILT = [0.5, 0, 0.55, 0.22, 0, 0, 0, 0, 0, 0, 0, 0]; // scenes (6–11) take their own
 // offset per formation (in field units) so shapes frame the copy: the cube,
 // commit graph and stack sit up and right beside their headings; the keyboard
 // sits low on the left, under About's lead, clear of the story
-const SHIFT = [0.7, 0, 0, 0.1, 0, 0, 0.46, 0.74, -0.62, 0.62, 0.62];
-const LIFT = [-0.22, 0, 0, 0, 0, 0, -0.42, -0.2, 0.3, -0.36, -0.12];
+const SHIFT = [0.7, 0, 0, 0.1, 0, 0, 0.46, 0.66, -0.62, 0.62, 0.62, 0.6];
+const LIFT = [-0.22, 0, 0, 0, 0, 0, -0.42, -0.4, 0.3, -0.36, -0.12, -0.3];
 // how large each scene draws, as a fraction of its field-unit size
-const SCENE_SCALE: Record<number, number> = { 6: 0.37, 7: 0.54, 8: 0.5, 9: 0.42, 10: 0.5 };
+const SCENE_SCALE: Record<number, number> = { 6: 0.37, 7: 0.4, 8: 0.5, 9: 0.42, 10: 0.5, 11: 0.5 };
 
 const hash = (i: number) => {
   let x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
@@ -272,7 +272,7 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
 
   const forms = buildFormations(N);
   const cube = new Cube(forms[0], opts.onCube);
-  const scenes: Record<number, Scene> = { 6: graphScene(N), 7: stackScene(N), 8: keysScene()(N), 9: searchScene(N), 10: mailScene(N) };
+  const scenes: Record<number, Scene> = { 6: graphScene(N), 7: stackScene(N), 8: keysScene()(N), 9: searchScene(N), 10: mailScene(N), 11: orbitScene(N) };
   for (const [k, sc] of Object.entries(scenes)) TILT[Number(k)] = sc.tilt;
   // hues are tokens (--t1) or literal colours (a transparent one hides dots)
   const readSceneHues = () => Object.fromEntries(Object.entries(scenes).map(([k, sc]) => [k, sc.hues.map((t) => (t.startsWith('--') ? cssVar(t) : t))]));

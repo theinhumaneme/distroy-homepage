@@ -123,7 +123,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
                 )}
                 {c.note && (
                   <aside class="note" data-reveal>
-                    <p class="mono">{c.note.label}</p>
+                    <p class="note-label">{c.note.label}</p>
                     <p>{c.note.text}</p>
                   </aside>
                 )}
@@ -235,7 +235,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
   .era {
     padding: 16px;
     border-radius: 14px;
-    background: rgb(var(--wash-rgb) / 0.025);
+    background: var(--surface);
     border: 1px solid var(--line);
     font-size: var(--fs-body-s);
     line-height: 1.55;
@@ -317,11 +317,13 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     font-size: var(--fs-body-s);
     color: var(--ink-2);
   }
-  .note .mono {
-    font-size: var(--fs-micro);
-    letter-spacing: var(--tr-mono);
+  /* the note's heading: a label in the sans, not code */
+  .note-label {
+    margin-bottom: 8px;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.01em;
     color: var(--t3);
-    margin-bottom: 6px;
   }
   .chips {
     margin-top: 22px;

@@ -14,9 +14,12 @@
   --bg-1: #0a0a0f;
   --bg-2: #101017;
   --bg-3: #16161f;
-  --panel: rgba(14, 14, 21, 0.72);
-  --panel-top: rgba(20, 20, 30, 0.78);
-  --panel-bottom: rgba(10, 10, 15, 0.86);
+  /* content surfaces are near-opaque, so the particle field never runs through text */
+  --panel: rgba(14, 14, 21, 0.96);
+  --panel-top: rgba(18, 18, 27, 0.97);
+  --panel-bottom: rgba(10, 10, 15, 0.98);
+  --surface: #0c0c11;
+  --surface-2: #121218;
 
   --ink: #eeede8;
   --ink-2: #bdbbb7;
@@ -102,9 +105,11 @@
   --bg-1: #f1f0eb;
   --bg-2: #eae8e2;
   --bg-3: #e2e0d9;
-  --panel: rgba(255, 255, 255, 0.7);
-  --panel-top: rgba(255, 255, 255, 0.82);
-  --panel-bottom: rgba(250, 249, 245, 0.9);
+  --panel: rgba(255, 255, 255, 0.95);
+  --panel-top: rgba(255, 255, 255, 0.96);
+  --panel-bottom: rgba(250, 249, 245, 0.97);
+  --surface: #f2f1ec;
+  --surface-2: #ebe9e3;
 
   --ink: #15151a;
   --ink-2: #3f3e3a;
@@ -551,24 +556,25 @@ p {
   gap: 8px;
 }
 .viz-status {
+  /* narration of the step on show: the sans, quiet, led by the step's hue */
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 9px;
   min-height: 30px;
-  padding: 0 11px;
-  border-radius: 8px;
-  background: rgb(var(--wash-rgb) / 0.04);
-  border: 1px solid var(--line);
-  font-family: var(--f-mono);
-  font-size: var(--fs-micro);
+  padding-top: 5px;
+  font-size: var(--fs-small);
+  font-weight: var(--fw-medium);
+  line-height: 1.4;
   color: var(--ink-2);
+  text-wrap: balance;
 }
 .viz-status::before {
   content: '';
   flex: none;
   width: 7px;
   height: 7px;
-  border-radius: 2px;
+  border-radius: 50%;
+  margin-top: 0.42em;
   background: var(--sc, var(--t2));
   transition: background 0.3s;
 }

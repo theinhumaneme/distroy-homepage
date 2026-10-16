@@ -357,3 +357,75 @@ export function mailScene(n: number): Scene {
   step(0);
   return { n, pos, col, hues: ['--ink', '--ink-3', '--t3', '--t2', 'rgba(0, 0, 0, 0)'], step, fit: [0.62, 0.62], tilt: 0.25, yaw: -0.22, sway: 0.12 };
 }
+
+/* More to explore: an orrery --------------------------------------------------
+   A small sun with dotted orbits and planets circling at their own pace, the
+   outer ones slower; one wears a ring. Side projects as worlds to explore. */
+export function orbitScene(n: number): Scene {
+  const ORBITS = [0.24, 0.36, 0.5, 0.64, 0.8, 0.95];
+  const SUN = Math.floor(n * 0.1);
+  const PLANET = 28; // dots per planet
+  const RINGED = 3; // the orbit whose planet has a ring
+  const RING = 40;
+  const planets = ORBITS.length * PLANET + RING;
+  const perOrbit = Math.floor((n - SUN - planets) / ORBITS.length);
+  const pos = new Float32Array(n * 3);
+  const col = new Uint8Array(n);
+  // even points on a sphere (Fibonacci), for the sun and the planets
+  const sphere = (k: number, m: number, r: number) => {
+    const y = 1 - (2 * (k + 0.5)) / m;
+    const s = Math.sqrt(1 - y * y);
+    const a = k * 2.39996;
+    return [Math.cos(a) * s * r, y * r, Math.sin(a) * s * r];
+  };
+  const PLANET_HUE = [2, 3, 4, 5, 2, 3]; // lilac, mint, coral, sky…
+  const speed = ORBITS.map((r) => 0.55 / Math.pow(r / ORBITS[0], 1.5)); // outer worlds move slower
+  const start = ORBITS.map((_, k) => hash(k + 11) * Math.PI * 2);
+  const radius = ORBITS.map((_, k) => 0.026 + hash(k + 5) * 0.022);
+  let i = 0;
+  const sunAt = i;
+  i += SUN;
+  const orbitAt = i;
+  i += perOrbit * ORBITS.length;
+  const planetAt = i;
+  // the orbits never move, so set them once; the leftovers sit on the last one
+  for (let k = 0; k < ORBITS.length; k++)
+    for (let d = 0; d < perOrbit; d++) {
+      const a = (d / perOrbit) * Math.PI * 2;
+      pos.set([Math.cos(a) * ORBITS[k], 0, Math.sin(a) * ORBITS[k]], (orbitAt + k * perOrbit + d) * 3);
+    }
+  for (let j = planetAt + planets; j < n; j++) pos.set([ORBITS[5], 0, 0], j * 3);
+  for (let j = sunAt; j < sunAt + SUN; j++) col[j] = 1;
+  for (let k = 0; k < ORBITS.length; k++) for (let d = 0; d < PLANET; d++) col[planetAt + k * PLANET + d] = PLANET_HUE[k];
+  for (let d = 0; d < RING; d++) col[planetAt + ORBITS.length * PLANET + d] = 1;
+
+  const step = (ms: number) => {
+    const t = ms * 0.001;
+    // the sun turns slowly
+    for (let d = 0; d < SUN; d++) {
+      const [x, y, z] = sphere(d, SUN, 0.085);
+      const a = t * 0.3;
+      pos.set([x * Math.cos(a) - z * Math.sin(a), y, x * Math.sin(a) + z * Math.cos(a)], (sunAt + d) * 3);
+    }
+    for (let k = 0; k < ORBITS.length; k++) {
+      const a = start[k] + t * speed[k];
+      const cx = Math.cos(a) * ORBITS[k],
+        cz = Math.sin(a) * ORBITS[k];
+      for (let d = 0; d < PLANET; d++) {
+        const [x, y, z] = sphere(d, PLANET, radius[k]);
+        pos.set([cx + x, y, cz + z], (planetAt + k * PLANET + d) * 3);
+      }
+      if (k === RINGED) {
+        // a tilted ring around this one
+        for (let d = 0; d < RING; d++) {
+          const b = (d / RING) * Math.PI * 2;
+          const rx = Math.cos(b) * radius[k] * 2.3,
+            rz = Math.sin(b) * radius[k] * 2.3;
+          pos.set([cx + rx, rz * 0.9, cz + rz * 0.45], (planetAt + ORBITS.length * PLANET + d) * 3);
+        }
+      }
+    }
+  };
+  step(0);
+  return { n, pos, col, hues: ['--ink-3', '--t3', '--t1', '--t2', '--t4', '--t5'], step, fit: [1, 0.6], tilt: 0.42, yaw: 0, sway: 0.12 };
+}

@@ -7,7 +7,7 @@ const groups = [
 ] as const;
 ---
 
-<section class="chapter more" data-stage="explore" data-field="3" data-field-level="0.3" aria-labelledby="more-title">
+<section class="chapter more" data-stage="skills" data-field="11" data-field-level="0.85" aria-labelledby="more-title">
   <div class="wrap">
     <h3 id="more-title" class="sub-title" data-reveal>More to explore</h3>
     {
@@ -88,7 +88,7 @@ const groups = [
     height: 100%;
     padding: 20px;
     border-radius: 16px;
-    background: rgb(var(--wash-rgb) / 0.02);
+    background: var(--surface);
     border: 1px solid var(--line);
     transition:
       border-color 0.3s,
@@ -97,7 +97,7 @@ const groups = [
   }
   a.card:hover {
     border-color: var(--line-3);
-    background: rgb(var(--wash-rgb) / 0.04);
+    background: var(--surface-2);
     transform: translateY(-3px);
   }
   li:target .card {

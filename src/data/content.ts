@@ -548,7 +548,15 @@ export const skillsCopy = {
 /* Experience                                                               */
 /* ------------------------------------------------------------------------ */
 
-export type Role = { anchor: string; title: string; org: string; period: string; points: string[] };
+export type Role = {
+  anchor: string;
+  title: string;
+  org: string;
+  period: string;
+  summary?: string;
+  points: string[];
+  link?: { label: string; url: string };
+};
 
 export const experienceCopy = {
   title: 'Experience, from building to teaching',
@@ -593,11 +601,15 @@ export const roles: Role[] = [
     title: 'Web Administrator',
     org: 'Geethanjali College of Engineering and Technology, Hyderabad',
     period: 'Dec 2021 – May 2023',
+    summary:
+      'GCTCPORTAL is the college’s campus portal, where students check announcements, results, placement drives, exam seating plans and the digital library.',
     points: [
-      'Maintained the official college portal for 7,000+ students and alumni.',
-      'Built 6+ event and conference sites, including VIBGYOR and BHASWARA.',
-      'Built a content automation tool on the Telegram Bot API, Blogger and the Google Drive API.',
+      'Maintained and extended GCTCPORTAL for 7,000+ students and alumni, keeping notices and results current and shipping new features.',
+      'Built 6+ event and conference sites, including the VIBGYOR cultural fest and the BHASWARA technical conference.',
+      // no timing figure: the profile has two conflicting versions (cr-gctcportal-timing)
+      'Built a content automation tool in Google Apps Script that ties together the Telegram Bot API, Blogger and the Google Drive API.',
     ],
+    link: { label: 'Visit GCTCPORTAL', url: 'https://www.gctcportal.in/p/new.html' },
   },
 ];
 
@@ -677,12 +689,17 @@ export const contact = {
 
 export const offClock = {
   title: 'Off the clock',
-  text: 'Away from code I solve Rubik’s cubes and practice speed typing. The cube behind my name scrambles and solves itself, one real move at a time. The typing test is yours to try.',
+  text: 'When I’m not coding, I’m usually timing a cube solve or trying to beat my last typing score. The cube at the top of this page scrambles itself, then undoes each move until it’s solved. Think you type faster than me? The test is right there.',
   // Owner-supplied numbers only (Oct 2026). Never estimate or round these up.
   stats: [
     { k: 'Rubik’s cube', v: '35 s best', note: 'Beginner method · learning CFOP, F2L done' },
-    { k: 'Typing', v: '100 wpm average', note: '120–130 wpm on good days' },
-  ],
+    {
+      k: 'Typing',
+      v: '100 wpm average',
+      note: '120–130 wpm on good days',
+      link: { label: 'My Monkeytype stats', url: 'https://monkeytype.com/profile/theinhumaneme' },
+    },
+  ] as { k: string; v: string; note: string; link?: { label: string; url: string } }[],
   typingAverage: 100,
 };
 
@@ -691,8 +708,9 @@ export const chapters = [
   { id: 'top', label: 'Introduction' },
   { id: 'work', label: 'Featured work' },
   { id: 'experience', label: 'Experience' },
-  { id: 'explore', label: 'Explore' },
+  { id: 'skills', label: 'Skills' },
   { id: 'about', label: 'About' },
+  { id: 'explore', label: 'Explore' },
   { id: 'contact', label: 'Contact' },
 ];
 

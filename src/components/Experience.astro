@@ -21,11 +21,17 @@ import { roles, outcomes, experienceCopy } from '../data/content';
                   <span class="faint">{r.period}</span>
                 </p>
                 <h3 class="r-title">{r.title}</h3>
+                {r.summary && <p class="r-sum">{r.summary}</p>}
                 <ul>
                   {r.points.map((p) => (
                     <li>{p}</li>
                   ))}
                 </ul>
+                {r.link && (
+                  <a class="link r-link" href={r.link.url} target="_blank" rel="noopener">
+                    {r.link.label} <span aria-hidden="true">↗</span>
+                  </a>
+                )}
               </li>
             </>
           ))
@@ -69,7 +75,7 @@ import { roles, outcomes, experienceCopy } from '../data/content';
   .role {
     padding: clamp(20px, 2.6vw, 32px);
     border-radius: 18px;
-    background: rgb(var(--wash-rgb) / 0.02);
+    background: var(--surface);
     border: 1px solid var(--line);
     scroll-margin-top: calc(var(--hud-h) + 24px);
   }
@@ -90,6 +96,18 @@ import { roles, outcomes, experienceCopy } from '../data/content';
     font-weight: var(--fw-head);
     letter-spacing: var(--tr-snug);
     line-height: 1.25;
+  }
+  .r-sum {
+    margin-top: 10px;
+    max-width: 36em;
+    font-size: var(--fs-body);
+    line-height: 1.6;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .r-link {
+    display: inline-flex;
+    margin-top: 18px;
   }
   .role > ul {
     margin: 16px 0 0;

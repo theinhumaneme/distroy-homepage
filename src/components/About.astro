@@ -5,110 +5,122 @@ import { about, offClock } from '../data/content';
 const stats = offClock.stats;
 ---
 
-<section id="about" class="chapter" data-stage="about" data-field="8" data-field-level="0.85" aria-labelledby="about-title">
+<section id="about" class="chapter" data-stage="about" aria-labelledby="about-title">
   <div class="wrap">
-    <ChapterHead id="about" color="var(--t4)" minor>
-      <span slot="title" id="about-title">{about.title}</span>
-    </ChapterHead>
+    <!-- the keyboard plays beside the story, then dims under the dense columns below -->
+    <div data-field="8" data-field-level="0.85">
+      <ChapterHead id="about" color="var(--t4)" minor>
+        <span slot="title" id="about-title">{about.title}</span>
+      </ChapterHead>
 
-    <div class="story">
-      <p class="lead" data-reveal>{about.lead}</p>
-      <div class="story-body" data-reveal data-reveal-delay="0.08">
-        {about.story.map((t) => <p>{t}</p>)}
-        <p>
-          {about.blogLine.text} <a href={about.blogLine.url}>{about.blogLine.link}</a>.
-        </p>
+      <div class="story">
+        <p class="lead" data-reveal>{about.lead}</p>
+        <div class="story-body" data-reveal data-reveal-delay="0.08">
+          {about.story.map((t) => <p>{t}</p>)}
+          <p>
+            {about.blogLine.text} <a href={about.blogLine.url}>{about.blogLine.link}</a>.
+          </p>
+        </div>
       </div>
     </div>
 
-    <div class="off" data-reveal>
-      <div class="off-text">
-        <h3 class="off-title">{offClock.title}</h3>
-        <p>{offClock.text}</p>
-        {
-          stats.length > 0 && (
-            <dl class="off-stats">
-              {stats.map((s) => (
-                <div>
-                  <dt>{s.k}</dt>
-                  <dd>{s.v}</dd>
-                  <dd class="note">{s.note}</dd>
-                </div>
-              ))}
-            </dl>
-          )
-        }
+    <div data-field="8" data-field-level="0.45">
+      <div class="off" data-reveal>
+        <div class="off-text">
+          <h3 class="off-title">{offClock.title}</h3>
+          <p>{offClock.text}</p>
+          {
+            stats.length > 0 && (
+              <dl class="off-stats">
+                {stats.map((s) => (
+                  <div>
+                    <dt>{s.k}</dt>
+                    <dd>{s.v}</dd>
+                    <dd class="note">{s.note}</dd>
+                    {s.link && (
+                      <dd class="stat-link">
+                        <a class="link" href={s.link.url} target="_blank" rel="noopener">
+                          {s.link.label} <span aria-hidden="true">↗</span>
+                        </a>
+                      </dd>
+                    )}
+                  </div>
+                ))}
+              </dl>
+            )
+          }
+        </div>
+        <TypeChallenge />
       </div>
-      <TypeChallenge />
-    </div>
 
-    <div class="ab-grid">
-      <section class="col" data-reveal>
-        <h3 class="mono">Education</h3>
-        <ul class="edu">
-          {
-            about.education.map((e) => (
-              <li>
-                <p class="e-n">{e.name}</p>
-                <p class="e-w">{e.what}</p>
-                <p class="mono faint e-d">{e.when}</p>
-              </li>
-            ))
-          }
-        </ul>
-        <h3 class="mono">Current coursework</h3>
-        <ul class="course">
-          {
-            about.coursework.map((c) => (
-              <li>
-                <span class="mono code">{c.code}</span>
-                <span>{c.title}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+      <div class="ab-grid">
+        <section class="col" data-reveal>
+          <h3 class="mono">Education</h3>
+          <ul class="edu">
+            {
+              about.education.map((e) => (
+                <li>
+                  <p class="e-n">{e.name}</p>
+                  <p class="e-w">{e.what}</p>
+                  <p class="mono faint e-d">{e.when}</p>
+                </li>
+              ))
+            }
+          </ul>
+          <h3 class="mono">Current coursework</h3>
+          <ul class="course">
+            {
+              about.coursework.map((c) => (
+                <li>
+                  <span class="mono code">{c.code}</span>
+                  <span>{c.title}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
 
-      <section class="col" data-reveal data-reveal-delay="0.06">
-        <h3 class="mono">Awards and certifications</h3>
-        <ul class="awards">
-          {
-            about.awards.map((a) => (
-              <li>
-                <span class="a-n">{a.name}</span>
-                <span class="a-b">
-                  {a.by} · {a.when}
-                </span>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+        <section class="col" data-reveal data-reveal-delay="0.06">
+          <h3 class="mono">Awards and certifications</h3>
+          <ul class="awards">
+            {
+              about.awards.map((a) => (
+                <li>
+                  <span class="a-n">{a.name}</span>
+                  <span class="a-b">
+                    {a.by} · {a.when}
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
 
-      <section class="col" data-reveal data-reveal-delay="0.12">
-        <h3 class="mono">Areas of interest</h3>
-        <ul class="plain">{about.interests.map((x) => <li>{x}</li>)}</ul>
-        <h3 class="mono">Publication</h3>
-        <a class="pub" href={about.publication.url} target="_blank" rel="noopener">
-          <span class="p-t">{about.publication.title} <span aria-hidden="true">↗</span></span>
-          <span class="mono faint">{about.publication.venue}</span>
-          <span class="p-n">{about.publication.note}</span>
-        </a>
-        <h3 class="mono">Leadership</h3>
-        <ul class="plain">{about.leadership.map((x) => <li>{x}</li>)}</ul>
-        <h3 class="mono">Writing</h3>
-        <ul class="plain writing">
-          {
-            about.writing.map((w) => (
-              <li>
-                <a class="link" href={w.url} target="_blank" rel="noopener">
-                  {w.title} ↗
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+        <section class="col" data-reveal data-reveal-delay="0.12">
+          <h3 class="mono">Areas of interest</h3>
+          <ul class="plain">{about.interests.map((x) => <li>{x}</li>)}</ul>
+          <h3 class="mono">Publication</h3>
+          <a class="pub" href={about.publication.url} target="_blank" rel="noopener">
+            <span class="p-t">{about.publication.title} <span aria-hidden="true">↗</span></span>
+            <span class="mono faint">{about.publication.venue}</span>
+            <span class="p-n">{about.publication.note}</span>
+          </a>
+          <h3 class="mono">Leadership</h3>
+          <ul class="plain">{about.leadership.map((x) => <li>{x}</li>)}</ul>
+          <h3 class="mono">Writing</h3>
+          <ul class="plain writing">
+            {
+              about.writing.map((w) => (
+                <li>
+                  <a class="link" href={w.url} target="_blank" rel="noopener">
+                    {w.title} ↗
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      </div>
     </div>
   </div>
 </section>
@@ -195,6 +207,10 @@ const stats = offClock.stats;
     color: var(--ink);
     font-variant-numeric: tabular-nums;
   }
+  .off-stats dd.stat-link {
+    margin-top: 8px;
+    font-size: inherit;
+  }
   .off-stats dd.note {
     margin-top: 2px;
     font-size: var(--fs-xs);
@@ -207,6 +223,14 @@ const stats = offClock.stats;
     }
   }
 
+  /* a halo in the page colour keeps text crisp where the keyboard's lines cross it */
+  .ab-grid,
+  .off-stats {
+    text-shadow:
+      0 0 2px var(--bg),
+      0 0 6px var(--bg),
+      0 0 12px var(--bg);
+  }
   .ab-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -298,7 +322,7 @@ const stats = offClock.stats;
     padding: 16px;
     border-radius: 12px;
     border: 1px solid var(--line);
-    background: rgb(var(--wash-rgb) / 0.02);
+    background: var(--surface);
     transition: border-color 0.3s;
   }
   .pub:hover {

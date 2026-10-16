@@ -10,10 +10,10 @@ const COLOR: Record<string, string> = { ai: 'var(--t1)', systems: 'var(--t5)', p
 const first = cells.find((c) => c.skill === top)!;
 ---
 
-<section id="skills" class="chapter skills" data-stage="explore" data-field="7" data-field-level="0.85" aria-labelledby="sk-title">
+<section id="skills" class="chapter skills" data-stage="skills" data-field="7" data-field-level="0.85" aria-labelledby="sk-title">
   <div class="wrap">
     <header class="sk-head">
-      <h3 id="sk-title" class="sub-title" data-reveal>{copy.title}</h3>
+      <h2 id="sk-title" class="chap-title minor" data-split>{copy.title}</h2>
       <p class="lede" data-reveal>{copy.lede}</p>
     </header>
 
@@ -92,13 +92,6 @@ const first = cells.find((c) => c.skill === top)!;
     margin-bottom: 28px;
     max-width: 880px;
   }
-  .sub-title {
-    font-size: var(--fs-lead);
-    letter-spacing: var(--tr-head);
-    font-weight: var(--fw-head);
-    line-height: 1.05;
-  }
-
   .sk-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.75fr) minmax(280px, 1fr);
