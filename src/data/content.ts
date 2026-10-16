@@ -70,10 +70,12 @@ export const hero = {
     { text: 'infrastructure', em: 3 },
     { text: ' behind them.' },
   ],
-  availability: 'Available for a Spring 2027 co-op, and full-time from May 2027.',
+  // non-breaking hyphen keeps “co‑op” on one line
+  availability: 'Available for a Spring 2027 co\u2011op, and full\u2011time from May 2027.',
   intro:
     'From a city’s 311 chatbot to a college digital library, I build tools that make information easier to find and systems easier to run.',
-  meta: ['Boston, MA', 'MS Computer Science · Northeastern', 'Expected May 2027'],
+  // degree first (what a screener checks), then place and graduation date
+  meta: { degree: 'MS Computer Science · Northeastern', place: 'Boston, MA', grad: 'Expected May 2027' },
 };
 
 /* ------------------------------------------------------------------------ */

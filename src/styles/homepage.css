@@ -44,8 +44,6 @@ body .homepage .hero .foot {
 }
 body .homepage .hero .intro { max-width: 45ch; line-height: 1.65; }
 body .homepage .hero .side { gap: 19px; }
-body .homepage .hero .meta-line { display: grid; gap: 3px; line-height: 1.6; }
-body .homepage .hero .meta-line span:first-child { color: var(--ink); }
 body .homepage .hero .ctas { gap: 8px; }
 body .homepage .hero .scroll { bottom: 24px; }
 
@@ -127,8 +125,6 @@ body .homepage > .foot { padding-top: 40px; }
   body .homepage #field { opacity: calc(var(--field-opacity) * 0.42); }
   body .homepage .hero { min-height: 100svh; padding-top: 112px; }
   body .homepage .hero .foot { grid-template-columns: 1fr; gap: 24px; }
-  body .homepage .hero .meta-line { display: flex; flex-wrap: wrap; gap: 5px 16px; }
-  body .homepage .hero .meta-line span:first-child { flex-basis: 100%; }
   body .homepage .hero .name { font-size: clamp(3.5rem, 11vw, 6.5rem); }
   body .homepage .hero .statement { font-size: clamp(1.8rem, 4.5vw, 2.6rem); }
   body .homepage .case { padding-block: 44px 60px; }
@@ -155,7 +151,6 @@ body .homepage > .foot { padding-top: 40px; }
   body .homepage .hero .statement { margin-top: 16px; font-size: 1.75rem; line-height: 1.2; }
   body .homepage .hero .foot { padding-top: 22px; margin-top: 4px; }
   body .homepage .hero .intro { font-size: 1.0625rem; line-height: 1.7; }
-  body .homepage .hero .meta-line { font-size: var(--fs-micro); }
   body .homepage .hero .ctas { width: 100%; }
   body .homepage .hero .ctas .btn { justify-content: center; flex: 1 1 100%; font-size: var(--fs-small); padding-inline: 16px; }
   body .homepage .chap-title { line-height: 1.12; }

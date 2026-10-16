@@ -53,7 +53,10 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
       <p class="intro">{hero.intro}</p>
       <div class="side">
         <p class="avail"><span class="dot" aria-hidden="true"></span>{hero.availability}</p>
-        <p class="meta-line">{hero.meta.map((item) => <span>{item}</span>)}</p>
+        <div class="facts">
+          <p class="degree">{hero.meta.degree}</p>
+          <p class="where">{hero.meta.place} · {hero.meta.grad}</p>
+        </div>
         <div class="ctas">
           <a class="btn primary" href="#work">View selected work <span class="arr">↓</span></a>
           {hasResume && <a class="btn" href={person.resume} download>Download resume <span class="arr">↓</span></a>}
@@ -63,7 +66,7 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
     </div>
   </div>
 
-  <a class="scroll mono" href="#work">
+  <a class="scroll" href="#work">
     <span class="bar" aria-hidden="true"><i></i></span>
     Explore the work
   </a>
@@ -73,6 +76,8 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
   .hero {
     position: relative;
     z-index: 2;
+    /* the side column's veil reaches past the gutter; keep it off the page width */
+    overflow-x: clip;
     min-height: 100svh;
     display: flex;
     align-items: center;
@@ -199,15 +204,19 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
     white-space: nowrap;
   }
 
+  /* the side column leads with availability, at the intro's size so the two
+     columns weigh the same; degree and place follow as one quiet block */
   .avail {
     display: inline-flex;
     align-items: baseline;
-    gap: 10px;
-    font-size: var(--fs-body);
+    gap: 12px;
+    max-width: 30em;
+    font-size: var(--fs-lede);
     font-weight: var(--fw-medium);
     color: var(--ink);
-    line-height: 1.45;
-    text-wrap: pretty;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
   }
   .avail .dot {
     flex: none;
@@ -233,12 +242,32 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
     text-wrap: pretty;
   }
   .side {
+    position: relative;
     display: grid;
     gap: 18px;
     justify-items: start;
   }
-  .meta-line {
-    font-size: var(--fs-xs);
+  /* a soft veil so the copy reads cleanly over the particle field */
+  .side::before {
+    content: '';
+    position: absolute;
+    inset: -40px -56px;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgb(var(--bg-rgb) / 0.72), rgb(var(--bg-rgb) / 0));
+    pointer-events: none;
+  }
+  .facts {
+    display: grid;
+    gap: 2px;
+    font-size: var(--fs-small);
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+  }
+  .degree {
+    font-weight: var(--fw-medium);
+    color: var(--ink-2);
+  }
+  .where {
     color: var(--ink-3);
   }
   .ctas {
@@ -255,9 +284,13 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    font-size: var(--fs-micro);
-    letter-spacing: var(--tr-mono);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
     color: var(--ink-3);
+    transition: color 0.2s;
+  }
+  .scroll:hover {
+    color: var(--ink);
   }
   .scroll .bar {
     position: relative;

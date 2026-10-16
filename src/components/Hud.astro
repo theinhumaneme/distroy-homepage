@@ -274,6 +274,12 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     .acts {
       gap: 6px;
     }
+    /* phones raise the shared label size; the bar keeps its own so it fits */
+    .mark,
+    .act,
+    .mobile-nav {
+      font-size: 0.8125rem;
+    }
   }
   @media (max-width: 560px) {
     .act.mail,
