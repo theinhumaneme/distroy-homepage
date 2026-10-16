@@ -294,27 +294,27 @@ const [s1, s2, s3] = hero.statement;
       const ids = toks.map((t) => t.querySelector<HTMLElement>('.tid'));
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
 
-      tl.from('#field', { opacity: 0, duration: 2.6, ease: 'power2.out', clearProps: 'opacity' }, 0);
-      tl.from(prompt, { opacity: 0, y: 10, duration: 1 }, 0.35);
+      tl.from('#field', { opacity: 0, duration: 2.3, ease: 'power2.out', clearProps: 'opacity' }, 0);
+      tl.from(prompt, { opacity: 0, y: 10, duration: 0.9 }, 0.3);
 
       // keystrokes at an uneven, human pace, with a longer gap after spaces
       q.textContent = '';
-      let at = 0.8;
+      let at = 0.7;
       for (let i = 0; i < full.length; i++) {
         tl.call(() => void (q.textContent = full.slice(0, i + 1)), [], at);
-        at += 0.065 + ((i * 37) % 7) * 0.01 + (full[i] === ' ' ? 0.13 : 0);
+        at += 0.055 + ((i * 37) % 7) * 0.009 + (full[i] === ' ' ? 0.11 : 0);
       }
-      at += 0.75; // the pause before an answer
+      at += 0.65; // the pause before an answer
 
       toks.forEach((t, i) => {
-        tl.from(t, { opacity: 0, y: '0.18em', duration: 1 }, at + i * 0.2);
-        if (ids[i]) tl.from(ids[i], { opacity: 0, y: 6, duration: 0.65 }, at + i * 0.2 + 0.25);
+        tl.from(t, { opacity: 0, y: '0.18em', duration: 0.95 }, at + i * 0.17);
+        if (ids[i]) tl.from(ids[i], { opacity: 0, y: 6, duration: 0.6 }, at + i * 0.17 + 0.22);
       });
-      at += 0.95; // the statement follows the name, overlapping it
-      tl.from(split.words, { yPercent: 110, duration: 1.2, stagger: 0.085 }, at);
-      at += 0.75;
-      tl.from(late, { opacity: 0, y: 16, duration: 1.2 }, at);
-      tl.from(['.hud', '.hero .scroll'], { opacity: 0, duration: 0.8, ease: 'power2.out', stagger: 0.18, clearProps: 'opacity' }, at + 0.35);
+      at += 0.8; // the statement follows the name, overlapping it
+      tl.from(split.words, { yPercent: 110, duration: 1.1, stagger: 0.075 }, at);
+      at += 0.65;
+      tl.from(late, { opacity: 0, y: 16, duration: 1.1 }, at);
+      tl.from(['.hud', '.hero .scroll'], { opacity: 0, duration: 0.8, ease: 'power2.out', stagger: 0.16, clearProps: 'opacity' }, at + 0.3);
 
       // the from-states are set; hand the elements over from the stylesheet
       html.classList.remove('intro');
