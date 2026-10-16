@@ -1,0 +1,199 @@
+---
+import ChapterHead from './ChapterHead.astro';
+import { buildSkills } from '../lib/build';
+import { docs } from '../data/content';
+
+const { rows, dims, max } = buildSkills();
+const flat = rows.flatMap((r) => r.cells);
+---
+
+<section id="embed" class="chapter" data-stage="embed" data-field="2" data-field-level="0.55" aria-labelledby="emb-title">
+  <div class="wrap">
+    <ChapterHead n="02" stage="embed" color="var(--t2)">
+      <span slot="title" id="emb-title">What I’m <span class="serif">made of.</span></span>
+      Every skill is a dimension. Brightness is <strong>evidence</strong>: how many of the {docs.length} pieces of work on
+      this page use it. It’s counted at build time, not self-rated.
+    </ChapterHead>
+
+    <div class="panel emb" data-reveal>
+      <div class="panel-bar">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>embedding("kalyan") ∈ ℝ<sup>{dims}</sup></span>
+        <span class="legend" aria-hidden="true">1 <i></i> {max} docs</span>
+      </div>
+
+      <div class="strip" aria-hidden="true" data-strip>
+        {flat.map((c) => <span style={`--w:${c.w}`} />)}
+      </div>
+
+      <div class="matrix" data-matrix>
+        {
+          rows.map((r) => (
+            <div class="row">
+              <p class="rl mono">{r.label}</p>
+              <ul class="cells">
+                {r.cells.map((c) => (
+                  <li
+                    tabindex="0"
+                    class="cell"
+                    style={`--w:${c.w}`}
+                    data-skill={c.skill}
+                    data-n={c.n}
+                    data-used={c.used.join(' · ')}
+                  >
+                    {c.skill}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="readout mono" aria-live="polite" data-readout>
+        <span class="faint">hover a dimension</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .emb {
+    overflow: hidden;
+  }
+  .legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .legend i {
+    width: 64px;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, color-mix(in oklab, var(--t1) 25%, transparent), var(--t2));
+  }
+
+  .strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 2px;
+    height: 28px;
+    margin: 22px clamp(16px, 2.4vw, 28px) 4px;
+    transform-origin: left;
+  }
+  .strip span {
+    border-radius: 2px;
+    background: color-mix(in oklab, color-mix(in oklab, var(--t2) calc(var(--w) * 100%), var(--t1)) calc(25% + var(--w) * 75%), transparent);
+  }
+
+  .matrix {
+    display: grid;
+    gap: 14px;
+    padding: clamp(18px, 2.4vw, 28px);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .rl {
+    padding-top: 9px;
+    font-size: var(--fs-micro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .cells {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cell {
+    --heat: color-mix(in oklab, var(--t2) calc(var(--w) * 100%), var(--t1));
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.86rem;
+    font-weight: 450;
+    color: color-mix(in oklab, var(--ink) calc(55% + var(--w) * 45%), var(--ink-3));
+    background: color-mix(in oklab, var(--heat) calc(8% + var(--w) * 40%), transparent);
+    border: 1px solid color-mix(in oklab, var(--heat) calc(22% + var(--w) * 60%), transparent);
+    box-shadow: 0 0 calc(var(--w) * 26px) -6px color-mix(in oklab, var(--heat) calc(var(--w) * 90%), transparent);
+    cursor: default;
+    transition:
+      transform 0.3s var(--ease-out),
+      background 0.3s,
+      box-shadow 0.3s;
+  }
+  .cell:hover,
+  .cell:focus-visible {
+    transform: translateY(-2px);
+    background: color-mix(in oklab, var(--heat) 45%, transparent);
+    box-shadow: 0 10px 30px -10px color-mix(in oklab, var(--heat) 80%, transparent);
+    outline: none;
+  }
+
+  .readout {
+    margin: 0;
+    padding: 14px 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.76rem;
+    color: var(--ink-2);
+    min-height: 48px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .readout :global(b) {
+    color: var(--t2);
+    font-weight: 500;
+  }
+
+  @media (max-width: 720px) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .rl {
+      padding: 0;
+    }
+    .readout {
+      white-space: normal;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const strip = document.querySelector('[data-strip]');
+  const matrix = document.querySelector('[data-matrix]');
+  const readout = document.querySelector<HTMLElement>('[data-readout]');
+
+  if (strip && matrix && !reduce) {
+    const tl = gsap.timeline({ scrollTrigger: { trigger: strip, start: 'top 85%', once: true } });
+    tl.from(strip.children, { scaleY: 0, opacity: 0, duration: 0.6, ease: 'expo.out', stagger: { each: 0.012 } }).from(
+      matrix.querySelectorAll('.cell'),
+      { opacity: 0, y: 12, scale: 0.9, duration: 0.7, ease: 'expo.out', stagger: { each: 0.014, from: 'start' } },
+      '-=0.5',
+    );
+  }
+
+  const show = (el: HTMLElement) => {
+    if (!readout) return;
+    const w = Number(getComputedStyle(el).getPropertyValue('--w')).toFixed(2);
+    const n = el.dataset.n;
+    readout.innerHTML = `<b>${el.dataset.skill}</b>&nbsp; w=${w} · ${n} doc${n === '1' ? '' : 's'} · <span class="muted">${el.dataset.used}</span>`;
+  };
+  matrix?.querySelectorAll<HTMLElement>('.cell').forEach((c) => {
+    c.addEventListener('pointerenter', () => show(c));
+    c.addEventListener('focus', () => show(c));
+  });
+</script>

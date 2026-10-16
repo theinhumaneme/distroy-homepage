@@ -1,0 +1,379 @@
+---
+import ChapterHead from './ChapterHead.astro';
+import Cite from './Cite.astro';
+import { card, person } from '../data/content';
+---
+
+<section id="card" class="chapter" data-stage="card" data-field="2" data-field-level="0.3" aria-labelledby="card-title">
+  <div class="wrap">
+    <ChapterHead n="05" stage="model card" color="var(--t4)">
+      <span slot="title" id="card-title">The <span class="serif">model card.</span></span>
+      Every serious model ships with one: where it was trained, how it was evaluated, and what it is for.
+    </ChapterHead>
+
+    <article class="panel mc" data-reveal>
+      <header class="mc-head">
+        <div>
+          <p class="mono faint mc-path">{person.github.replace('https://', '')} / <b>{person.modelId}</b></p>
+          <h3 class="mc-name">{person.modelId}<span class="mono ver">{person.version}</span></h3>
+        </div>
+        <ul class="mc-tags">
+          {card.tags.map((t, i) => <li class={`tag mono c${(i % 5) + 1}`}>{t}</li>)}
+        </ul>
+      </header>
+
+      <div class="mc-grid">
+        <section class="mc-sec">
+          <h4 class="mono">model details</h4>
+          <dl class="kv">
+            {
+              card.details.map(([k, v]) => (
+                <div>
+                  <dt class="mono">{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+          <h4 class="mono">intended use</h4>
+          <ul class="ticks">{card.intended.map((x) => <li>{x}</li>)}</ul>
+          <h4 class="mono">currently training on</h4>
+          <p class="now"><span class="pulse" aria-hidden="true"></span>{card.training_now}</p>
+          <h4 class="mono">leadership</h4>
+          <ul class="plain">{card.leadership.map((x) => <li>{x}</li>)}</ul>
+        </section>
+
+        <section class="mc-sec">
+          <h4 class="mono">training data</h4>
+          <ul class="edu">
+            {
+              card.training.map((e) => (
+                <li>
+                  <p class="e-n">{e.name}</p>
+                  <p class="e-w">{e.what}</p>
+                  <p class="mono faint e-d">{e.when}</p>
+                  <p class="e-c">{e.note}</p>
+                </li>
+              ))
+            }
+          </ul>
+          <h4 class="mono">publication</h4>
+          <a class="pub" href={card.publication.url} target="_blank" rel="noopener">
+            <span class="p-t">{card.publication.title} <span aria-hidden="true">↗</span></span>
+            <span class="mono faint">{card.publication.venue}</span>
+            <span class="p-n">{card.publication.note}</span>
+          </a>
+        </section>
+
+        <section class="mc-sec">
+          <h4 class="mono">evaluation results</h4>
+          <table class="evals">
+            <thead>
+              <tr><th class="mono">benchmark</th><th class="mono">result</th></tr>
+            </thead>
+            <tbody>
+              {
+                card.evals.map((e) => (
+                  <tr>
+                    <td>
+                      <span class="ev-by">{e.by}</span>
+                    </td>
+                    <td>
+                      <span class="ev-n">{e.name}</span>
+                      <span class="mono faint ev-w">{e.when}</span>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+          <h4 class="mono">open source</h4>
+          <a class="oss" href="https://github.com/langchain-ai/langchain/pull/19427" target="_blank" rel="noopener">
+            <span class="merged mono">⑂ merged</span>
+            <span>langchain-ai/langchain #19427</span>
+            <Cite src="langchain" />
+          </a>
+          <h4 class="mono">writing</h4>
+          <ul class="plain writing">
+            {
+              card.writing.map((w) => (
+                <li>
+                  <a class="link" href={w.url} target="_blank" rel="noopener">{w.title} ↗</a>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      </div>
+    </article>
+  </div>
+</section>
+
+<style>
+  .mc {
+    overflow: hidden;
+  }
+  .mc-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    padding: clamp(22px, 3vw, 36px);
+    border-bottom: 1px solid var(--line);
+  }
+  .mc-path {
+    font-size: 0.75rem;
+  }
+  .mc-path b {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .mc-name {
+    margin-top: 8px;
+    font-size: clamp(1.8rem, 3.4vw, 3rem);
+    letter-spacing: -0.04em;
+    font-weight: 600;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .ver {
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--t2);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid color-mix(in oklab, var(--t2) 35%, transparent);
+  }
+  .mc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-content: start;
+    max-width: 520px;
+    justify-content: flex-end;
+  }
+  .tag {
+    --c: var(--t1);
+    font-size: 0.7rem;
+    padding: 5px 9px;
+    border-radius: 6px;
+    color: color-mix(in oklab, var(--c) 85%, var(--ink));
+    background: color-mix(in oklab, var(--c) 12%, transparent);
+  }
+
+  .mc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .mc-sec {
+    padding: clamp(22px, 3vw, 36px);
+    display: grid;
+    align-content: start;
+    gap: 12px;
+  }
+  .mc-sec + .mc-sec {
+    border-left: 1px solid var(--line);
+  }
+  h4 {
+    margin: 14px 0 2px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  h4:first-child {
+    margin-top: 0;
+  }
+  .kv {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .kv div {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 12px;
+    font-size: 0.92rem;
+  }
+  .kv dt {
+    font-size: 0.72rem;
+    color: var(--ink-3);
+    padding-top: 3px;
+  }
+  .kv dd {
+    margin: 0;
+  }
+  .ticks,
+  .plain {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+  .ticks li::before {
+    content: '✓';
+    color: var(--t2);
+    margin-right: 10px;
+    font-family: var(--f-mono);
+  }
+  .now {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.92rem;
+  }
+  .pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--t2);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--t2) 60%, transparent);
+    animation: pulse 1.8s infinite;
+    flex: none;
+  }
+  @keyframes pulse {
+    70% {
+      box-shadow: 0 0 0 10px transparent;
+    }
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+  .edu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 20px;
+  }
+  .e-n {
+    font-weight: 560;
+    letter-spacing: -0.01em;
+  }
+  .e-w {
+    color: var(--ink-2);
+    font-size: 0.92rem;
+  }
+  .e-d {
+    font-size: 0.7rem;
+    margin-top: 4px;
+  }
+  .e-c {
+    margin-top: 8px;
+    font-size: 0.84rem;
+    color: var(--ink-3);
+    line-height: 1.55;
+  }
+  .pub {
+    display: grid;
+    gap: 6px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+    transition: border-color 0.3s;
+  }
+  .pub:hover {
+    border-color: var(--line-3);
+  }
+  .p-t {
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+  .pub .mono {
+    font-size: 0.7rem;
+  }
+  .p-n {
+    font-size: 0.78rem;
+    color: var(--ink-3);
+  }
+  .evals {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+  }
+  .evals th {
+    text-align: left;
+    font-size: 0.66rem;
+    font-weight: 400;
+    color: var(--ink-3);
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .evals td {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .evals td:first-child {
+    width: 42%;
+    padding-right: 12px;
+  }
+  .ev-by {
+    font-size: 0.76rem;
+    color: var(--ink-3);
+    line-height: 1.4;
+    display: block;
+  }
+  .ev-n {
+    display: block;
+    line-height: 1.35;
+  }
+  .ev-w {
+    font-size: 0.68rem;
+  }
+  .oss {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.86rem;
+  }
+  .merged {
+    font-size: 0.68rem;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #8957e5;
+    color: #fff;
+  }
+  .writing {
+    gap: 10px;
+  }
+  .writing .link {
+    font-family: var(--f-sans);
+    font-size: 0.86rem;
+  }
+
+  @media (max-width: 1080px) {
+    .mc-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .mc-sec:nth-child(3) {
+      grid-column: 1 / -1;
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+  }
+  @media (max-width: 720px) {
+    .mc-grid {
+      grid-template-columns: 1fr;
+    }
+    .mc-sec + .mc-sec {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+    .mc-tags {
+      justify-content: flex-start;
+    }
+  }
+</style>

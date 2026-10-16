@@ -1,0 +1,16 @@
+---
+interface Props {
+  n: string;
+  stage: string;
+  color?: string;
+}
+const { n, stage, color = 'var(--t1)' } = Astro.props;
+---
+
+<header class="chap-head">
+  <p class="chap-tag" style={`--c:${color}`} data-reveal>
+    <span>{n}</span><i></i><b>{stage}</b>
+  </p>
+  <h2 class="chap-title" data-split><slot name="title" /></h2>
+  <div class="lede" data-reveal data-reveal-delay="0.15"><slot /></div>
+</header>

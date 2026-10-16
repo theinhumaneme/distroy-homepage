@@ -1,0 +1,301 @@
+---
+import ChapterHead from './ChapterHead.astro';
+import Cite from './Cite.astro';
+import { roles, themes, logits } from '../data/content';
+import { buildAttention } from '../lib/build';
+
+const attn = buildAttention();
+const max = Math.max(...attn.flatMap((r) => r.weights));
+---
+
+<section id="attend" class="chapter" data-stage="attend" data-field="4" data-field-level="0.5" aria-labelledby="att-title">
+  <div id="doc-attend" class="wrap">
+    <ChapterHead n="04" stage="attend" color="var(--t3)">
+      <span slot="title" id="att-title">Where my <span class="serif">attention</span> went.</span>
+      Rows are roles, columns are themes. Each weight is a softmax over the verified highlights from that role, so every row
+      sums to 1. Read it bottom to top and the focus moves from web, to infrastructure, to AI and performance, to teaching.
+    </ChapterHead>
+
+    <div class="att-grid">
+      <figure class="panel heat" data-reveal>
+        <div class="panel-bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>softmax(evidence / τ) · τ = 0.85</span>
+          <span>Q = role · K = theme</span>
+        </div>
+        <div class="hm" role="table" aria-label="Attention of each role over themes">
+          <div class="hm-row hm-head" role="row">
+            <span role="columnheader"></span>
+            {themes.map((t) => <span role="columnheader" class="mono th">{t}</span>)}
+          </div>
+          {
+            roles.map((r, ri) => (
+              <div class="hm-row" role="row" data-hm-row={r.key}>
+                <span role="rowheader" class="rh">
+                  <b>{r.key}</b>
+                  <span class="mono faint">{r.period}</span>
+                </span>
+                {attn[ri].weights.map((w) => (
+                  <span role="cell" class="hm-cell mono" style={`--a:${(w / max).toFixed(3)}`} data-w={w.toFixed(2)}>
+                    {w.toFixed(2)}
+                  </span>
+                ))}
+              </div>
+            ))
+          }
+        </div>
+      </figure>
+
+      <div class="logits">
+        <p class="lg-h mono" data-reveal>top logits</p>
+        <ol>
+          {
+            logits.map((l, i) => (
+              <li data-reveal data-reveal-delay={String(i * 0.06)}>
+                <span class="lv">{l.value}</span>
+                <span class="ll">
+                  <span>
+                    {l.label}
+                    <Cite src={l.src} />
+                  </span>
+                  <span class="ld mono">{l.detail}</span>
+                </span>
+                <span class="lb" aria-hidden="true">
+                  <i style={`--w:${l.w}`} data-logit />
+                </span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+
+    <ol class="roles">
+      {
+        roles.map((r, i) => (
+          <li class="role" data-reveal data-reveal-delay={String((i % 2) * 0.08)} data-role={r.key}>
+            <p class="r-top mono">
+              <span class="r-key">{r.key}</span>
+              <span class="faint">{r.period}</span>
+            </p>
+            <h3 class="r-title">
+              {r.title}
+              <Cite src={r.src} />
+            </h3>
+            <p class="r-org muted">{r.org}</p>
+            <ul>
+              {r.points.map((p) => (
+                <li>{p}</li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .att-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: start;
+  }
+  .heat {
+    margin: 0;
+    overflow: hidden;
+  }
+  .hm {
+    padding: clamp(12px, 2vw, 22px);
+    display: grid;
+    gap: 6px;
+    overflow-x: auto;
+  }
+  .hm-row {
+    display: grid;
+    grid-template-columns: 120px repeat(6, minmax(64px, 1fr));
+    gap: 6px;
+    align-items: stretch;
+    min-width: 560px;
+  }
+  .th {
+    font-size: 0.66rem;
+    color: var(--ink-3);
+    padding: 0 4px 6px;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    align-self: end;
+  }
+  .rh {
+    display: grid;
+    align-content: center;
+    gap: 2px;
+    font-size: 0.86rem;
+  }
+  .rh b {
+    font-weight: 560;
+  }
+  .rh span {
+    font-size: 0.62rem;
+  }
+  .hm-cell {
+    display: grid;
+    place-items: center;
+    height: 54px;
+    border-radius: 9px;
+    font-size: 0.78rem;
+    color: color-mix(in oklab, var(--ink) calc(35% + var(--a) * 65%), transparent);
+    background: color-mix(in oklab, color-mix(in oklab, var(--t3) calc(var(--a) * 100%), var(--t1)) calc(8% + var(--a) * 62%), transparent);
+    border: 1px solid color-mix(in oklab, var(--t3) calc(var(--a) * 50%), transparent);
+    font-variant-numeric: tabular-nums;
+  }
+  .hm-row:not(.hm-head):hover .hm-cell {
+    filter: brightness(1.25);
+  }
+
+  .lg-h {
+    font-size: var(--fs-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .logits ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .logits li {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 4px 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .lv {
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    grid-row: span 2;
+  }
+  .ll {
+    font-weight: 500;
+    display: grid;
+    gap: 2px;
+  }
+  .ll .ld {
+    font-weight: 400;
+    font-size: 0.72rem;
+    color: var(--ink-3);
+  }
+  .lb {
+    height: 4px;
+    border-radius: 4px;
+    background: var(--line);
+    overflow: hidden;
+    align-self: center;
+  }
+  .lb i {
+    display: block;
+    height: 100%;
+    width: calc(var(--w) * 100%);
+    background: linear-gradient(90deg, var(--t1), var(--t3));
+    border-radius: 4px;
+    transform-origin: left;
+  }
+
+  .roles {
+    list-style: none;
+    margin: clamp(48px, 8vh, 96px) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .role {
+    padding: clamp(20px, 2.6vw, 32px);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+  }
+  .r-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+  }
+  .r-key {
+    color: var(--t3);
+  }
+  .r-title {
+    margin-top: 14px;
+    font-size: 1.25rem;
+    font-weight: 560;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .r-org {
+    margin-top: 4px;
+    font-size: 0.9rem;
+  }
+  .role ul {
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  .role ul li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+  .role ul li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.65em;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--t3);
+    opacity: 0.7;
+  }
+
+  @media (max-width: 960px) {
+    .att-grid,
+    .roles {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const rows = document.querySelectorAll('[data-hm-row]');
+    if (rows.length) {
+      gsap.from(
+        [...rows].flatMap((r) => [...r.querySelectorAll('.hm-cell')]),
+        {
+          opacity: 0,
+          scale: 0.6,
+          duration: 0.7,
+          ease: 'expo.out',
+          stagger: { each: 0.035, grid: [rows.length, 6], from: 'start' },
+          scrollTrigger: { trigger: rows[0], start: 'top 85%', once: true },
+        },
+      );
+    }
+    document.querySelectorAll('[data-logit]').forEach((el) =>
+      gsap.from(el, { scaleX: 0, duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 92%', once: true } }),
+    );
+  }
+</script>

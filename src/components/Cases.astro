@@ -1,0 +1,319 @@
+---
+import Cite from './Cite.astro';
+import RagViz from './viz/RagViz.astro';
+import GraphViz from './viz/GraphViz.astro';
+import DeviceViz from './viz/DeviceViz.astro';
+import FleetViz from './viz/FleetViz.astro';
+import CheckpointViz from './viz/CheckpointViz.astro';
+import VisualizersViz from './viz/VisualizersViz.astro';
+import { cases, indexDocs } from '../data/content';
+
+const VIZ = { rag: RagViz, graph: GraphViz, device: DeviceViz, fleet: FleetViz, checkpoint: CheckpointViz, visualizers: VisualizersViz };
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="chapter cases" data-stage="retrieve" data-field="0" data-field-level="0.28" aria-label="Case studies">
+  <div class="wrap">
+    <p class="ret-head mono" data-reveal>
+      <span class="q">retrieved <b>{cases.length}</b> documents</span>
+      <span class="faint">for “applied-AI engineer who ships the system around the model” · AI first</span>
+    </p>
+
+    {
+      cases.map((c, i) => {
+        const Viz = VIZ[c.viz];
+        return (
+          <article id={c.anchor} class:list={['case', { flip: i % 2 === 1 }]} aria-labelledby={`${c.anchor}-t`}>
+            <div class="doc-bar mono" data-reveal>
+              <span class="id">doc_{pad(i + 1)}</span>
+              <span>{c.slug}</span>
+              <span class="faint">{c.org}</span>
+              <span class="faint">{c.period}</span>
+              <span class="rank">
+                rank {i + 1}/{cases.length}
+              </span>
+            </div>
+            <div class="case-grid">
+              <div class="case-text">
+                <h3 id={`${c.anchor}-t`} class="case-title" data-split>
+                  {c.title}
+                </h3>
+                <p class="kicker serif" data-reveal>
+                  “{c.kicker}”
+                </p>
+                <p class="body" data-reveal>
+                  {c.body}
+                </p>
+                {c.badges && (
+                  <ul class="badges" data-reveal>
+                    {c.badges.map((b) => (
+                      <li class="mono">
+                        <span aria-hidden="true">◆</span> {b}
+                        <Cite src="oaam" />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <ul class="points">
+                  {c.points.map((p, k) => (
+                    <li data-reveal data-reveal-delay={String(k * 0.06)}>
+                      <span class="pt-n mono">{pad(k + 1)}</span>
+                      <span>
+                        {p.text}
+                        <Cite src={p.src} />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div class="chips" data-reveal>
+                  {c.stack.map((s) => (
+                    <span class="chip">{s}</span>
+                  ))}
+                </div>
+                {c.links.length > 0 && (
+                  <div class="links" data-reveal>
+                    {c.links.map((l) => (
+                      <a class="link" href={l.url} target="_blank" rel="noopener">
+                        {l.label} <span aria-hidden="true">↗</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <figure class="panel case-viz" data-reveal>
+                <Viz />
+              </figure>
+            </div>
+          </article>
+        );
+      })
+    }
+
+    <div id="doc-index" class="index">
+      <p class="ret-head mono" data-reveal>
+        <span class="q">also in the index</span>
+        <span class="faint">smaller systems, labs and team work</span>
+      </p>
+      <ul class="idx-grid">
+        {
+          indexDocs.map((d, i) => (
+            <li data-reveal data-reveal-delay={String(i * 0.05)}>
+              <a class="idx" href={d.url} target="_blank" rel="noopener">
+                <span class="idx-top mono">
+                  <span>doc_{pad(cases.length + i + 1)}</span>
+                  <span class="faint">{d.tag}</span>
+                </span>
+                <span class="idx-t">
+                  {d.title} <span aria-hidden="true">↗</span>
+                </span>
+                <span class="idx-l">{d.line}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cases {
+    padding-top: 0;
+  }
+  .ret-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    align-items: baseline;
+    padding-bottom: 16px;
+    margin-bottom: clamp(40px, 6vh, 72px);
+    border-bottom: 1px solid var(--line);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.04em;
+  }
+  .ret-head .q {
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .ret-head b {
+    color: var(--t2);
+    font-weight: 500;
+  }
+
+  .case {
+    padding-block: clamp(40px, 8vh, 96px);
+    scroll-margin-top: calc(var(--hud-h) + 12px);
+  }
+  .case + .case {
+    border-top: 1px dashed var(--line-2);
+  }
+  .doc-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    align-items: center;
+    margin-bottom: clamp(24px, 4vh, 40px);
+    font-size: var(--fs-micro);
+    color: var(--ink-2);
+  }
+  .doc-bar .id {
+    color: var(--bg);
+    background: var(--ink);
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-weight: 500;
+  }
+  .doc-bar .rank {
+    margin-left: auto;
+    color: var(--t2);
+  }
+
+  .case-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+    gap: clamp(28px, 4.5vw, 80px);
+    align-items: start;
+  }
+  .flip .case-text {
+    order: 2;
+  }
+  .case-title {
+    font-size: var(--fs-h3);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-weight: 580;
+  }
+  .kicker {
+    margin-top: 14px;
+    font-size: clamp(1.5rem, 2.6vw, 2.35rem);
+    line-height: 1.12;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .body {
+    margin-top: 18px;
+    color: var(--ink-2);
+    max-width: 58ch;
+    text-wrap: pretty;
+  }
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0;
+  }
+  .badges li {
+    font-size: 0.74rem;
+    padding: 7px 10px 7px 12px;
+    border-radius: 8px;
+    color: var(--t3);
+    background: color-mix(in oklab, var(--t3) 10%, transparent);
+    border: 1px solid color-mix(in oklab, var(--t3) 35%, transparent);
+  }
+  .points {
+    list-style: none;
+    padding: 0;
+    margin: 26px 0 0;
+    display: grid;
+    gap: 2px;
+  }
+  .points li {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 8px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+  .pt-n {
+    font-size: 0.7rem;
+    color: var(--ink-4);
+    padding-top: 4px;
+  }
+  .chips {
+    margin-top: 22px;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 22px;
+  }
+  .case-viz {
+    margin: 0;
+    padding: 52px 8px 14px;
+    position: sticky;
+    top: calc(var(--hud-h) + 24px);
+  }
+  .case-viz:has(.ck),
+  .case-viz:has(.vz) {
+    padding-top: 0;
+  }
+
+  .index {
+    padding-top: clamp(56px, 9vh, 110px);
+    scroll-margin-top: calc(var(--hud-h) + 12px);
+  }
+  .idx-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .idx {
+    display: grid;
+    gap: 10px;
+    height: 100%;
+    padding: 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+    transition:
+      border-color 0.3s,
+      background 0.3s,
+      transform 0.4s var(--ease-out);
+  }
+  .idx:hover {
+    border-color: var(--line-3);
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-3px);
+  }
+  .idx-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--ink-3);
+  }
+  .idx-t {
+    font-weight: 560;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+  }
+  .idx-l {
+    font-size: 0.9rem;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 960px) {
+    .case-grid {
+      grid-template-columns: 1fr;
+    }
+    .flip .case-text {
+      order: 0;
+    }
+    .case-viz {
+      position: relative;
+      top: 0;
+    }
+    .doc-bar .rank {
+      margin-left: 0;
+    }
+  }
+</style>

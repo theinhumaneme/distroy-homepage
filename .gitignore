@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+# Private source-of-truth ledger: contains contact details, owner notes and
+# unresolved claims. Site copy is curated from it into src/data/.
+*.profile.json

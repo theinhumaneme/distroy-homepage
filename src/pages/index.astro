@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+import Hud from '../components/Hud.astro';
+import Hero from '../components/Hero.astro';
+import Tokenize from '../components/Tokenize.astro';
+import Embed from '../components/Embed.astro';
+import Query from '../components/Query.astro';
+import Cases from '../components/Cases.astro';
+import Attend from '../components/Attend.astro';
+import ModelCard from '../components/ModelCard.astro';
+import Generate from '../components/Generate.astro';
+import { countTokens } from '../lib/build';
+import * as c from '../data/content';
+
+// Size of this page's own content, shown as the HUD's context window.
+const corpus = JSON.stringify([c.hero, c.origin, c.docs, c.cases, c.indexDocs, c.roles, c.card, c.generation]);
+const total = countTokens(corpus);
+---
+
+<Base
+  title="Kalyan Mudumby · Applied-AI Engineer"
+  description="Applied-AI engineer building the retrieval, validation, serving and infrastructure that make LLM systems hold up in production. RAG, multi-agent pipelines, local inference, Rust and Python."
+>
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <Hud total={total} />
+  <main id="main">
+    <Hero />
+    <Tokenize />
+    <Embed />
+    <Query />
+    <Cases />
+    <Attend />
+    <ModelCard />
+    <Generate />
+  </main>
+</Base>
+
+<style is:global>
+  #field {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(140% 100% at 50% 45%, transparent 55%, rgba(6, 6, 9, 0.5) 100%),
+      linear-gradient(180deg, rgba(6, 6, 9, 0) 70%, rgba(6, 6, 9, 0.6));
+  }
+  main {
+    position: relative;
+    z-index: 2;
+  }
+</style>
+
+<script>
+  import { initMotion } from '../scripts/motion';
+  initMotion();
+</script>

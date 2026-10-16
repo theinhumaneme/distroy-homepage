@@ -1,0 +1,419 @@
+---
+import ChapterHead from './ChapterHead.astro';
+import { buildIndex } from '../lib/build';
+import { suggestedQueries } from '../data/content';
+
+const index = buildIndex();
+---
+
+<section id="retrieve" class="chapter query" data-stage="retrieve" data-field="3" data-field-level="0.45" aria-labelledby="q-title">
+  <div class="wrap">
+    <ChapterHead n="03" stage="retrieve" color="var(--t5)">
+      <span slot="title" id="q-title">Don’t take my word. <span class="serif">Query it.</span></span>
+      Below is a working retrieval engine over {index.chunks.length} chunks of my work. Your query is embedded in your browser,
+      ranked by cosine similarity, and every result links to the evidence.
+    </ChapterHead>
+
+    <div class="q-grid">
+      <div class="q-left">
+        <form class="q-box" data-q-form role="search">
+          <label class="sr-only" for="q-input">Search my work</label>
+          <span class="gt mono" aria-hidden="true">›</span>
+          <input id="q-input" class="mono" type="search" autocomplete="off" spellcheck="false" placeholder="ask anything: rag, rust, latency…" data-q-input />
+          <kbd class="mono" aria-hidden="true">⏎</kbd>
+        </form>
+        <div class="sugg" aria-label="Suggested queries">
+          {suggestedQueries.map((s) => <button type="button" class="chip" data-sugg={s}>{s}</button>)}
+        </div>
+
+        <div class="results" aria-live="polite">
+          <p class="r-head mono"><span data-r-meta>top-k = 6 · cosine</span><span data-r-ms></span></p>
+          <ol data-results></ol>
+          <p class="empty muted" data-empty hidden>No chunk matched. Try “LLM”, “Redis” or “privacy”.</p>
+        </div>
+      </div>
+
+      <figure class="panel space" data-reveal>
+        <div class="panel-bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>vector space · drag to rotate</span>
+          <span class="keys" aria-hidden="true">
+            <i style="--c:var(--t1)">ai</i><i style="--c:var(--t5)">systems</i><i style="--c:var(--t3)">product</i><i style="--c:var(--t2)">teaching</i>
+          </span>
+        </div>
+        <div class="stage">
+          <canvas data-space aria-label="3D map of my work. Each point is a chunk of evidence, grouped by project."></canvas>
+          <div class="tip mono" data-tip hidden></div>
+        </div>
+        <figcaption class="mono faint">
+          TF-IDF · {index.vocab.length} terms · {index.chunks.length} chunks · {index.docs.length} docs · laid out by similarity
+          (classical MDS)
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+  <script type="application/json" id="index-data" set:html={JSON.stringify(index)} />
+</section>
+
+<style>
+  .q-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(24px, 3.5vw, 56px);
+    align-items: start;
+  }
+  .q-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 64px;
+    padding: 0 16px 0 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--line-2);
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s;
+  }
+  .q-box:focus-within {
+    border-color: color-mix(in oklab, var(--t2) 60%, transparent);
+    box-shadow: 0 0 0 6px color-mix(in oklab, var(--t2) 10%, transparent);
+  }
+  .gt {
+    color: var(--t2);
+    font-size: 1.2rem;
+  }
+  .q-box input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    background: none;
+    border: 0;
+    outline: none;
+    color: var(--ink);
+    font-size: 1.05rem;
+  }
+  .q-box input::placeholder {
+    color: var(--ink-4);
+  }
+  .q-box input::-webkit-search-cancel-button {
+    display: none;
+  }
+  kbd {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--line-2);
+    color: var(--ink-3);
+  }
+  .sugg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .sugg .chip {
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background 0.2s;
+  }
+  .sugg .chip:hover,
+  .sugg .chip.on {
+    color: var(--ink);
+    border-color: color-mix(in oklab, var(--t2) 50%, transparent);
+    background: color-mix(in oklab, var(--t2) 10%, transparent);
+  }
+
+  .results {
+    margin-top: 28px;
+    min-height: 560px;
+  }
+  .r-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--fs-micro);
+    color: var(--ink-3);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .results ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .results :global(li) {
+    border-bottom: 1px solid var(--line);
+  }
+  .results :global(.hit) {
+    display: grid;
+    grid-template-columns: 34px 1fr auto;
+    gap: 4px 12px;
+    width: 100%;
+    padding: 14px 4px;
+    text-align: left;
+    transition: background 0.2s;
+    border-radius: 8px;
+  }
+  .results :global(.hit:hover) {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .results :global(.rk) {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    color: var(--ink-3);
+    padding-top: 2px;
+  }
+  .results :global(.ttl) {
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .results :global(.ttl i) {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--c);
+  }
+  .results :global(.sc) {
+    font-family: var(--f-mono);
+    font-size: 0.75rem;
+    color: var(--t2);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .results :global(.sc b) {
+    display: block;
+    width: 56px;
+    height: 4px;
+    border-radius: 3px;
+    background: var(--line-2);
+    overflow: hidden;
+  }
+  .results :global(.sc b span) {
+    display: block;
+    height: 100%;
+    background: var(--t2);
+    transform-origin: left;
+  }
+  .results :global(.tx) {
+    grid-column: 2 / -1;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .results :global(mark) {
+    background: color-mix(in oklab, var(--t3) 22%, transparent);
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+  .empty {
+    padding: 18px 4px;
+    font-size: 0.9rem;
+  }
+
+  .space {
+    margin: 0;
+    position: sticky;
+    top: calc(var(--hud-h) + 20px);
+  }
+  .keys {
+    display: inline-flex;
+    gap: 12px;
+  }
+  .keys i {
+    font-style: normal;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .keys i::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--c);
+  }
+  .stage {
+    position: relative;
+    aspect-ratio: 1.15;
+  }
+  .stage canvas {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+  .stage canvas:active {
+    cursor: grabbing;
+  }
+  .tip {
+    position: absolute;
+    max-width: 280px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--bg-3);
+    border: 1px solid var(--line-2);
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    pointer-events: none;
+    box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+  }
+  .tip :global(b) {
+    display: block;
+    color: var(--ink);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .space figcaption {
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+    font-size: 0.68rem;
+  }
+
+  @media (max-width: 960px) {
+    .q-grid {
+      grid-template-columns: 1fr;
+    }
+    .space {
+      position: relative;
+      top: 0;
+      order: -1;
+    }
+    .keys {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { createEngine, createSpace, type Hit } from '../scripts/query-space';
+  import { scrollToEl } from '../scripts/motion';
+  import { terms } from '../lib/text';
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  const COLORS: Record<string, string> = { ai: 'var(--t1)', systems: 'var(--t5)', product: 'var(--t3)', teaching: 'var(--t2)' };
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const raw = document.getElementById('index-data')?.textContent;
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-space]');
+  if (raw && canvas) {
+    const index = JSON.parse(raw);
+    const engine = createEngine(index);
+    const space = createSpace(canvas, index);
+    const input = document.querySelector<HTMLInputElement>('[data-q-input]')!;
+    const list = document.querySelector<HTMLOListElement>('[data-results]')!;
+    const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+    const ms = document.querySelector<HTMLElement>('[data-r-ms]')!;
+    const tip = document.querySelector<HTMLElement>('[data-tip]')!;
+    const suggs = [...document.querySelectorAll<HTMLButtonElement>('[data-sugg]')];
+
+    const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+    // highlight words whose analysed form matches a query term
+    const mark = (text: string, q: Set<string>) =>
+      text
+        .split(/(\s+)/)
+        .map((wd) => {
+          const t = terms(wd)[0];
+          return t && [...q].some((x) => t === x || (x.length >= 3 && t.startsWith(x))) ? `<mark>${esc(wd)}</mark>` : esc(wd);
+        })
+        .join('');
+
+    const render = (hits: Hit[], q: string) => {
+      const qt = new Set(terms(q));
+      const top = hits[0]?.score || 1;
+      empty.hidden = hits.length > 0 || !q.trim();
+      list.innerHTML = hits
+        .map((h, i) => {
+          const c = index.chunks[h.chunk];
+          const d = index.docs[c.doc];
+          return `<li><button type="button" class="hit" data-anchor="${d.anchor}">
+            <span class="rk">#${i + 1}</span>
+            <span class="ttl"><i style="--c:${COLORS[d.cluster]}"></i>${esc(d.title)}</span>
+            <span class="sc">${h.score.toFixed(3)}<b><span style="transform:scaleX(${(h.score / top).toFixed(3)})"></span></b></span>
+            <span class="tx">${mark(c.text, qt)}</span>
+          </button></li>`;
+        })
+        .join('');
+      if (!reduce) gsap.from(list.children, { opacity: 0, x: -12, duration: 0.5, ease: 'expo.out', stagger: 0.05 });
+      // results can change the page height; keep every scroll trigger honest
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    };
+
+    const run = (q: string) => {
+      const t = performance.now();
+      const hits = engine.search(q);
+      ms.textContent = q.trim() ? `${(performance.now() - t).toFixed(2)} ms · in-browser` : '';
+      space.setHits(hits);
+      render(hits, q);
+      suggs.forEach((b) => b.classList.toggle('on', b.dataset.sugg === q));
+    };
+
+    let timer = 0;
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(() => run(input.value), 90);
+    });
+    document.querySelector('[data-q-form]')!.addEventListener('submit', (e) => {
+      e.preventDefault();
+      run(input.value);
+    });
+    list.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('[data-anchor]');
+      if (b) scrollToEl(document.getElementById(b.dataset.anchor!));
+    });
+
+    // type a suggestion into the box like a person would
+    let typing: gsap.core.Tween | null = null;
+    const typeQuery = (q: string) => {
+      typing?.kill();
+      if (reduce) {
+        input.value = q;
+        run(q);
+        return;
+      }
+      const o = { n: 0 };
+      typing = gsap.to(o, {
+        n: q.length,
+        duration: q.length * 0.05,
+        ease: 'none',
+        onUpdate: () => (input.value = q.slice(0, Math.round(o.n))),
+        onComplete: () => run(q),
+      });
+    };
+    suggs.forEach((b) => b.addEventListener('click', () => typeQuery(b.dataset.sugg!)));
+
+    ScrollTrigger.create({
+      trigger: canvas,
+      start: 'top 70%',
+      once: true,
+      onEnter: () => !input.value && typeQuery('RAG'),
+    });
+
+    space.onHover((i, x, y) => {
+      if (i < 0) {
+        tip.hidden = true;
+        return;
+      }
+      const c = index.chunks[i];
+      tip.innerHTML = `<b>${esc(index.docs[c.doc].title)}</b>${esc(c.text.length > 150 ? c.text.slice(0, 150) + '…' : c.text)}`;
+      tip.hidden = false;
+      const box = canvas.getBoundingClientRect();
+      tip.style.left = `${Math.min(x + 16, box.width - 296)}px`;
+      tip.style.top = `${Math.min(y + 16, box.height - 120)}px`;
+    });
+  }
+</script>

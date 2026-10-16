@@ -1,0 +1,97 @@
+---
+const json = ['{', '  "vendor": "…",', '  "date": "…",', '  "line_items": […],', '  "total": …', '}'];
+---
+
+<div class="viz" data-viz="device">
+  <p class="viz-status" data-status>waiting for a file</p>
+  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: a file is dropped inside a boundary labelled your machine. A local vision model reads it and structured JSON comes out. Only an optional MCP sync crosses the boundary.">
+    <rect x="16" y="58" width="404" height="326" rx="20" fill="rgba(111,227,193,.025)" stroke="var(--t2)" stroke-opacity=".45" stroke-dasharray="5 6" />
+    <text x="36" y="84" style="fill:var(--t2)">your machine · on-device</text>
+
+    <!-- drop zone -->
+    <rect x="40" y="104" width="130" height="150" rx="14" fill="none" stroke="rgba(238,237,232,.14)" stroke-dasharray="4 5" data-drop />
+    <text x="105" y="276" text-anchor="middle" class="sub">drop a file</text>
+
+    <g data-doc>
+      <rect x="66" y="122" width="78" height="104" rx="8" fill="#16161f" stroke="rgba(238,237,232,.22)" />
+      <rect x="78" y="138" width="40" height="6" rx="3" fill="rgba(238,237,232,.4)" />
+      <rect x="78" y="154" width="54" height="4" rx="2" fill="rgba(238,237,232,.16)" />
+      <rect x="78" y="164" width="48" height="4" rx="2" fill="rgba(238,237,232,.16)" />
+      <rect x="78" y="174" width="54" height="4" rx="2" fill="rgba(238,237,232,.16)" />
+      <rect x="78" y="196" width="24" height="4" rx="2" fill="rgba(238,237,232,.16)" />
+      <rect x="110" y="194" width="22" height="8" rx="2" fill="var(--t3)" fill-opacity=".6" />
+      <text x="105" y="218" text-anchor="middle" class="sub">invoice.pdf</text>
+      <rect x="66" y="122" width="78" height="3" fill="var(--t2)" data-scan style="opacity:0" />
+    </g>
+
+    <!-- model -->
+    <path class="wire" data-p="dm" d="M170 180 L206 180" />
+    <g>
+      <rect class="box" data-n="model" x="206" y="118" width="190" height="64" rx="14" />
+      <text class="lbl" x="301" y="144" text-anchor="middle">Llama 3.2 Vision 11B</text>
+      <text class="sub" x="301" y="162" text-anchor="middle">local · Podman AI Lab</text>
+    </g>
+    <path class="wire" data-p="mj" d="M301 182 L301 214" />
+
+    <!-- json -->
+    <g>
+      <rect class="box" data-n="json" x="206" y="214" width="190" height="146" rx="14" />
+      {json.map((l, i) => <text x="224" y={240 + i * 19} data-json-line style="fill:var(--ink-2);opacity:0">{l}</text>)}
+      <text x="380" y="350" text-anchor="end" class="sub">illustrative shape</text>
+    </g>
+
+    <!-- outside -->
+    <path class="wire dash" data-p="mcp" d="M396 287 C440 287 448 240 470 240" />
+    <text x="430" y="306" class="sub">optional · MCP</text>
+    <g>
+      <rect class="box" data-n="sheets" x="440" y="206" width="104" height="54" rx="12" />
+      <text class="lbl" x="492" y="230" text-anchor="middle">Sheets</text>
+      <text class="sub" x="492" y="246" text-anchor="middle">only if you ask</text>
+    </g>
+
+    <g transform="translate(468 104)">
+      <path d="M8 26 a12 12 0 0 1 4-23 a16 16 0 0 1 30 4 a10 10 0 0 1 2 19 z" fill="none" stroke="rgba(238,237,232,.25)" />
+      <line x1="2" y1="32" x2="50" y2="-4" stroke="var(--t4)" stroke-width="1.6" />
+      <text x="26" y="52" text-anchor="middle" class="sub">no cloud</text>
+    </g>
+
+    <circle class="pkt" r="5.5" cx="0" cy="0" data-pkt style="opacity:0" />
+  </svg>
+</div>
+
+<script>
+  import { gsap, C, playWhenVisible, glow, travel, say } from '../../scripts/viz';
+
+  document.querySelectorAll<HTMLElement>('[data-viz="device"]').forEach((root) => {
+    const $ = (s: string) => root.querySelector(s);
+    const p = (k: string) => $(`[data-p="${k}"]`);
+    const n = (k: string) => $(`[data-n="${k}"]`);
+    const pkt = $('[data-pkt]')!;
+    const status = $('[data-status]') as HTMLElement;
+    const doc = $('[data-doc]')!;
+    const scan = $('[data-scan]')!;
+    const lines = root.querySelectorAll('[data-json-line]');
+
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
+    say(tl, status, 'drop a file', C.ink);
+    tl.set(lines, { opacity: 0 })
+      .fromTo(doc, { y: -70, opacity: 0, rotate: -6, transformOrigin: '50% 50%' }, { y: 0, opacity: 1, rotate: 0, duration: 0.8, ease: 'bounce.out' })
+      .to($('[data-drop]'), { stroke: C.t2, duration: 0.3 }, '<0.4')
+      .to($('[data-drop]'), { stroke: 'rgba(238,237,232,.14)', duration: 0.6 }, '>0.4');
+    say(tl, status, 'vision model reading on-device', C.t1, '<');
+    glow(tl, n('model'), C.t1, '<', 1.4);
+    tl.set(scan, { opacity: 1, y: 0 }, '<').to(scan, { y: 100, duration: 0.7, ease: 'sine.inOut', repeat: 2, yoyo: true }, '<');
+    tl.set(scan, { opacity: 0 });
+    travel(tl, pkt, p('mj'), 0.35);
+    say(tl, status, 'structured JSON · re-prompt once if malformed', C.t2, '<');
+    glow(tl, n('json'), C.t2, '>', 1.4);
+    tl.to(lines, { opacity: 1, duration: 0.15, stagger: 0.14 }, '<');
+    tl.to(pkt, { opacity: 0, duration: 0.2 }, '<');
+    say(tl, status, 'optional: sync to Sheets over MCP', C.t3, '>0.2');
+    travel(tl, pkt, p('mcp'), 0.7, '<');
+    glow(tl, n('sheets'), C.t3, '>', 0.6);
+    tl.to([pkt, doc], { opacity: 0, duration: 0.4 }, '>0.2');
+
+    playWhenVisible(root, tl);
+  });
+</script>

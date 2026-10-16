@@ -1,0 +1,21 @@
+---
+import { sources, citeIndex } from '../data/content';
+interface Props {
+  src: string;
+}
+const n = citeIndex(Astro.props.src);
+const s = sources[n - 1];
+const tip = `${s.label} · ${s.detail}`;
+---
+
+{
+  s.url ? (
+    <a class="cite" href={s.url} target="_blank" rel="noopener" data-tip={tip} aria-label={`Source ${n}: ${tip}`}>
+      {n}
+    </a>
+  ) : (
+    <a class="cite" href={`#ref-${n}`} data-tip={tip} aria-label={`Source ${n}: ${tip}`}>
+      {n}
+    </a>
+  )
+}

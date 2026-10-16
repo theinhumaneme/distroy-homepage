@@ -1,0 +1,100 @@
+---
+// positions for an illustrative set of agents around the control plane
+const cx = 280,
+  cy = 196,
+  R = 148;
+const agents = Array.from({ length: 5 }, (_, i) => {
+  const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+  return { x: +(cx + Math.cos(a) * R * 1.25).toFixed(1), y: +(cy + Math.sin(a) * R).toFixed(1) };
+});
+const hex = Array.from({ length: 6 }, (_, i) => {
+  const a = Math.PI / 6 + (i * Math.PI) / 3;
+  return `${(cx + Math.cos(a) * 58).toFixed(1)},${(cy + Math.sin(a) * 58).toFixed(1)}`;
+}).join(' ');
+---
+
+<div class="viz" data-viz="fleet">
+  <p class="viz-status" data-status>git push → desired state</p>
+  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: a central control plane broadcasts encrypted config envelopes over WebSockets to agents. Each agent reconciles against its last-applied state. A disconnected agent reconnects with exponential backoff.">
+    {agents.map((a, i) => <path class="wire" data-wire={i} d={`M${cx} ${cy} L${a.x} ${a.y}`} />)}
+
+    <polygon points={hex} class="box" data-n="cp" />
+    <text class="lbl" x={cx} y={cy - 4} text-anchor="middle">control plane</text>
+    <text class="sub" x={cx} y={cy + 12} text-anchor="middle">Axum · PostgreSQL</text>
+
+    {
+      agents.map((a, i) => (
+        <g data-agent={i}>
+          <circle cx={a.x} cy={a.y} r="26" class="box" data-ring={i} />
+          <text class="lbl" x={a.x} y={a.y + 4} text-anchor="middle">agent</text>
+          <text class="sub" x={a.x} y={a.y + 44} text-anchor="middle" data-agent-lbl={i}>reconciled</text>
+        </g>
+      ))
+    }
+
+    {
+      agents.map((_, i) => (
+        <g data-env={i} style="opacity:0">
+          <rect x="-11" y="-8" width="22" height="16" rx="3" fill="var(--t3)" />
+          <path d="M-11 -8 L0 1 L11 -8" fill="none" stroke="#060609" stroke-width="1.4" />
+        </g>
+      ))
+    }
+    <text x="20" y="390" class="sub">AES-256-CBC payload · RSA-4096 OAEP key envelope · WebSockets</text>
+  </svg>
+</div>
+
+<script>
+  import { gsap, C, playWhenVisible, glow, say } from '../../scripts/viz';
+
+  document.querySelectorAll<HTMLElement>('[data-viz="fleet"]').forEach((root) => {
+    const $ = (s: string) => root.querySelector(s);
+    const status = $('[data-status]') as HTMLElement;
+    const wires = [...root.querySelectorAll<SVGPathElement>('[data-wire]')];
+    const envs = [...root.querySelectorAll('[data-env]')];
+    const rings = [...root.querySelectorAll('[data-ring]')];
+    const lbls = [...root.querySelectorAll('[data-agent-lbl]')];
+    const DOWN = 3;
+
+    const broadcast = (tl: gsap.core.Timeline, skip: number[] = [], at: gsap.Position = '>') => {
+      const label = `b${tl.duration()}`;
+      tl.addLabel(label, at);
+      envs.forEach((e, i) => {
+        if (skip.includes(i)) return;
+        tl.set(e, { opacity: 1 }, label).to(
+          e,
+          { duration: 0.8, ease: 'power2.inOut', motionPath: { path: wires[i], align: wires[i], alignOrigin: [0.5, 0.5], autoRotate: false } },
+          label,
+        );
+        tl.to(e, { opacity: 0, duration: 0.15 }, `${label}+=0.8`);
+        tl.call(() => (lbls[i].textContent = 'diff → apply'), [], `${label}+=0.8`);
+        glow(tl, rings[i], C.t2, `${label}+=0.8`, 0.5);
+        tl.call(() => (lbls[i].textContent = 'reconciled'), [], `${label}+=1.9`);
+      });
+    };
+
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 1 });
+    say(tl, status, 'git push → new desired state', C.ink);
+    glow(tl, $('[data-n="cp"]'), C.t3, '>0.2', 0.4);
+    say(tl, status, 'broadcast sealed config to every agent', C.t3, '<');
+    broadcast(tl, [], '<');
+    // one agent drops off and comes back
+    say(tl, status, 'agent lost connection', C.t4, '>0.6');
+    tl.to(wires[DOWN], { opacity: 0.15, duration: 0.3 }, '<')
+      .to(root.querySelector(`[data-agent="${DOWN}"]`), { opacity: 0.35, duration: 0.3 }, '<')
+      .call(() => (lbls[DOWN].textContent = 'offline'), [], '<');
+    ['retry in 1s', 'retry in 2s', 'retry in 4s'].forEach((t, i) => {
+      tl.call(() => (lbls[DOWN].textContent = t), [], `>${i ? 0.5 : 0.3}`);
+    });
+    say(tl, status, 'reconnected · exponential backoff', C.t2, '>0.5');
+    tl.to(wires[DOWN], { opacity: 1, duration: 0.3 }, '<').to(root.querySelector(`[data-agent="${DOWN}"]`), { opacity: 1, duration: 0.3 }, '<');
+    say(tl, status, 'reconcile against last-applied state', C.t2, '>0.2');
+    broadcast(
+      tl,
+      envs.map((_, i) => i).filter((i) => i !== DOWN),
+      '<',
+    );
+
+    playWhenVisible(root, tl);
+  });
+</script>

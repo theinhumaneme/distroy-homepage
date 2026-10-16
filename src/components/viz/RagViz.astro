@@ -1,0 +1,92 @@
+<div class="viz" data-viz="rag">
+  <p class="viz-status" data-status>question → cache</p>
+  <svg viewBox="0 0 560 400" role="img" aria-label="Diagram: a resident question checks the query cache. On a miss it retrieves context from the knowledge base and the LLM answers; the answer is cached and the corpus grows. On a hit the cache answers directly.">
+    <path class="wire" data-p="qc" d="M130 200 L165 200" />
+    <path class="wire" data-p="hit" d="M265 200 L410 200" />
+    <path class="wire" data-p="cr" d="M215 172 C215 120 225 80 248 80" />
+    <path class="wire dash" data-p="rk" d="M300 105 L300 278" />
+    <path class="wire" data-p="kr" d="M300 278 L300 105" style="opacity:0" />
+    <path class="wire" data-p="rl" d="M352 80 L398 80" />
+    <path class="wire" data-p="la" d="M465 105 L465 172" />
+    <path class="wire dash" data-p="wb" d="M440 228 C400 270 280 266 240 228" />
+
+    <text x="186" y="132" data-miss style="opacity:0;fill:var(--t3)">miss</text>
+    <text x="322" y="192" data-hit style="opacity:0;fill:var(--t2)">hit · served from cache</text>
+    <text x="300" y="262" text-anchor="middle" class="sub">cache write</text>
+
+    <g><rect class="box" data-n="q" x="20" y="172" width="110" height="56" rx="12" /><text class="lbl" x="75" y="197" text-anchor="middle">question</text><text class="sub" x="75" y="213" text-anchor="middle">from a resident</text></g>
+    <g><rect class="box" data-n="cache" x="165" y="172" width="100" height="56" rx="12" /><text class="lbl" x="215" y="197" text-anchor="middle">query cache</text><text class="sub" x="215" y="213" text-anchor="middle">hit / miss</text></g>
+    <g><rect class="box" data-n="ret" x="248" y="55" width="104" height="50" rx="12" /><text class="lbl" x="300" y="78" text-anchor="middle">retrieve</text><text class="sub" x="300" y="93" text-anchor="middle">top-k context</text></g>
+    <g><rect class="box" data-n="llm" x="398" y="55" width="124" height="50" rx="12" /><text class="lbl" x="460" y="78" text-anchor="middle">LLM</text><text class="sub" x="460" y="93" text-anchor="middle">OpenAI · LangChain</text></g>
+    <g><rect class="box" data-n="ans" x="410" y="172" width="110" height="56" rx="12" /><text class="lbl" x="465" y="197" text-anchor="middle">answer</text><text class="sub" x="465" y="213" text-anchor="middle">plain language</text></g>
+
+    <g data-kb>
+      <path class="box" data-n="kb" d="M240 292 a60 12 0 0 1 120 0 v56 a60 12 0 0 1 -120 0 z" />
+      <ellipse cx="300" cy="292" rx="60" ry="12" fill="none" stroke="rgba(238,237,232,.14)" />
+      <ellipse cx="300" cy="306" rx="60" ry="12" fill="none" stroke="var(--t5)" data-layer style="opacity:.2" />
+      <ellipse cx="300" cy="320" rx="60" ry="12" fill="none" stroke="var(--t5)" data-layer style="opacity:0" />
+      <ellipse cx="300" cy="334" rx="60" ry="12" fill="none" stroke="var(--t5)" data-layer style="opacity:0" />
+      <text class="lbl" x="300" y="384" text-anchor="middle">knowledge base</text>
+      <text class="sub" x="300" y="398" text-anchor="middle">grows with what residents ask</text>
+    </g>
+
+    <circle class="pkt" r="5.5" cx="0" cy="0" data-pkt style="opacity:0" />
+  </svg>
+</div>
+
+<script>
+  import { gsap, C, playWhenVisible, glow, travel, say } from '../../scripts/viz';
+
+  document.querySelectorAll<HTMLElement>('[data-viz="rag"]').forEach((root) => {
+    const $ = (s: string) => root.querySelector(s);
+    const p = (k: string) => $(`[data-p="${k}"]`);
+    const n = (k: string) => $(`[data-n="${k}"]`);
+    const pkt = $('[data-pkt]')!;
+    const status = $('[data-status]') as HTMLElement;
+    const layers = root.querySelectorAll('[data-layer]');
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.8 });
+
+    const miss = (layer: number, label: string) => {
+      say(tl, status, `${label} → cache miss`, C.t3);
+      tl.set(pkt, { opacity: 0 });
+      glow(tl, n('q'), C.ink, '<', 0.2);
+      travel(tl, pkt, p('qc'), 0.45);
+      glow(tl, n('cache'), C.t3, '>', 0.3);
+      tl.to($('[data-miss]'), { opacity: 1, duration: 0.2 }, '<');
+      travel(tl, pkt, p('cr'), 0.6, '<');
+      say(tl, status, 'retrieving context from the knowledge base', C.t5, '<');
+      glow(tl, n('ret'), C.t5, '>', 0.2);
+      travel(tl, pkt, p('rk'), 0.5, '<');
+      glow(tl, n('kb'), C.t5, '>', 0.1);
+      travel(tl, pkt, p('kr'), 0.45, '<0.15');
+      tl.to($('[data-miss]'), { opacity: 0, duration: 0.3 }, '<');
+      say(tl, status, 'generating a grounded answer', C.t1);
+      travel(tl, pkt, p('rl'), 0.4);
+      glow(tl, n('llm'), C.t1, '>', 0.5);
+      travel(tl, pkt, p('la'), 0.45, '>0.5');
+      glow(tl, n('ans'), C.t2, '>', 0.4);
+      say(tl, status, 'answer cached · corpus grows with demand', C.t2, '<');
+      travel(tl, pkt, p('wb'), 0.75, '>0.1');
+      glow(tl, n('cache'), C.t2, '>', 0.2);
+      tl.to(layers[layer], { opacity: 0.9, duration: 0.5 }, '<');
+      tl.to(pkt, { opacity: 0, duration: 0.2 }, '<');
+    };
+    const hit = () => {
+      say(tl, status, 'same question again → cache hit', C.t2, '>0.4');
+      glow(tl, n('q'), C.ink, '<', 0.2);
+      travel(tl, pkt, p('qc'), 0.4, '<');
+      glow(tl, n('cache'), C.t2, '>', 0.3);
+      tl.to($('[data-hit]'), { opacity: 1, duration: 0.2 }, '<');
+      travel(tl, pkt, p('hit'), 0.5, '<');
+      glow(tl, n('ans'), C.t2, '>', 0.4);
+      tl.to([pkt, $('[data-hit]')], { opacity: 0, duration: 0.3 }, '>0.4');
+    };
+
+    miss(1, 'new question');
+    hit();
+    miss(2, 'another question');
+    tl.to(layers, { opacity: (i) => (i === 0 ? 0.2 : 0), duration: 0.6 }, '>0.8');
+
+    playWhenVisible(root, tl);
+  });
+</script>

@@ -1,0 +1,168 @@
+---
+interface Props {
+  total: number;
+}
+const { total } = Astro.props;
+const stages = [
+  ['prompt', 'top'],
+  ['tokenize', 'tokenize'],
+  ['embed', 'embed'],
+  ['retrieve', 'retrieve'],
+  ['attend', 'attend'],
+  ['model card', 'card'],
+  ['generate', 'generate'],
+];
+---
+
+<header class="hud">
+  <a class="mark mono" href="#top" aria-label="Back to top">
+    <span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span>kalyan<span class="faint">.</span>mudumby</span>
+  </a>
+
+  <nav class="stages mono" aria-label="Chapters">
+    {
+      stages.map(([label, id], i) => (
+        <a href={`#${id}`} data-stage-link>
+          <span class="i">{String(i).padStart(2, '0')}</span>
+          {label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="ctx mono" title="Tokens of this page's content you have scrolled through">
+    <span class="lbl">ctx</span>
+    <span class="num"><span data-ctx-count data-total={total}>0</span><span class="faint">/{total.toLocaleString('en-US')}</span></span>
+    <span class="track" aria-hidden="true"><span class="fill" data-ctx-fill></span></span>
+  </div>
+</header>
+
+<style>
+  .hud {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    height: var(--hud-h);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 24px;
+    padding-inline: var(--gutter);
+    transition: background 0.4s, border-color 0.4s;
+    border-bottom: 1px solid transparent;
+  }
+  .hud:global(.scrolled) {
+    background: rgba(6, 6, 9, 0.62);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+    border-color: var(--line);
+  }
+  .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    justify-self: start;
+  }
+  .mk {
+    display: inline-flex;
+    gap: 2px;
+    height: 14px;
+  }
+  .mk i {
+    display: block;
+    width: 4px;
+    border-radius: 2px;
+    background: var(--t1);
+  }
+  .mk i:first-child {
+    width: 8px;
+  }
+  .mk i:nth-child(2) {
+    background: var(--t2);
+  }
+  .mk i:nth-child(3) {
+    background: var(--t3);
+  }
+  .stages {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--line);
+    font-size: 0.7rem;
+  }
+  .stages a {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 6px 11px;
+    border-radius: 999px;
+    color: var(--ink-3);
+    transition: color 0.3s, background 0.3s;
+    white-space: nowrap;
+  }
+  .stages a .i {
+    color: var(--ink-4);
+    transition: color 0.3s;
+  }
+  .stages a:hover {
+    color: var(--ink);
+  }
+  .stages a:global(.on) {
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.07);
+  }
+  .stages a:global(.on) .i {
+    color: var(--t2);
+  }
+  .ctx {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.7rem;
+    color: var(--ink-2);
+  }
+  .ctx .lbl {
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .ctx .num {
+    font-variant-numeric: tabular-nums;
+    min-width: 11ch;
+    text-align: right;
+  }
+  .track {
+    width: 84px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--line-2);
+    overflow: hidden;
+  }
+  .fill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--t1), var(--t2), var(--t3));
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  @media (max-width: 1100px) {
+    .stages {
+      display: none;
+    }
+    .hud {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 420px) {
+    .track {
+      width: 48px;
+    }
+  }
+</style>

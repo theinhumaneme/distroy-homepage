@@ -1,0 +1,292 @@
+---
+import { generation, person, sources, citeIndex } from '../data/content';
+import { tokenize } from '../lib/build';
+
+const segs = generation.map((s) => ({ toks: tokenize(s.text), n: s.src ? citeIndex(s.src) : 0, src: s.src }));
+const totalToks = segs.reduce((a, s) => a + s.toks.length, 0);
+const plain = generation.map((s) => s.text).join('');
+---
+
+<section id="generate" class="chapter gen" data-stage="generate" data-field="5" data-field-level="0.7" aria-labelledby="gen-title">
+  <div class="wrap">
+    <p class="chap-tag" style="--c:var(--t2)" data-reveal><span>06</span><i></i><b>generate</b></p>
+    <h2 id="gen-title" class="sr-only">Summary</h2>
+
+    <figure class="panel out" data-reveal>
+      <div class="panel-bar">
+        <span class="role mono"><span class="dot" aria-hidden="true"></span>assistant · {person.modelId} {person.version}</span>
+        <span class="mono"><span data-gen-n>0</span>/{totalToks} tokens · <span data-gen-rate>0</span> tok/s</span>
+      </div>
+      <p class="sr-only">{plain}</p>
+      <p class="stream" aria-hidden="true" data-stream>
+        {
+          segs.map((s) => (
+            <>
+              {s.toks.map((t) => (
+                <span class="g">{t.t}</span>
+              ))}
+              {s.n > 0 && (
+                <a class="cite g" href={sources[s.n - 1].url ?? `#ref-${s.n}`} tabindex="-1" data-tip={`${sources[s.n - 1].label} · ${sources[s.n - 1].detail}`}>
+                  {s.n}
+                </a>
+              )}
+            </>
+          ))
+        }<span class="cursor" data-cursor></span>
+      </p>
+      <figcaption class="grounded mono">
+        <span>✓ grounded · {segs.filter((s) => s.n).length} citations · 0 unsupported claims</span>
+        <span class="faint">finish_reason: stop</span>
+      </figcaption>
+    </figure>
+
+    <div class="cta">
+      <h3 class="cta-t" data-split>Continue the <span class="serif">sequence.</span></h3>
+      <p class="lede" data-reveal>I’m looking for applied-AI, ML-infrastructure and backend roles where both halves matter. The next token is yours.</p>
+      <div class="cta-row" data-reveal>
+        <a class="btn primary big" href={`mailto:${person.email}`}>{person.email} <span class="arr">→</span></a>
+        <a class="btn" href={person.linkedin} target="_blank" rel="noopener">LinkedIn <span class="arr">↗</span></a>
+        <a class="btn" href={person.github} target="_blank" rel="noopener">GitHub <span class="arr">↗</span></a>
+        <a class="btn" href={person.blog} target="_blank" rel="noopener">Blog <span class="arr">↗</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot" aria-labelledby="refs-title">
+  <div class="wrap">
+    <div class="refs">
+      <h2 id="refs-title" class="mono">references</h2>
+      <ol>
+        {
+          sources.map((s, i) => (
+            <li id={`ref-${i + 1}`}>
+              <span class="rn mono">[{i + 1}]</span>
+              {s.url ? (
+                <a href={s.url} target="_blank" rel="noopener">
+                  {s.label}
+                </a>
+              ) : (
+                <span>{s.label}</span>
+              )}
+              <span class="faint"> · {s.detail}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <div class="eot">
+      <p class="mono eot-t">&lt;|endoftext|&gt;</p>
+      <p class="mono faint small">
+        © 2026 {person.name} · Every claim on this page links to its source. Built with Astro, GSAP and two canvases; the search runs
+        in your browser.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .gen {
+    padding-bottom: clamp(64px, 10vh, 120px);
+  }
+  .gen .chap-tag {
+    margin-bottom: 28px;
+  }
+  .out {
+    margin: 0;
+  }
+  .role {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-2);
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--t2);
+    box-shadow: 0 0 10px var(--t2);
+  }
+  .stream {
+    padding: clamp(24px, 4vw, 52px);
+    font-size: clamp(1.45rem, 2.9vw, 2.65rem);
+    line-height: 1.32;
+    letter-spacing: -0.03em;
+    font-weight: 480;
+    text-wrap: pretty;
+    min-height: 6em;
+  }
+  .js .stream .g {
+    opacity: 0;
+  }
+  .stream .g.on {
+    opacity: 1;
+    transition: opacity 0.25s;
+  }
+  .stream .cite {
+    font-size: 0.42em;
+    vertical-align: 0.7em;
+  }
+  .cursor {
+    display: inline-block;
+    width: 0.5em;
+    height: 0.95em;
+    margin-left: 0.06em;
+    vertical-align: -0.12em;
+    background: var(--t2);
+    border-radius: 2px;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  .grounded {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 20px;
+    padding: 14px 18px;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-micro);
+    color: var(--t2);
+  }
+
+  .cta {
+    margin-top: clamp(80px, 14vh, 160px);
+    display: grid;
+    gap: 24px;
+    justify-items: start;
+  }
+  .cta-t {
+    font-size: var(--fs-h2);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    font-weight: 560;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .btn.big {
+    height: 58px;
+    padding: 0 24px;
+    font-size: 0.92rem;
+  }
+
+  .foot {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(6, 6, 9, 0.6), var(--bg));
+    padding-block: 56px 40px;
+  }
+  .refs h2 {
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 16px;
+  }
+  .refs ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 2 320px;
+    column-gap: 40px;
+    font-size: 0.82rem;
+    color: var(--ink-2);
+  }
+  .refs li {
+    break-inside: avoid;
+    padding: 5px 0;
+    scroll-margin-top: calc(var(--hud-h) + 40px);
+  }
+  .refs li:target {
+    color: var(--ink);
+  }
+  .refs li:target .rn {
+    color: var(--t2);
+  }
+  .refs a {
+    color: var(--ink);
+    border-bottom: 1px solid var(--line-2);
+  }
+  .refs a:hover {
+    border-color: var(--t2);
+  }
+  .rn {
+    display: inline-block;
+    width: 40px;
+    color: var(--ink-4);
+    font-size: 0.72rem;
+  }
+  .eot {
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .eot-t {
+    font-size: 0.9rem;
+    color: var(--t2);
+  }
+  .small {
+    font-size: 0.7rem;
+    max-width: 70ch;
+  }
+</style>
+
+<script>
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { gsap } from 'gsap';
+  gsap.registerPlugin(ScrollTrigger);
+
+  const stream = document.querySelector<HTMLElement>('[data-stream]');
+  if (stream) {
+    const toks = [...stream.querySelectorAll<HTMLElement>('.g')];
+    const cursor = stream.querySelector<HTMLElement>('[data-cursor]')!;
+    const nEl = document.querySelector<HTMLElement>('[data-gen-n]')!;
+    const rateEl = document.querySelector<HTMLElement>('[data-gen-rate]')!;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const textToks = toks.filter((t) => !t.classList.contains('cite')).length;
+
+    const finish = () => {
+      toks.forEach((t) => t.classList.add('on'));
+      nEl.textContent = String(textToks);
+    };
+
+    const run = () => {
+      if (reduce) return finish();
+      let i = 0,
+        count = 0;
+      const t0 = performance.now();
+      const step = () => {
+        const t = toks[i];
+        t.classList.add('on');
+        t.after(cursor);
+        if (!t.classList.contains('cite')) count++;
+        nEl.textContent = String(count);
+        rateEl.textContent = String(Math.round((count / (performance.now() - t0)) * 1000));
+        i++;
+        if (i < toks.length) {
+          // punctuation and citations take a breath, like a real sampler
+          const pause = /[.,:]/.test(t.textContent ?? '') ? 140 : t.classList.contains('cite') ? 180 : 0;
+          setTimeout(step, 22 + Math.random() * 38 + pause);
+        } else stream.append(cursor);
+      };
+      step();
+    };
+
+    ScrollTrigger.create({ trigger: stream, start: 'top 75%', once: true, onEnter: run });
+  }
+</script>
