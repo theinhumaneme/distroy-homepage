@@ -1,10 +1,14 @@
 // The background field: one particle system that re-forms for each chapter.
 // 0 Rubik's cube → 1 token sequence → 2 embedding matrix → 3 vector
-// clusters → 4 attention arcs → 5 output stream.
+// clusters → 4 (unused) → 5 output stream → 6 git commit graph (Experience)
+// → 7 the stack (Skills) → 8 a typing keyboard (About) → 9 a lens over
+// documents (Explore) → 10 a letter (Contact).
 // The cube is live: it plays a random scramble, then its exact inverse to
-// solve, turning one layer at a time (see Cube below).
+// solve, turning one layer at a time (see Cube below). 6–10 are live scenes
+// from art.ts, with their own colours.
 
 import { cssVar, currentTheme, onThemeChange } from './theme';
+import { graphScene, stackScene, keysScene, searchScene, mailScene, type Scene } from './art';
 
 type Formation = Float32Array;
 
@@ -13,12 +17,15 @@ type Formation = Float32Array;
 const readPalette = () => ['--t1', '--t2', '--t3', '--t4', '--t5', '--ink'].map((t) => cssVar(t));
 const COLORS = 6;
 let PALETTE = readPalette();
-const ROTATE = [0.9, 0, 0.12, 1, 0.08, 0]; // how much each formation spins
-const TILT = [0.5, 0, 0.55, 0.22, 0, 0];
-// offset per formation (in field units) so shapes frame the copy; the cube
-// sits up beside the name, clear of the hero's lower copy
-const SHIFT = [0.7, 0, 0, 0.1, 0, 0];
-const LIFT = [-0.22, 0, 0, 0, 0, 0];
+const ROTATE = [0.9, 0, 0.12, 1, 0, 0, 0, 0, 0, 0, 0]; // how much each formation spins
+const TILT = [0.5, 0, 0.55, 0.22, 0, 0, 0, 0, 0, 0, 0]; // scenes (6–10) take their own
+// offset per formation (in field units) so shapes frame the copy: the cube,
+// commit graph and stack sit up and right beside their headings; the keyboard
+// sits low on the left, under About's lead, clear of the story
+const SHIFT = [0.7, 0, 0, 0.1, 0, 0, 0.46, 0.74, -0.62, 0.62, 0.62];
+const LIFT = [-0.22, 0, 0, 0, 0, 0, -0.42, -0.2, 0.3, -0.36, -0.12];
+// how large each scene draws, as a fraction of its field-unit size
+const SCENE_SCALE: Record<number, number> = { 6: 0.37, 7: 0.54, 8: 0.5, 9: 0.42, 10: 0.5 };
 
 const hash = (i: number) => {
   let x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
@@ -246,31 +253,7 @@ function buildFormations(n: number): Formation[] {
     }
   }
 
-  // 4 · attention: arcs between positions on a sequence
-  {
-    const slots = 22;
-    const xs = Array.from({ length: slots }, (_, k) => -1.5 + (3 * k) / (slots - 1));
-    const arcs = 46;
-    const pairs = Array.from({ length: arcs }, () => {
-      const a = Math.floor(r() * slots);
-      let b = Math.floor(r() * slots);
-      if (b === a) b = (a + 3) % slots;
-      return [xs[a], xs[b]];
-    });
-    for (let i = 0; i < n; i++) {
-      if (i % 9 === 0) {
-        const x = xs[i % slots];
-        f[4].set([x + gauss(r) * 0.012, 0.55 + gauss(r) * 0.012, 0], i * 3);
-        continue;
-      }
-      const [a, b] = pairs[i % arcs];
-      const t = r();
-      const x = a + (b - a) * t;
-      const h = Math.abs(b - a) * 0.42;
-      const y = 0.55 - Math.sin(Math.PI * t) * h;
-      f[4].set([x, y, Math.sin(Math.PI * t) * 0.15], i * 3);
-    }
-  }
+  // 4 · unused
 
   // 5 · stream: generated tokens flowing out (animated in the loop)
   for (let i = 0; i < n; i++) {
@@ -289,6 +272,12 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
 
   const forms = buildFormations(N);
   const cube = new Cube(forms[0], opts.onCube);
+  const scenes: Record<number, Scene> = { 6: graphScene(N), 7: stackScene(N), 8: keysScene()(N), 9: searchScene(N), 10: mailScene(N) };
+  for (const [k, sc] of Object.entries(scenes)) TILT[Number(k)] = sc.tilt;
+  // hues are tokens (--t1) or literal colours (a transparent one hides dots)
+  const readSceneHues = () => Object.fromEntries(Object.entries(scenes).map(([k, sc]) => [k, sc.hues.map((t) => (t.startsWith('--') ? cssVar(t) : t))]));
+  let sceneHues: Record<string, string[]> = readSceneHues();
+  const sceneTo = new Float32Array(N * 3);
   const cur = new Float32Array(forms[0]);
   const from = new Float32Array(forms[0]);
   const ox = new Float32Array(N);
@@ -370,6 +359,7 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
   let dotScale = currentTheme() === 'light' ? 1.2 : 1;
   onThemeChange((theme) => {
     PALETTE = readPalette();
+    sceneHues = readSceneHues();
     sprites = PALETTE.map(makeSprite);
     blend = theme === 'light' ? 'source-over' : 'lighter';
     dotScale = theme === 'light' ? 1.2 : 1;
@@ -406,10 +396,19 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
     const mt = morphStart < 0 ? 1 : Math.min(1, (now - morphStart) / MORPH);
     // the cube turns only while it is the formation on show
     if (target === 0 && !reduce) cube.step(now);
-    const to = target === 0 ? cube.now : forms[target];
+    const sc = scenes[target];
+    if (sc) {
+      if (!reduce) sc.step(now);
+      const k = SCENE_SCALE[target];
+      for (let j = 0; j < N * 3; j++) sceneTo[j] = sc.pos[j] * k;
+    }
+    const to = target === 0 ? cube.now : sc ? sceneTo : forms[target];
     const flow = target === 5 ? now * 0.00012 : 0;
 
-    const want = target === 0 ? Math.PI / 4 + (reduce ? 0 : Math.sin(now * 0.00022) * 0.28) : angle;
+    // the cube holds a three-quarter view and sways a little rather than spin
+    // the cube and the scenes hold their view and sway a little rather than spin
+    const sway = reduce ? 0 : Math.sin(now * 0.00022);
+    const want = target === 0 ? Math.PI / 4 + sway * 0.28 : sc ? sc.yaw + sway * sc.sway : angle;
     yaw += (want - yaw) * k;
     const ay = yaw + px * 0.5;
     const ax = tilt + py * 0.25;
@@ -432,7 +431,7 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
       // a gentle drift keeps the field alive; smaller on the cube so its
       // sticker edges still read straight
       if (!reduce) {
-        const amp = target === 0 ? 0.35 : 1;
+        const amp = target === 0 ? 0.35 : sc ? 0.2 : 1;
         ty += Math.sin(t * 0.7 + i) * 0.006 * amp;
         tx += Math.cos(t * 0.5 + i * 1.3) * 0.004 * amp;
       }
@@ -460,7 +459,7 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
         toy = 0;
       if (d2 < 22000) {
         const d = Math.sqrt(d2) || 1;
-        const f = (1 - d / 148) * (target === 0 ? 18 : 26);
+        const f = (1 - d / 148) * (target === 0 || sc ? 18 : 26);
         tox = (dx / d) * f;
         toy = (dy / d) * f;
       }
@@ -483,6 +482,22 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
     }
 
     ctx.clearRect(0, 0, w, h);
+    // a scene draws in its own colours, one pass per hue, evenly sized dots
+    if (sc) {
+      const hues = sceneHues[target];
+      ctx.globalAlpha = Math.min(1, (blend === 'lighter' ? 0.9 : 0.95) * intensity);
+      for (let c = 0; c < hues.length; c++) {
+        ctx.fillStyle = hues[c];
+        for (let i = 0; i < N; i++) {
+          if (sc.col[i] !== c) continue;
+          const s = (2 + (size[i] - 1.3) * 0.5) * sz[i] * dotScale;
+          ctx.fillRect(sx[i] - s / 2, sy[i] - s / 2, s, s);
+        }
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(frame);
+      return;
+    }
     // draw by colour and three depth buckets to keep state changes low
     for (let g = 0; g < COLORS; g++) {
       ctx.fillStyle = PALETTE[g];
