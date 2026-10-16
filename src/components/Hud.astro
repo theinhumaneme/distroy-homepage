@@ -25,7 +25,7 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     <a class="act blog" href="/blog/" aria-current={onBlog ? 'page' : undefined}>Blog</a>
     <a class="act mail" href={`mailto:${person.email}`}>Email</a>
     {hasResume && <a class="act resume" href={person.resume} download>Resume <span aria-hidden="true">↓</span></a>}
-    <details class="mobile-nav mono">
+    <details class="mobile-nav">
       <summary>Menu <span aria-hidden="true">+</span></summary>
       <div class="sheet">
         <nav aria-label="Sections">
@@ -42,14 +42,7 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
 </header>
 
 <style>
-  /* One bar on every page: the tokens are pinned here so the blog's quieter
-     palette doesn't restyle it */
   .hud {
-    --ink-2: #bdbbb7;
-    --ink-3: #92918e;
-    --line: rgba(238, 237, 232, 0.09);
-    --line-2: rgba(238, 237, 232, 0.16);
-    --fs-xs: 0.8125rem;
     position: fixed;
     inset: 0 0 auto 0;
     z-index: 50;
@@ -68,8 +61,7 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    font-size: 0.8rem;
-    letter-spacing: 0.02em;
+    font-size: var(--fs-xs);
     justify-self: start;
   }
   .mk {
@@ -96,7 +88,7 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     justify-self: center;
     display: flex;
     gap: 2px;
-    font-size: 0.8125rem;
+    font-size: var(--fs-xs);
   }
   .stages a {
     padding: 7px 10px;

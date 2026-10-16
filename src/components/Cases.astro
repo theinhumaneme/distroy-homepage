@@ -70,7 +70,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
                 <h3 id={`${c.anchor}-t`} class="case-title" data-split>
                   {c.title}
                 </h3>
-                <p class="headline serif" data-reveal>
+                <p class="headline" data-reveal>
                   {c.headline}
                 </p>
                 {plain.map((b) => (
@@ -91,14 +91,14 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
                 {c.badges && (
                   <ul class="badges" data-reveal>
                     {c.badges.map((b) => (
-                      <li class="mono">
+                      <li>
                         <span aria-hidden="true">◆</span> {b}
                       </li>
                     ))}
                   </ul>
                 )}
                 {c.privacy && (
-                  <p class="privacy mono" data-reveal>
+                  <p class="privacy" data-reveal>
                     <span aria-hidden="true">◎</span> {c.privacy}
                   </p>
                 )}
@@ -200,8 +200,11 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
   }
   .headline {
     margin-top: 14px;
-    font-size: var(--fs-quote);
-    line-height: 1.12;
+    max-width: 24em;
+    font-size: var(--fs-title);
+    font-weight: var(--fw-medium);
+    line-height: 1.3;
+    letter-spacing: var(--tr-snug);
     color: var(--ink);
     text-wrap: balance;
   }
@@ -280,7 +283,8 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     gap: 8px;
     padding: 12px 0;
     border-top: 1px solid var(--line);
-    font-size: var(--fs-body-s);
+    font-size: var(--fs-body);
+    max-width: 36em;
     line-height: 1.55;
   }
   .pt-n {

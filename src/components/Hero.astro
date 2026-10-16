@@ -53,7 +53,7 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
       <p class="intro">{hero.intro}</p>
       <div class="side">
         <p class="avail"><span class="dot" aria-hidden="true"></span>{hero.availability}</p>
-        <p class="meta-line mono">{hero.meta.map((item) => <span>{item}</span>)}</p>
+        <p class="meta-line">{hero.meta.map((item) => <span>{item}</span>)}</p>
         <div class="ctas">
           <a class="btn primary" href="#work">View selected work <span class="arr">↓</span></a>
           {hasResume && <a class="btn" href={person.resume} download>Download resume <span class="arr">↓</span></a>}
@@ -240,7 +240,6 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
   .meta-line {
     font-size: var(--fs-xs);
     color: var(--ink-3);
-    letter-spacing: var(--tr-mono);
   }
   .ctas {
     display: flex;

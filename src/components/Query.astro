@@ -16,7 +16,7 @@ const KEYS = [
 
 <section id="explore" class="chapter query" data-stage="explore" data-field="3" data-field-level="0.45" aria-labelledby="q-title">
   <div class="wrap">
-    <ChapterHead id="explore" color="var(--t5)">
+    <ChapterHead id="explore" color="var(--t5)" minor>
       <span slot="title" id="q-title">{copy.title}</span>
       {copy.lede}
     </ChapterHead>
@@ -50,7 +50,7 @@ const KEYS = [
           <p class="sr-only" aria-live="polite" data-q-status></p>
         </div>
         <details class="how">
-          <summary class="mono">{copy.howSummary}</summary>
+          <summary>{copy.howSummary}</summary>
           <p>{fill(copy.how, { chunks: index.chunks.length })}</p>
         </details>
       </div>
@@ -66,7 +66,7 @@ const KEYS = [
           <canvas data-space role="img" aria-label={copy.mapLabel}></canvas>
           <div class="tip mono" data-tip hidden></div>
         </div>
-        <figcaption class="mono faint">{fill(copy.mapCaption, { chunks: index.chunks.length, docs: index.docs.length })}</figcaption>
+        <figcaption class="faint">{fill(copy.mapCaption, { chunks: index.chunks.length, docs: index.docs.length })}</figcaption>
       </figure>
     </div>
   </div>

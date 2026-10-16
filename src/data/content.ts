@@ -100,7 +100,7 @@ export type Case = {
 };
 
 export const casesCopy = {
-  title: 'Selected work.',
+  title: 'Selected work',
 };
 
 export const cases: Case[] = [
@@ -495,7 +495,7 @@ export const clusterLabels: Record<Cluster, string> = { ai: 'AI', systems: 'Syst
 
 /* Copy for the Explore section. `{n}`-style tokens are filled in the browser. */
 export const queryCopy = {
-  title: 'Find your way through the work.',
+  title: 'Find your way through the work',
   lede: 'Looking for a particular technology or problem? Search the projects and roles below, then follow a result to the details.',
   inputLabel: 'Search my work',
   placeholder: 'Search backend, deployment, RAG…',
@@ -532,7 +532,7 @@ export const skillRows: { label: string; skills: string[] }[] = [
 ];
 
 export const skillsCopy = {
-  title: 'The tools behind the work.',
+  title: 'The tools behind the work',
   lede: 'Select a technology to see where I’ve used it. Each number counts the projects and roles listed here.',
   bar: 'skills in practice · {n} technologies',
   groupLabel: 'Skills, grouped by area. Use the arrow keys to move between skills.',
@@ -549,7 +549,7 @@ export const skillsCopy = {
 export type Role = { anchor: string; title: string; org: string; period: string; points: string[] };
 
 export const experienceCopy = {
-  title: 'Experience, from building to teaching.',
+  title: 'Experience, from building to teaching',
 };
 
 export const roles: Role[] = [
@@ -612,7 +612,7 @@ export const outcomes = [
 /* ------------------------------------------------------------------------ */
 
 export const about = {
-  title: 'About me.',
+  title: 'About me',
   intro:
     'I started Documan as an electronics engineering student who wanted a better way to share course materials. At Nebulogic, that interest grew into work on backend systems, deployment tools, and a city-service chatbot. Today, I’m studying computer science at Northeastern and teaching software engineering, while building projects across applied AI, infrastructure, and data visualization.',
   interests: ['Applied AI and LLM systems', 'Backend engineering', 'Infrastructure and deployment', 'Data visualization'],
@@ -659,7 +659,7 @@ export const about = {
 /* ------------------------------------------------------------------------ */
 
 export const contact = {
-  title: 'Let’s build something useful.',
+  title: 'Let’s build something useful',
   text: 'Have a role, a project, or a technical problem in mind? I’d like to hear about it.',
 };
 

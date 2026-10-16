@@ -1,22 +1,4 @@
 /* Homepage refinements. Keep the shared blog typography and layouts unchanged. */
-body:has(.homepage) {
-  --ink-2: #bdbbb7;
-  --ink-3: #92918e;
-  --line: rgba(238, 237, 232, 0.09);
-  --line-2: rgba(238, 237, 232, 0.16);
-  --fs-h2: clamp(2.6rem, 5.2vw, 4.75rem);
-  --fs-h3: clamp(2rem, 3.3vw, 3.1rem);
-  --fs-quote: clamp(1.65rem, 2.5vw, 2.25rem);
-  --fs-lead: clamp(1.35rem, 2.25vw, 1.9rem);
-  --fs-lede: clamp(1.0625rem, 1.4vw, 1.25rem);
-  --fs-body-s: 1rem;
-  --fs-small: 0.9375rem;
-  --fs-xs: 0.8125rem;
-  --fs-micro: 0.75rem;
-  --tr-display: -0.045em;
-  --tr-head: -0.035em;
-  --fw-head: 550;
-}
 
 body .homepage #field { opacity: 0.72; }
 body .homepage .hero {
@@ -38,19 +20,19 @@ body .homepage .hero .prompt {
   border-radius: 8px;
   font-size: var(--fs-xs);
 }
-body .homepage .hero .meta { font-size: 0.6875rem; }
+body .homepage .hero .meta { font-size: var(--fs-micro); }
 body .homepage .hero .name {
   font-size: clamp(3.5rem, 8.2vw, 7.6rem);
   line-height: 0.96;
   row-gap: 0.24em;
-  letter-spacing: -0.055em;
+  letter-spacing: var(--tr-display);
 }
 body .homepage .hero .statement {
   margin-top: 22px;
   max-width: 28ch;
-  font-size: clamp(1.8rem, 3.3vw, 3.05rem);
-  line-height: 1.13;
-  font-weight: 500;
+  font-size: clamp(1.75rem, 2.8vw, 2.6rem);
+  line-height: 1.15;
+  font-weight: var(--fw-medium);
 }
 body .homepage .hero .foot {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -96,7 +78,7 @@ body .homepage .project-index a {
   transition: color 0.2s;
 }
 body .homepage .project-index .mono { font-size: var(--fs-micro); color: var(--t1); }
-body .homepage .project-index .index-arrow { color: var(--ink-3); font-size: 0.8125rem; }
+body .homepage .project-index .index-arrow { color: var(--ink-3); font-size: var(--fs-xs); }
 body .homepage .project-index a:hover { color: var(--ink); }
 body .homepage .case { padding-block: 60px 76px; }
 body .homepage .case + .case,
@@ -104,14 +86,14 @@ body .homepage .compact + .case { border-top-style: solid; }
 body .homepage .case .meta { font-size: var(--fs-micro); line-height: 1.7; margin-bottom: 24px; }
 body .homepage .case .meta .num { background: transparent; color: var(--t1); padding: 0 12px 0 0; border-right: 1px solid var(--line-2); border-radius: 0; }
 body .homepage .case-title { line-height: 1.15; }
-body .homepage .case .headline { line-height: 1.2; text-wrap: pretty; max-width: 28ch; color: #dfdcd5; margin-top: 12px; }
-body .homepage .case .body { line-height: 1.75; margin-top: 24px; }
+body .homepage .case .headline { margin-top: 14px; }
+body .homepage .case .body { line-height: 1.65; margin-top: 24px; }
 body .homepage .case .points { margin-top: 20px; }
 body .homepage .case .points li { color: var(--ink-2); padding-block: 15px; line-height: 1.65; }
 body .homepage .case .era { padding: 18px; line-height: 1.65; border-radius: 8px; }
 body .homepage .case-viz { margin-top: 6px; overflow: clip; }
 body .homepage .compact { background: linear-gradient(110deg, rgba(182,164,255,.06), rgba(10,10,15,.8)); margin-bottom: 48px; }
-body .homepage .compact .body { line-height: 1.7; color: var(--ink-2); }
+body .homepage .compact .body { line-height: 1.65; color: var(--ink-2); max-width: 38em; }
 body .homepage .compact .cp-right { border-left: 1px solid var(--line-2); padding-left: 28px; }
 body .homepage .more { padding-top: 0; padding-bottom: 72px; }
 body .homepage .more .grid { gap: 14px; }
@@ -165,17 +147,17 @@ body .homepage > .foot { padding-top: 40px; }
   body .homepage .skills .row { grid-template-columns: 1fr; }
   body .homepage .chap-head { gap: 18px; margin-bottom: 36px; }
   body .homepage .project-index { gap: 0 18px; }
-  body .homepage .project-index a { font-size: 0.8125rem; }
+  body .homepage .project-index a { font-size: var(--fs-xs); }
   body .homepage .project-index .index-arrow { display: none; }
   body .homepage .hero .prompt .meta { display: none; }
   body .homepage .role { padding: 22px; }
 }
 @media (max-width: 480px) {
-  body:has(.homepage) { --gutter: 22px; --fs-h2: 2.6rem; --fs-micro: 0.8125rem; --fs-xs: 0.875rem; }
+  body:has(.homepage) { --gutter: 22px; --fs-h2: 2.25rem; --fs-h2-minor: 1.875rem; }
   body .homepage .hero { padding-top: 108px; padding-bottom: 56px; }
   body .homepage .hero-in { gap: 23px; }
   body .homepage .hero .name { font-size: clamp(3.1rem, 11.8vw, 3.75rem); }
-  body .homepage .hero .statement { margin-top: 16px; font-size: 1.85rem; line-height: 1.2; }
+  body .homepage .hero .statement { margin-top: 16px; font-size: 1.75rem; line-height: 1.2; }
   body .homepage .hero .foot { padding-top: 22px; margin-top: 4px; }
   body .homepage .hero .intro { font-size: 1.0625rem; line-height: 1.7; }
   body .homepage .hero .meta-line { font-size: var(--fs-micro); }
@@ -183,7 +165,7 @@ body .homepage > .foot { padding-top: 40px; }
   body .homepage .hero .ctas .btn { justify-content: center; flex: 1 1 100%; font-size: var(--fs-small); padding-inline: 16px; }
   body .homepage .chap-title { line-height: 1.12; }
   body .homepage .outcomes dl { grid-template-columns: 1fr; }
-  body .homepage .contact .btn.big { font-size: 0.8125rem; padding-inline: 18px; }
+  body .homepage .contact .btn.big { padding-inline: 18px; }
 }
 
 /* Phones: case diagrams keep a legible scale and scroll sideways, rather

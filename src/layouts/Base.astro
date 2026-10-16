@@ -1,6 +1,10 @@
 ---
 import '../styles/global.css';
 import { person } from '../data/content';
+// The same files global.css loads through @fontsource; preloading them lets the
+// display type settle before first paint instead of reflowing on swap.
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import geistMonoLatin from '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url';
 
 interface Props {
   title: string;
@@ -35,6 +39,8 @@ const jsonLd = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#060609" />
+    <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geistMonoLatin} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {url && <link rel="canonical" href={url} />}
     <meta property="og:type" content="website" />

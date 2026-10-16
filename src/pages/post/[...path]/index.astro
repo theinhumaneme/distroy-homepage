@@ -87,9 +87,9 @@ const { title, description, date, tags } = post.data;
   .author {
     max-width: 760px;
   }
-  /* about 70–75 characters a line at body size; code and figures may run wider */
+  /* about 70 characters a line at body size; code and figures may run wider */
   .prose {
-    max-width: 36em;
+    max-width: 33em;
   }
   .prose :global(:is(pre, figure, table, .mermaid, img)) {
     max-width: min(760px, 100%);
@@ -133,7 +133,7 @@ const { title, description, date, tags } = post.data;
     font-size: var(--fs-h3);
     font-weight: var(--fw-head);
     letter-spacing: var(--tr-head);
-    line-height: 1.05;
+    line-height: 1.1;
     text-wrap: balance;
   }
   .meta {
@@ -180,9 +180,10 @@ const { title, description, date, tags } = post.data;
     text-wrap: balance;
     scroll-margin-top: calc(var(--hud-h) + 24px);
   }
+  /* three steps a reader can tell apart at a glance, on phones too */
   .prose :global(h2) {
-    margin-top: 2.4em;
-    font-size: var(--fs-title);
+    margin-top: 2.2em;
+    font-size: clamp(1.375rem, 2vw, 1.625rem);
     letter-spacing: var(--tr-snug);
   }
   .prose :global(h3) {
@@ -193,6 +194,7 @@ const { title, description, date, tags } = post.data;
   .prose :global(h4) {
     margin-top: 1.8em;
     font-size: var(--fs-body);
+    font-weight: 600;
   }
   .prose :global(:is(h2, h3, h4) + *) {
     margin-top: 0.7em;

@@ -2,10 +2,13 @@
 interface Props {
   id: string;
   color?: string;
+  // supporting chapters (Explore, About) sit a step below Featured work and Experience
+  minor?: boolean;
 }
+const { minor = false } = Astro.props;
 ---
 
 <header class="chap-head">
-  <h2 class="chap-title" data-split><slot name="title" /></h2>
+  <h2 class:list={['chap-title', { minor }]} data-split><slot name="title" /></h2>
   {Astro.slots.has('default') && <div class="lede" data-reveal data-reveal-delay="0.15"><slot /></div>}
 </header>

@@ -16,7 +16,7 @@ import { roles, outcomes, experienceCopy } from '../data/content';
           roles.map((r, i) => (
             <>
               <li id={r.anchor} class="role" data-reveal data-reveal-delay={String((i % 2) * 0.06)}>
-                <p class="r-top mono">
+                <p class="r-top">
                   <span>{r.org}</span>
                   <span class="faint">{r.period}</span>
                 </p>
@@ -41,7 +41,7 @@ import { roles, outcomes, experienceCopy } from '../data/content';
                 <dt class="mono">{o.label}</dt>
                 <dd>
                   <span class="ov">{o.value}</span>
-                  <span class="or mono">{o.role}</span>
+                  <span class="or">{o.role}</span>
                 </dd>
               </div>
             ))
@@ -100,9 +100,10 @@ import { roles, outcomes, experienceCopy } from '../data/content';
   }
   .role > ul li {
     position: relative;
+    max-width: 36em;
     padding-left: 18px;
-    font-size: var(--fs-body-s);
-    line-height: 1.55;
+    font-size: var(--fs-body);
+    line-height: 1.6;
     color: var(--ink-2);
   }
   .role > ul li::before {
