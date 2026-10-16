@@ -1,68 +1,83 @@
 ---
 import ChapterHead from './ChapterHead.astro';
 import { buildIndex } from '../lib/build';
-import { suggestedQueries } from '../data/content';
+import { suggestedQueries, queryCopy as copy, clusterLabels } from '../data/content';
 
 const index = buildIndex();
+const fill = (t: string, v: Record<string, string | number>) => t.replace(/\{(\w+)\}/g, (_, k) => String(v[k]));
+const KEYS = [
+  ['ai', 'var(--t1)'],
+  ['systems', 'var(--t5)'],
+  ['product', 'var(--t3)'],
+  ['teaching', 'var(--t2)'],
+  ['academic', 'var(--t4)'],
+] as const;
 ---
 
 <section id="explore" class="chapter query" data-stage="explore" data-field="3" data-field-level="0.45" aria-labelledby="q-title">
   <div class="wrap">
     <ChapterHead id="explore" color="var(--t5)">
-      <span slot="title" id="q-title">Find the work <span class="serif">relevant to you.</span></span>
-      Search by problem, technology, or area of interest. Results highlight matching passages and link to the relevant project or
-      experience.
+      <span slot="title" id="q-title">{copy.titleLead} <span class="serif">{copy.titleEm}</span></span>
+      {copy.lede}
     </ChapterHead>
 
     <div class="q-grid">
       <div class="q-left">
         <form class="q-box" data-q-form role="search">
-          <label class="sr-only" for="q-input">Search my work</label>
+          <label class="sr-only" for="q-input">{copy.inputLabel}</label>
           <span class="gt mono" aria-hidden="true">›</span>
-          <input id="q-input" class="mono" type="search" autocomplete="off" spellcheck="false" placeholder="try: backend, deployment, RAG…" data-q-input />
+          <input
+            id="q-input"
+            class="mono"
+            type="search"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder={copy.placeholder}
+            aria-controls="q-results"
+            data-q-input
+          />
           <kbd class="mono" aria-hidden="true">⏎</kbd>
         </form>
-        <div class="sugg" aria-label="Suggested queries">
+        <div class="sugg" role="group" aria-label={copy.suggestedLabel}>
           {suggestedQueries.map((s) => <button type="button" class="chip" data-sugg={s}>{s}</button>)}
         </div>
 
-        <div class="results" aria-live="polite">
-          <p class="r-head mono"><span data-r-meta>top 6 passages · score</span><span data-r-ms></span></p>
-          <ol data-results></ol>
-          <p class="empty muted" data-empty hidden>Nothing matched. Try “backend”, “Redis” or “data visualization”.</p>
+        <div class="results">
+          <p class="r-head mono"><span data-r-meta>{copy.idle}</span><span data-r-ms></span></p>
+          <ol id="q-results" data-results></ol>
+          <p class="empty muted" data-empty hidden>{copy.empty}</p>
+          <p class="keys-hint mono faint" data-keys hidden>{copy.keys}</p>
+          <p class="sr-only" aria-live="polite" data-q-status></p>
         </div>
         <details class="how">
-          <summary class="mono">How this search works</summary>
-          <p>
-            Browser-local keyword retrieval using TF-IDF and related terms, ranked by cosine similarity over {index.chunks.length}
-            passages. The map combines text similarity with category grouping; distances are illustrative.
-          </p>
+          <summary class="mono">{copy.howSummary}</summary>
+          <p>{fill(copy.how, { chunks: index.chunks.length })}</p>
         </details>
       </div>
 
       <figure class="panel space" data-reveal>
         <div class="panel-bar">
           <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span>map of the work · drag to rotate</span>
+          <span>{copy.mapBar}</span>
           <span class="keys" aria-hidden="true">
-            <i style="--c:var(--t1)">ai</i><i style="--c:var(--t5)">systems</i><i style="--c:var(--t3)">product</i><i style="--c:var(--t2)">teaching</i><i style="--c:var(--t4)">academic</i>
+            {KEYS.map(([k, c]) => <i style={`--c:${c}`}>{clusterLabels[k]}</i>)}
           </span>
         </div>
         <div class="stage">
-          <canvas data-space aria-label="Illustrative 3D map of my work. Each point is a passage, grouped by project."></canvas>
+          <canvas data-space role="img" aria-label={copy.mapLabel}></canvas>
           <div class="tip mono" data-tip hidden></div>
         </div>
-        <figcaption class="mono faint">{index.chunks.length} passages · {index.docs.length} projects and roles · distances are illustrative</figcaption>
+        <figcaption class="mono faint">{fill(copy.mapCaption, { chunks: index.chunks.length, docs: index.docs.length })}</figcaption>
       </figure>
     </div>
   </div>
-  <script type="application/json" id="index-data" set:html={JSON.stringify(index)} />
+  <script type="application/json" id="index-data" set:html={JSON.stringify({ index, copy, clusters: clusterLabels })} />
 </section>
 
 <style>
   .q-grid {
     display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
     gap: clamp(24px, 3.5vw, 56px);
     align-items: start;
   }
@@ -98,7 +113,7 @@ const index = buildIndex();
     font-size: 1.05rem;
   }
   .q-box input::placeholder {
-    color: var(--ink-4);
+    color: var(--ink-3);
   }
   .q-box input::-webkit-search-cancel-button {
     display: none;
@@ -132,34 +147,54 @@ const index = buildIndex();
 
   .results {
     margin-top: 28px;
-    min-height: 520px;
   }
   .r-head {
     display: flex;
     justify-content: space-between;
+    gap: 12px;
     font-size: var(--fs-micro);
     color: var(--ink-3);
     padding-bottom: 10px;
     border-bottom: 1px solid var(--line);
+  }
+  .r-head span:last-child {
+    white-space: nowrap;
   }
   .results ol {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .results :global(li) {
+  .results :global(li.res) {
+    position: relative;
     border-bottom: 1px solid var(--line);
+    padding: 6px 0 10px;
+  }
+  .results :global(li.res)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 12px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--c);
+    transform: scaleY(0);
+    transition: transform 0.3s var(--ease-out);
+  }
+  .results :global(li.res.hot)::before,
+  .results :global(li.res:focus-within)::before {
+    transform: scaleY(1);
   }
   .results :global(.hit) {
     display: grid;
-    grid-template-columns: 34px 1fr auto;
+    grid-template-columns: 30px 1fr auto;
     gap: 4px 12px;
-    width: 100%;
-    padding: 14px 4px;
-    text-align: left;
-    transition: background 0.2s;
+    padding: 10px 8px 4px;
     border-radius: 8px;
+    transition: background 0.2s;
   }
+  .results :global(li.res.hot .hit),
   .results :global(.hit:hover) {
     background: rgba(255, 255, 255, 0.03);
   }
@@ -167,13 +202,14 @@ const index = buildIndex();
     font-family: var(--f-mono);
     font-size: 0.72rem;
     color: var(--ink-3);
-    padding-top: 2px;
+    padding-top: 3px;
   }
   .results :global(.ttl) {
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 1rem;
     display: flex;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 4px 10px;
     align-items: center;
   }
   .results :global(.ttl i) {
@@ -182,13 +218,40 @@ const index = buildIndex();
     border-radius: 50%;
     background: var(--c);
   }
+  .results :global(.ttl em) {
+    font-style: normal;
+    font-family: var(--f-mono);
+    font-size: var(--fs-micro);
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  .results :global(.ttl .era) {
+    font-size: 0.8rem;
+    font-weight: 450;
+    padding: 1px 7px;
+    border-radius: 5px;
+    color: var(--ink-2);
+    border: 1px solid var(--line-2);
+  }
+  .results :global(.ttl .go) {
+    color: var(--ink-3);
+    transition:
+      transform 0.3s var(--ease-out),
+      color 0.2s;
+  }
+  .results :global(.hit:hover .go),
+  .results :global(.hit:focus-visible .go) {
+    color: var(--t2);
+    transform: translateY(2px);
+  }
   .results :global(.sc) {
     font-family: var(--f-mono);
-    font-size: 0.75rem;
-    color: var(--t2);
+    font-size: 0.72rem;
+    color: var(--ink-3);
     display: flex;
     gap: 8px;
     align-items: center;
+    padding-top: 3px;
     font-variant-numeric: tabular-nums;
   }
   .results :global(.sc b) {
@@ -207,23 +270,85 @@ const index = buildIndex();
   }
   .results :global(.tx) {
     grid-column: 2 / -1;
-    font-size: 0.88rem;
-    line-height: 1.5;
+    font-size: 0.9rem;
+    line-height: 1.55;
     color: var(--ink-2);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
   .results :global(mark) {
-    background: color-mix(in oklab, var(--t3) 22%, transparent);
+    background: color-mix(in oklab, var(--t3) 24%, transparent);
     color: var(--ink);
     border-radius: 3px;
     padding: 0 2px;
   }
+  .results :global(mark.rel) {
+    background: none;
+    color: var(--ink);
+    padding: 0;
+    border-radius: 0;
+    box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--t3) 70%, transparent);
+  }
+  .results :global(.why),
+  .results :global(.more) {
+    margin-left: 50px;
+    margin-right: 8px;
+  }
+  .results :global(.why) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: var(--fs-micro);
+    color: var(--ink-3);
+  }
+  .results :global(.why code) {
+    font: inherit;
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--ink-2);
+    background: color-mix(in oklab, var(--t3) 14%, transparent);
+  }
+  .results :global(.why code.rel) {
+    background: none;
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--t3) 35%, transparent);
+  }
+  .results :global(.more) {
+    margin-top: 6px;
+  }
+  .results :global(.more summary) {
+    cursor: pointer;
+    width: fit-content;
+    font-family: var(--f-mono);
+    font-size: var(--fs-micro);
+    color: var(--ink-3);
+    transition: color 0.2s;
+  }
+  .results :global(.more summary:hover) {
+    color: var(--ink);
+  }
+  .results :global(.more ul) {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0 0 0 12px;
+    border-left: 1px solid var(--line-2);
+    display: grid;
+    gap: 8px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
   .empty {
     padding: 18px 4px;
     font-size: 0.9rem;
+  }
+  .keys-hint {
+    margin-top: 10px;
+    font-size: 0.68rem;
+  }
+  @media (hover: none) {
+    .keys-hint {
+      display: none;
+    }
   }
   .how {
     margin-top: 18px;
@@ -240,7 +365,7 @@ const index = buildIndex();
   }
   .how p {
     margin-top: 10px;
-    max-width: 60ch;
+    max-width: 62ch;
   }
 
   .space {
@@ -303,6 +428,17 @@ const index = buildIndex();
     font-size: 0.68rem;
   }
 
+  @media (min-width: 961px) {
+    /* reserve room so the page doesn't jump while results change */
+    .results {
+      min-height: 560px;
+    }
+  }
+  @media (max-width: 1180px) {
+    .panel-bar .keys {
+      display: none;
+    }
+  }
   @media (max-width: 960px) {
     .q-grid {
       grid-template-columns: 1fr;
@@ -310,76 +446,156 @@ const index = buildIndex();
     .space {
       position: relative;
       top: 0;
-      order: -1;
     }
-    .keys {
-      display: none;
+    .stage {
+      aspect-ratio: 1;
     }
   }
 </style>
 
 <script>
-  import { createEngine, createSpace, type Hit } from '../scripts/query-space';
+  import { createEngine, createSpace, type Hit, type QueryTerms } from '../scripts/query-space';
   import { scrollToEl } from '../scripts/motion';
   import { terms } from '../lib/text';
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
 
+  type Copy = {
+    idle: string;
+    meta: string;
+    timing: string;
+    matched: string;
+    relatedTitle: string;
+    more: { one: string; many: string };
+    queryNode: string;
+  };
+  type Group = { key: string; doc: number; era?: string; score: number; hits: Hit[] };
+
   const COLORS: Record<string, string> = { ai: 'var(--t1)', systems: 'var(--t5)', product: 'var(--t3)', teaching: 'var(--t2)', academic: 'var(--t4)' };
+  const TOP_K = 6;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const raw = document.getElementById('index-data')?.textContent;
   const canvas = document.querySelector<HTMLCanvasElement>('[data-space]');
   if (raw && canvas) {
-    const index = JSON.parse(raw);
+    const { index, copy, clusters } = JSON.parse(raw) as { index: any; copy: Copy; clusters: Record<string, string> };
     const engine = createEngine(index);
-    const space = createSpace(canvas, index);
+    const space = createSpace(canvas, index, { queryLabel: copy.queryNode });
     const input = document.querySelector<HTMLInputElement>('[data-q-input]')!;
     const list = document.querySelector<HTMLOListElement>('[data-results]')!;
     const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+    const meta = document.querySelector<HTMLElement>('[data-r-meta]')!;
     const ms = document.querySelector<HTMLElement>('[data-r-ms]')!;
+    const keys = document.querySelector<HTMLElement>('[data-keys]')!;
+    const status = document.querySelector<HTMLElement>('[data-q-status]')!;
     const tip = document.querySelector<HTMLElement>('[data-tip]')!;
     const suggs = [...document.querySelectorAll<HTMLButtonElement>('[data-sugg]')];
 
+    const fill = (t: string, v: Record<string, string | number>) => t.replace(/\{(\w+)\}/g, (_, k) => String(v[k]));
     const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
-    // highlight words whose analysed form matches a query term
-    const mark = (text: string, q: Set<string>) =>
+
+    // Highlight exactly the words that contributed to the score: the passage
+    // and the query share the analyser, so a word counts when its analysed
+    // form is one of the query's vocabulary terms. Typed terms get a fill,
+    // related-term expansions an underline. `found` collects the surface words.
+    const mark = (text: string, kw: Map<string, boolean>, found: Map<string, boolean>) =>
       text
-        .split(/(\s+)/)
-        .map((wd) => {
-          const t = terms(wd)[0];
-          return t && [...q].some((x) => t === x || (x.length >= 3 && t.startsWith(x))) ? `<mark>${esc(wd)}</mark>` : esc(wd);
+        .split(/([^A-Za-z0-9+#’']+)/)
+        .map((piece, i) => {
+          if (i % 2) return esc(piece);
+          const t = terms(piece)[0];
+          if (!t || !kw.has(t)) return esc(piece);
+          const direct = kw.get(t)!;
+          const k = piece.toLowerCase().replace(/[’']s?$/, '');
+          found.set(k, found.get(k) || direct);
+          return direct ? `<mark>${esc(piece)}</mark>` : `<mark class="rel" title="${esc(copy.relatedTitle)}">${esc(piece)}</mark>`;
         })
         .join('');
 
-    const render = (hits: Hit[], q: string) => {
-      const qt = new Set(terms(q));
-      const top = hits[0]?.score || 1;
-      empty.hidden = hits.length > 0 || !q.trim();
-      list.innerHTML = hits
-        .map((h, i) => {
-          const c = index.chunks[h.chunk];
-          const d = index.docs[c.doc];
-          return `<li><button type="button" class="hit" data-anchor="${d.anchor}">
-            <span class="rk">#${i + 1}</span>
-            <span class="ttl"><i style="--c:${COLORS[d.cluster]}"></i>${esc(d.title)}</span>
-            <span class="sc">${h.score.toFixed(3)}<b><span style="transform:scaleX(${(h.score / top).toFixed(3)})"></span></b></span>
-            <span class="tx">${mark(c.text, qt)}</span>
-          </button></li>`;
+    // one row per project (per era, where a project has them), ranked by its
+    // best passage; hits arrive best-first
+    const group = (hits: Hit[]): Group[] => {
+      const m = new Map<string, Group>();
+      for (const h of hits) {
+        const { doc, era } = index.chunks[h.chunk];
+        const key = `${doc}:${era ?? ''}`;
+        const g = m.get(key);
+        if (g) g.hits.push(h);
+        else m.set(key, { key, doc, era, score: h.score, hits: [h] });
+      }
+      return [...m.values()].slice(0, TOP_K);
+    };
+
+    const render = (groups: Group[], qt: QueryTerms) => {
+      const kw = new Map<string, boolean>();
+      for (const [id, direct] of qt) kw.set(index.vocab[id], direct);
+      const top = groups[0]?.score || 1;
+
+      // remember where each project sat so a re-rank can glide (FLIP)
+      const prev = new Map<string, { y: number; s: number }>();
+      for (const li of list.children as HTMLCollectionOf<HTMLElement>)
+        prev.set(li.dataset.key!, { y: li.getBoundingClientRect().top, s: Number(li.dataset.s) });
+
+      list.innerHTML = groups
+        .map((g, i) => {
+          const d = index.docs[g.doc];
+          const found = new Map<string, boolean>();
+          const [best, ...rest] = g.hits.map((h) => mark(index.chunks[h.chunk].text, kw, found));
+          const words = [...found].sort((a, b) => Number(b[1]) - Number(a[1])).slice(0, 5);
+          const s = g.score / top;
+          return `<li class="res" data-key="${g.key}" data-doc="${g.doc}" data-s="${s.toFixed(3)}" style="--c:${COLORS[d.cluster]}">
+            <a class="hit" href="#${d.anchor}">
+              <span class="rk">#${i + 1}</span>
+              <span class="ttl"><i></i>${esc(d.title)}${g.era ? ` <span class="era">${esc(g.era)}</span>` : ''}<em>${esc(d.note ?? clusters[d.cluster])}</em><span class="go" aria-hidden="true">↓</span></span>
+              <span class="sc">${g.score.toFixed(3)}<b><span style="transform:scaleX(${s.toFixed(3)})"></span></b></span>
+              <span class="tx">${best}</span>
+            </a>
+            <p class="why">${esc(copy.matched)} ${words
+              .map(([w, direct]) => `<code${direct ? '' : ` class="rel" title="${esc(copy.relatedTitle)}"`}>${esc(w)}</code>`)
+              .join('')}</p>
+            ${
+              rest.length
+                ? `<details class="more"><summary>${esc(fill(rest.length === 1 ? copy.more.one : copy.more.many, { n: rest.length }))}</summary><ul>${rest
+                    .map((t) => `<li>${t}</li>`)
+                    .join('')}</ul></details>`
+                : ''
+            }
+          </li>`;
         })
         .join('');
-      if (!reduce) gsap.from(list.children, { opacity: 0, x: -12, duration: 0.5, ease: 'expo.out', stagger: 0.05 });
+
+      if (!reduce) {
+        [...(list.children as HTMLCollectionOf<HTMLElement>)].forEach((li, i) => {
+          const p = prev.get(li.dataset.key!);
+          const bar = li.querySelector('.sc b span');
+          if (p) {
+            gsap.fromTo(li, { y: p.y - li.getBoundingClientRect().top }, { y: 0, duration: 0.6, ease: 'expo.out', clearProps: 'transform' });
+            if (bar) gsap.fromTo(bar, { scaleX: p.s }, { scaleX: Number(li.dataset.s), duration: 0.6, ease: 'expo.out' });
+          } else {
+            gsap.from(li, { opacity: 0, y: 10, duration: 0.5, ease: 'expo.out', delay: 0.04 * i, clearProps: 'opacity,transform' });
+          }
+        });
+      }
       // results can change the page height; keep every scroll trigger honest
       requestAnimationFrame(() => ScrollTrigger.refresh());
     };
 
     const run = (q: string) => {
       const t = performance.now();
-      const hits = engine.search(q);
-      ms.textContent = q.trim() ? `${hits.length} result${hits.length === 1 ? '' : 's'} · ${(performance.now() - t).toFixed(1)} ms` : '';
-      space.setHits(hits);
-      render(hits, q);
+      const { hits, terms: qt } = engine.search(q);
+      const groups = group(hits);
+      const shown = groups.flatMap((g) => g.hits);
+      const elapsed = performance.now() - t;
+      const has = q.trim().length > 0;
+
+      meta.textContent = has && groups.length ? fill(copy.meta, { docs: groups.length, total: index.docs.length, passages: shown.length }) : copy.idle;
+      ms.textContent = has ? fill(copy.timing, { ms: elapsed.toFixed(1) }) : '';
+      status.textContent = has && groups.length ? meta.textContent : '';
+      empty.hidden = groups.length > 0 || !has;
+      keys.hidden = groups.length === 0;
+      space.setHits(shown);
+      render(groups, qt);
       suggs.forEach((b) => b.classList.toggle('on', b.dataset.sugg === q));
     };
 
@@ -390,11 +606,47 @@ const index = buildIndex();
     });
     document.querySelector('[data-q-form]')!.addEventListener('submit', (e) => {
       e.preventDefault();
+      clearTimeout(timer);
       run(input.value);
     });
-    list.addEventListener('click', (e) => {
-      const b = (e.target as HTMLElement).closest<HTMLElement>('[data-anchor]');
-      if (b) scrollToEl(document.getElementById(b.dataset.anchor!));
+
+    // keyboard: ↓ from the box into the results, ↑/↓ between them, esc back
+    const links = () => [...list.querySelectorAll<HTMLAnchorElement>('.hit')];
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' && links().length) {
+        e.preventDefault();
+        links()[0].focus();
+      }
+    });
+    list.addEventListener('keydown', (e) => {
+      const all = links();
+      const i = all.indexOf(document.activeElement as HTMLAnchorElement);
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        input.focus();
+      } else if (i >= 0 && e.key === 'ArrowDown') {
+        e.preventDefault();
+        all[Math.min(i + 1, all.length - 1)].focus();
+      } else if (i >= 0 && e.key === 'ArrowUp') {
+        e.preventDefault();
+        (i === 0 ? input : all[i - 1]).focus();
+      }
+    });
+
+    // list ↔ map: pointing at a result lights its project on the map
+    const hot = (doc: number) => {
+      for (const li of list.children as HTMLCollectionOf<HTMLElement>) li.classList.toggle('hot', Number(li.dataset.doc) === doc);
+      space.focus(doc);
+    };
+    const docOf = (el: EventTarget | null) => {
+      const li = (el as HTMLElement | null)?.closest?.<HTMLElement>('li.res');
+      return li ? Number(li.dataset.doc) : -1;
+    };
+    list.addEventListener('pointerover', (e) => hot(docOf(e.target)));
+    list.addEventListener('pointerleave', () => hot(-1));
+    list.addEventListener('focusin', (e) => hot(docOf(e.target)));
+    list.addEventListener('focusout', (e) => {
+      if (!list.contains(e.relatedTarget as Node)) hot(-1);
     });
 
     // type a suggestion into the box like a person would
@@ -411,11 +663,14 @@ const index = buildIndex();
         n: q.length,
         duration: q.length * 0.05,
         ease: 'none',
-        onUpdate: () => (input.value = q.slice(0, Math.round(o.n))),
+        onUpdate: () => {
+          input.value = q.slice(0, Math.round(o.n));
+        },
         onComplete: () => run(q),
       });
     };
     suggs.forEach((b) => b.addEventListener('click', () => typeQuery(b.dataset.sugg!)));
+    input.addEventListener('focus', () => typing?.kill());
 
     ScrollTrigger.create({
       trigger: canvas,
@@ -427,14 +682,22 @@ const index = buildIndex();
     space.onHover((i, x, y) => {
       if (i < 0) {
         tip.hidden = true;
+        hot(-1);
         return;
       }
       const c = index.chunks[i];
+      hot(c.doc);
       tip.innerHTML = `<b>${esc(index.docs[c.doc].title)}</b>${esc(c.text.length > 150 ? c.text.slice(0, 150) + '…' : c.text)}`;
       tip.hidden = false;
       const box = canvas.getBoundingClientRect();
-      tip.style.left = `${Math.min(x + 16, box.width - 296)}px`;
+      tip.style.left = `${Math.max(8, Math.min(x + 16, box.width - 296))}px`;
       tip.style.top = `${Math.min(y + 16, box.height - 120)}px`;
+    });
+    space.onPick((doc) => {
+      tip.hidden = true;
+      const id = index.docs[doc].anchor;
+      scrollToEl(document.getElementById(id));
+      history.replaceState(null, '', `#${id}`);
     });
   }
 </script>

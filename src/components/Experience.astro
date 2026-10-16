@@ -1,6 +1,6 @@
 ---
 import ChapterHead from './ChapterHead.astro';
-import { roles, outcomes, gisNote } from '../data/content';
+import { roles, outcomes } from '../data/content';
 ---
 
 <section id="experience" class="chapter" data-stage="experience" data-field="4" data-field-level="0.4" aria-labelledby="exp-title">
@@ -27,14 +27,6 @@ import { roles, outcomes, gisNote } from '../data/content';
                   ))}
                 </ul>
               </li>
-              {/* company-level work: the profile does not tie it to one of the two roles */}
-              {r.anchor === 'exp-intern' && (
-                <li id={gisNote.anchor} class="gis" data-reveal>
-                  <p class="mono">{gisNote.label}</p>
-                  <p class="g-t">{gisNote.title}</p>
-                  <p>{gisNote.text}</p>
-                </li>
-              )}
             </>
           ))
         }
@@ -123,27 +115,6 @@ import { roles, outcomes, gisNote } from '../data/content';
     border-radius: 2px;
     background: var(--t3);
     opacity: 0.7;
-  }
-  .gis {
-    margin: 0;
-    padding: 16px 18px;
-    border-left: 2px solid var(--t5);
-    background: color-mix(in oklab, var(--t5) 5%, transparent);
-    border-radius: 0 10px 10px 0;
-    font-size: 0.92rem;
-    color: var(--ink-2);
-    scroll-margin-top: calc(var(--hud-h) + 40px);
-  }
-  .gis .mono {
-    font-size: 0.66rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--t5);
-  }
-  .g-t {
-    margin: 4px 0 6px;
-    color: var(--ink);
-    font-weight: 540;
   }
 
   .outcomes {

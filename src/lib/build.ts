@@ -87,8 +87,10 @@ const ANCHOR: Record<Cluster, [number, number, number]> = {
 };
 
 export const buildIndex = () => {
-  const chunkTexts: { doc: number; text: string }[] = [];
-  docs.forEach((d, di) => d.chunks.forEach((text) => chunkTexts.push({ doc: di, text })));
+  const chunkTexts: { doc: number; text: string; era?: string }[] = [];
+  docs.forEach((d, di) =>
+    d.chunks.forEach((text, ci) => chunkTexts.push({ doc: di, text, era: d.eras?.find((e) => e.chunks.includes(ci))?.label })),
+  );
 
   // vocabulary + document frequency
   const vocab = new Map<string, number>();
@@ -148,25 +150,38 @@ export const buildIndex = () => {
   return {
     vocab: [...vocab.keys()],
     idf: idf.map((x) => +x.toFixed(4)),
-    docs: docs.map((d, i) => ({ id: d.id, title: d.title, cluster: d.cluster, anchor: d.anchor, pos: docPos[i] })),
-    chunks: chunkTexts.map((c, i) => ({ doc: c.doc, text: c.text, v: sparse[i], pos: chunkPos[i] })),
+    docs: docs.map((d, i) => ({ id: d.id, title: d.title, cluster: d.cluster, anchor: d.anchor, note: d.note, pos: docPos[i] })),
+    chunks: chunkTexts.map((c, i) => ({ doc: c.doc, text: c.text, era: c.era, v: sparse[i], pos: chunkPos[i] })),
   };
 };
 
 /* ---------------------------------------------------------- skill matrix */
 
+export type SkillCell = { skill: string; n: number; w: number; docs: number[] };
+
+/** Each skill → the listed examples (docs) that use it. Counts are the evidence. */
 export const buildSkills = () => {
-  const evidence = new Map<string, string[]>();
-  for (const d of docs) for (const s of d.skills) evidence.set(s, [...(evidence.get(s) ?? []), d.title]);
+  const evidence = new Map<string, number[]>();
+  docs.forEach((d, di) => d.skills.forEach((s) => evidence.set(s, [...(evidence.get(s) ?? []), di])));
   const max = Math.max(...[...evidence.values()].map((v) => v.length));
   const rows = skillRows.map((row) => ({
     label: row.label,
+    // most-used first; ties keep the curated order
     cells: row.skills
       .filter((s) => evidence.has(s))
-      .map((s) => {
+      .map((s): SkillCell => {
         const used = evidence.get(s)!;
-        return { skill: s, n: used.length, w: +(used.length / max).toFixed(3), used };
-      }),
+        return { skill: s, n: used.length, w: +(used.length / max).toFixed(3), docs: used };
+      })
+      .sort((a, b) => b.n - a.n),
   }));
-  return { rows, max, dims: rows.reduce((a, r) => a + r.cells.length, 0) };
+  const cells = rows.flatMap((r) => r.cells);
+  const top = cells.reduce((a, c) => (c.n > a.n ? c : a), cells[0]);
+  return {
+    rows,
+    max,
+    top: top.skill,
+    dims: cells.length,
+    docs: docs.map((d) => ({ title: d.title, anchor: d.anchor, cluster: d.cluster, note: d.note })),
+  };
 };

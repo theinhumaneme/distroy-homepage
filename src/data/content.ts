@@ -301,7 +301,19 @@ export const moreWork: MiniDoc[] = [
 
 export type Cluster = 'ai' | 'systems' | 'product' | 'teaching' | 'academic';
 
-export type Doc = { id: string; title: string; cluster: Cluster; anchor: string; skills: string[]; chunks: string[] };
+// `note` replaces the category label wherever the title is listed on its own.
+// `eras` splits a project whose versions must never blur: search shows each
+// era as its own labelled result, so a metric never sits beside the wrong stack.
+export type Doc = {
+  id: string;
+  title: string;
+  cluster: Cluster;
+  anchor: string;
+  skills: string[];
+  chunks: string[];
+  note?: string;
+  eras?: { label: string; chunks: number[] }[];
+};
 
 export const docs: Doc[] = [
   {
@@ -346,6 +358,10 @@ export const docs: Doc[] = [
     cluster: 'systems',
     anchor: 'work-documan',
     skills: ['Python', 'Flask', 'PostgreSQL', 'Meilisearch', 'Java', 'Spring Boot', 'Angular', 'Redis', 'Docker Compose', 'OAuth2 / JWT', 'Testcontainers', 'Nginx'],
+    eras: [
+      { label: 'Original platform', chunks: [1, 2, 3] },
+      { label: 'Current rewrite', chunks: [4, 5] },
+    ],
     chunks: [
       'Documan is a searchable library for college course materials, available through the web and a Telegram bot.',
       'The original Python and Flask platform served 4,000+ students and delivered 200,000+ files before its retirement in May 2025.',
@@ -426,14 +442,6 @@ export const docs: Doc[] = [
     ],
   },
   {
-    id: 'gis',
-    title: 'Fort Wayne 311 GIS',
-    cluster: 'product',
-    anchor: 'exp-gis',
-    skills: ['ArcGIS'],
-    chunks: ["Integrated multiple Esri ArcGIS layers in Nebulogic's 311 product for the City of Fort Wayne, combined with data from other city providers to give citizens precise trash-collection locations."],
-  },
-  {
     id: 'autodeploy',
     title: 'Autodeploy',
     cluster: 'systems',
@@ -492,6 +500,7 @@ export const docs: Doc[] = [
   {
     id: 'braintumor',
     title: 'Brain Tumor Detection',
+    note: 'Guided academic project',
     cluster: 'academic',
     anchor: 'more-braintumor',
     skills: ['Python', 'Flask'],
@@ -512,6 +521,32 @@ export const docs: Doc[] = [
 
 export const suggestedQueries = ['RAG', 'local models', 'backend', 'deployment automation', 'observability', 'data visualization', 'multi-agent', 'search'];
 
+export const clusterLabels: Record<Cluster, string> = { ai: 'AI', systems: 'Systems', product: 'Product', teaching: 'Teaching', academic: 'Academic' };
+
+/* Copy for the Explore section. `{n}`-style tokens are filled in the browser. */
+export const queryCopy = {
+  titleLead: 'Find the work',
+  titleEm: 'relevant to you.',
+  lede: 'Search by problem, technology, or area of interest. Each project appears once, with the passages that matched and a link to the full write-up.',
+  inputLabel: 'Search my work',
+  placeholder: 'try: backend, deployment, RAG…',
+  suggestedLabel: 'Suggested queries',
+  idle: 'results · ranked by TF-IDF cosine score',
+  meta: '{docs} of {total} projects and roles · {passages} matching passages',
+  timing: '{ms} ms in your browser',
+  matched: 'matched',
+  relatedTitle: 'Matched through a related term',
+  more: { one: '1 more matching passage', many: '{n} more matching passages' },
+  empty: 'Nothing matched. Try “backend”, “Redis” or “data visualization”.',
+  keys: '↑ ↓ to move through results · esc to return to search',
+  howSummary: 'How this search works',
+  how: 'Browser-local keyword retrieval: each passage is a TF-IDF vector built when the site is compiled. Your query is analysed the same way, expanded with a short list of related terms, and ranked by cosine similarity over {chunks} passages. Results are grouped by project and ranked by their best passage. The map combines text similarity with category grouping; distances are illustrative.',
+  mapBar: 'map of the work',
+  mapLabel: 'Illustrative 3D map of my work. Each point is a passage, grouped by project. The result list beside it is the accessible equivalent.',
+  mapCaption: '{chunks} passages · {docs} projects and roles · distances are illustrative · drag to rotate, click a point to open it',
+  queryNode: 'query',
+};
+
 /* ------------------------------------------------------------------------ */
 /* Skills in practice: intensity = number of listed examples                */
 /* ------------------------------------------------------------------------ */
@@ -523,9 +558,21 @@ export const skillRows: { label: string; skills: string[] }[] = [
   { label: 'Data', skills: ['PostgreSQL', 'Redis', 'Meilisearch', 'MongoDB'] },
   { label: 'Infrastructure', skills: ['Docker', 'Docker Compose', 'GitLab CI', 'Nginx', 'Cloudflare', 'NixOS', 'Linux', 'Performance'] },
   { label: 'Observability', skills: ['OpenTelemetry', 'Prometheus', 'Grafana'] },
-  { label: 'Frontend', skills: ['React', 'Angular', 'Next.js', 'D3.js', 'MapLibre GL', 'WebCodecs', 'Web Workers', 'Data visualization', 'ArcGIS'] },
+  { label: 'Frontend', skills: ['React', 'Angular', 'Next.js', 'D3.js', 'MapLibre GL', 'WebCodecs', 'Web Workers', 'Data visualization'] },
   { label: 'Testing', skills: ['pytest', 'mypy --strict', 'Vitest', 'Playwright', 'Testcontainers'] },
 ];
+
+export const skillsCopy = {
+  titleLead: 'Skills connected to',
+  titleEm: 'actual work.',
+  lede: 'Select a skill to see the projects and roles where I used it. The number beside each skill counts those listed examples; it is not a proficiency rating.',
+  bar: 'skills in practice · {n} technologies',
+  groupLabel: 'Skills, grouped by area. Use the arrow keys to move between skills.',
+  chipLabel: { one: '{skill}, 1 listed example', many: '{skill}, {n} listed examples' },
+  usedIn: { one: 'Used in 1 listed example', many: 'Used in {n} listed examples' },
+  alongside: 'Used alongside',
+  none: 'Not used alongside any other listed skill.',
+};
 
 /* ------------------------------------------------------------------------ */
 /* Experience                                                               */
@@ -579,13 +626,6 @@ export const roles: Role[] = [
     ],
   },
 ];
-
-export const gisNote = {
-  anchor: 'exp-gis',
-  label: 'Also at Nebulogic',
-  title: 'GIS for the Fort Wayne 311 product',
-  text: "Integrated multiple Esri ArcGIS layers for data collection in Nebulogic's 311 product for the City of Fort Wayne. Combined with data from other city providers, it gave citizens precise trash-collection locations.",
-};
 
 export const outcomes = [
   { label: 'CRM startup', value: '20 seconds → 200 milliseconds', role: 'Software Engineer, Nebulogic' },

@@ -1,53 +1,87 @@
 ---
 import { buildSkills } from '../lib/build';
+import { skillsCopy as copy, clusterLabels } from '../data/content';
 
-const { rows, dims, max } = buildSkills();
-const flat = rows.flatMap((r) => r.cells);
+const { rows, dims, top, docs } = buildSkills();
+const cells = rows.flatMap((r) => r.cells);
+const fill = (t: string, v: Record<string, string | number>) => t.replace(/\{(\w+)\}/g, (_, k) => String(v[k]));
+const plural = (o: { one: string; many: string }, n: number, v: Record<string, string | number> = {}) => fill(n === 1 ? o.one : o.many, { n, ...v });
+const COLOR: Record<string, string> = { ai: 'var(--t1)', systems: 'var(--t5)', product: 'var(--t3)', teaching: 'var(--t2)', academic: 'var(--t4)' };
+const first = cells.find((c) => c.skill === top)!;
 ---
 
 <section id="skills" class="chapter skills" data-stage="explore" data-field="2" data-field-level="0.45" aria-labelledby="sk-title">
   <div class="wrap">
     <header class="sk-head">
-      <h3 id="sk-title" class="sub-title" data-reveal>Skills connected to <span class="serif">actual work.</span></h3>
-      <p class="lede" data-reveal>
-        Explore the projects and roles where I used each technology. Highlight intensity reflects the number of listed examples, not
-        a proficiency rating.
-      </p>
+      <h3 id="sk-title" class="sub-title" data-reveal>{copy.titleLead} <span class="serif">{copy.titleEm}</span></h3>
+      <p class="lede" data-reveal>{copy.lede}</p>
     </header>
 
-    <div class="panel emb" data-reveal>
-      <div class="panel-bar">
-        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span>skills in practice · {dims} technologies</span>
-        <span class="legend" aria-hidden="true">1 <i></i> {max} examples</span>
+    <div class="sk-grid">
+      <div class="panel sk-matrix" data-reveal>
+        <div class="panel-bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>{fill(copy.bar, { n: dims })}</span>
+          <span></span>
+        </div>
+        <div class="matrix" role="group" aria-label={copy.groupLabel} data-matrix>
+          {
+            rows.map((r) => (
+              <div class="row">
+                <p class="rl mono" id={`sk-${r.label.replace(/\W+/g, '-').toLowerCase()}`}>
+                  {r.label}
+                </p>
+                <div class="cells" role="group" aria-labelledby={`sk-${r.label.replace(/\W+/g, '-').toLowerCase()}`}>
+                  {r.cells.map((c) => (
+                    <button
+                      type="button"
+                      class="cell"
+                      style={`--w:${c.w}`}
+                      data-skill={c.skill}
+                      aria-pressed={c.skill === top ? 'true' : 'false'}
+                      tabindex={c.skill === top ? 0 : -1}
+                      aria-label={plural(copy.chipLabel, c.n, { skill: c.skill })}
+                    >
+                      <span>{c.skill}</span>
+                      <span class="n mono" aria-hidden="true">
+                        {c.n}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))
+          }
+        </div>
       </div>
 
-      <div class="strip" aria-hidden="true" data-strip>
-        {flat.map((c) => <span style={`--w:${c.w}`} />)}
-      </div>
-
-      <div class="matrix" data-matrix>
-        {
-          rows.map((r) => (
-            <div class="row">
-              <p class="rl mono">{r.label}</p>
-              <ul class="cells">
-                {r.cells.map((c) => (
-                  <li tabindex="0" class="cell" style={`--w:${c.w}`} data-skill={c.skill} data-n={c.n} data-used={c.used.join(' · ')}>
-                    {c.skill}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))
-        }
-      </div>
-
-      <p class="readout mono" aria-live="polite" data-readout>
-        <span class="faint">hover or focus a skill to see where it was used</span>
-      </p>
+      <aside class="panel ev" aria-labelledby="ev-skill" data-reveal data-reveal-delay="0.1">
+        <div class="ev-body" data-ev>
+          <h4 id="ev-skill" class="ev-skill">{first.skill}</h4>
+          <p class="ev-n muted">{plural(copy.usedIn, first.n)}</p>
+          <ul class="ev-list">
+            {
+              first.docs.map((di) => (
+                <li>
+                  <a href={`#${docs[di].anchor}`} style={`--c:${COLOR[docs[di].cluster]}`}>
+                    <i aria-hidden="true" />
+                    <span class="t">{docs[di].title}</span>
+                    <span class="k mono">{docs[di].note ?? clusterLabels[docs[di].cluster]}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </aside>
     </div>
+    <p class="sr-only" aria-live="polite" data-ev-status></p>
   </div>
+  <script
+    type="application/json"
+    id="skills-data"
+    set:html={JSON.stringify({ cells: cells.map(({ skill, n, docs }) => ({ skill, n, docs })), docs, copy, clusters: clusterLabels })}
+  />
 </section>
 
 <style>
@@ -58,6 +92,7 @@ const flat = rows.flatMap((r) => r.cells);
     display: grid;
     gap: 14px;
     margin-bottom: 28px;
+    max-width: 880px;
   }
   .sub-title {
     font-size: var(--fs-h3);
@@ -65,48 +100,27 @@ const flat = rows.flatMap((r) => r.cells);
     font-weight: 560;
     line-height: 1.05;
   }
-  .emb {
-    overflow: hidden;
-  }
-  .legend {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .legend i {
-    width: 64px;
-    height: 6px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, color-mix(in oklab, var(--t1) 25%, transparent), var(--t2));
-  }
 
-  .strip {
+  .sk-grid {
     display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 1fr;
-    gap: 2px;
-    height: 28px;
-    margin: 22px clamp(16px, 2.4vw, 28px) 4px;
-    transform-origin: left;
-  }
-  .strip span {
-    border-radius: 2px;
-    background: color-mix(in oklab, color-mix(in oklab, var(--t2) calc(var(--w) * 100%), var(--t1)) calc(25% + var(--w) * 75%), transparent);
+    grid-template-columns: minmax(0, 1.75fr) minmax(280px, 1fr);
+    gap: 16px;
+    align-items: start;
   }
 
   .matrix {
     display: grid;
-    gap: 14px;
+    gap: 16px;
     padding: clamp(18px, 2.4vw, 28px);
   }
   .row {
     display: grid;
-    grid-template-columns: 130px 1fr;
-    gap: 16px;
+    grid-template-columns: 112px 1fr;
+    gap: 14px;
     align-items: start;
   }
   .rl {
-    padding-top: 9px;
+    padding-top: 8px;
     font-size: var(--fs-micro);
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -116,50 +130,200 @@ const flat = rows.flatMap((r) => r.cells);
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
   }
+
   .cell {
-    --heat: color-mix(in oklab, var(--t2) calc(var(--w) * 100%), var(--t1));
-    padding: 8px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 11px;
     border-radius: 8px;
-    font-size: 0.86rem;
+    font-size: 0.85rem;
     font-weight: 450;
-    color: color-mix(in oklab, var(--ink) calc(55% + var(--w) * 45%), var(--ink-3));
-    background: color-mix(in oklab, var(--heat) calc(8% + var(--w) * 40%), transparent);
-    border: 1px solid color-mix(in oklab, var(--heat) calc(22% + var(--w) * 60%), transparent);
-    box-shadow: 0 0 calc(var(--w) * 26px) -6px color-mix(in oklab, var(--heat) calc(var(--w) * 90%), transparent);
-    cursor: default;
-    transition:
-      transform 0.3s var(--ease-out),
-      background 0.3s,
-      box-shadow 0.3s;
-  }
-  .cell:hover,
-  .cell:focus-visible {
-    transform: translateY(-2px);
-    background: color-mix(in oklab, var(--heat) 45%, transparent);
-    box-shadow: 0 10px 30px -10px color-mix(in oklab, var(--heat) 80%, transparent);
-    outline: none;
-  }
-
-  .readout {
-    margin: 0;
-    padding: 14px 18px;
-    border-top: 1px solid var(--line);
-    font-size: 0.76rem;
     color: var(--ink-2);
-    min-height: 48px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid color-mix(in oklab, var(--t2) calc(var(--w) * 45%), var(--line-2));
+    transition:
+      opacity 0.3s var(--ease-out),
+      color 0.2s,
+      background 0.2s,
+      border-color 0.2s,
+      transform 0.3s var(--ease-out);
   }
-  .readout :global(b) {
-    color: var(--t2);
-    font-weight: 500;
+  .cell .n {
+    min-width: 1.6em;
+    padding: 1px 5px;
+    border-radius: 5px;
+    font-size: 0.68rem;
+    text-align: center;
+    color: var(--ink-3);
+    background: color-mix(in oklab, var(--t2) calc(var(--w) * 22%), rgba(255, 255, 255, 0.04));
+    font-variant-numeric: tabular-nums;
+  }
+  .cell:hover {
+    color: var(--ink);
+    border-color: var(--line-3);
+    transform: translateY(-1px);
+  }
+  .cell.off {
+    opacity: 0.42;
+  }
+  .cell.off:hover,
+  .cell.off:focus-visible {
+    opacity: 1;
+  }
+  .cell[aria-pressed='true'] {
+    color: var(--ink);
+    background: color-mix(in oklab, var(--t2) 16%, transparent);
+    border-color: color-mix(in oklab, var(--t2) 70%, transparent);
+  }
+  .cell[aria-pressed='true'] .n {
+    color: var(--bg);
+    background: var(--t2);
   }
 
+  /* evidence panel ------------------------------------------------------- */
+  .ev {
+    position: sticky;
+    top: calc(var(--hud-h) + 20px);
+  }
+  .ev-body {
+    padding: clamp(18px, 2.2vw, 26px);
+  }
+  .ev :global(.ev-skill) {
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    font-weight: 560;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+  .ev :global(.ev-n) {
+    margin-top: 6px;
+    font-size: 0.9rem;
+  }
+  .ev :global(.ev-list) {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .ev :global(.ev-list li) {
+    border-bottom: 1px solid var(--line);
+  }
+  .ev :global(.ev-list a) {
+    display: grid;
+    grid-template-columns: 8px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 4px;
+    font-size: 0.92rem;
+    transition:
+      background 0.2s,
+      padding 0.3s var(--ease-out);
+  }
+  .ev :global(.ev-list a:hover) {
+    background: rgba(255, 255, 255, 0.03);
+    padding-left: 8px;
+  }
+  .ev :global(.ev-list i) {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--c);
+  }
+  .ev :global(.ev-list .k) {
+    font-size: var(--fs-micro);
+    color: var(--ink-3);
+  }
+  .ev :global(.ev-k) {
+    margin-top: 20px;
+    font-size: var(--fs-micro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .ev :global(.ev-also) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .ev :global(.ev-also button) {
+    font-size: 0.8rem;
+    padding: 4px 9px;
+    border-radius: 6px;
+    color: var(--ink-2);
+    border: 1px solid var(--line-2);
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+  .ev :global(.ev-also button:hover) {
+    color: var(--ink);
+    border-color: color-mix(in oklab, var(--t2) 60%, transparent);
+  }
+  .ev :global(.ev-none) {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 960px) {
+    .sk-grid {
+      grid-template-columns: 1fr;
+    }
+    /* the evidence card rides along at the bottom of the screen while the
+       matrix is in view, so a tap always has a visible answer */
+    .ev {
+      top: auto;
+      bottom: 12px;
+      max-height: 52vh;
+      overflow: auto;
+      box-shadow: 0 -20px 60px -20px rgba(0, 0, 0, 0.9);
+    }
+    .ev {
+      max-height: 40vh;
+    }
+    .ev-body {
+      padding: 14px 16px 16px;
+    }
+    .ev :global(.ev-skill) {
+      display: inline;
+      font-size: 1.25rem;
+    }
+    .ev :global(.ev-n) {
+      display: inline;
+      margin-left: 10px;
+      font-size: 0.8rem;
+    }
+    /* examples wrap as compact links instead of full rows */
+    .ev :global(.ev-list) {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+      border: 0;
+    }
+    .ev :global(.ev-list li) {
+      border: 0;
+    }
+    .ev :global(.ev-list a) {
+      grid-template-columns: 7px auto;
+      gap: 8px;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      border-radius: 8px;
+      border: 1px solid var(--line-2);
+    }
+    .ev :global(.ev-list a:hover) {
+      padding-left: 10px;
+    }
+    .ev :global(.ev-list .k),
+    .ev :global(.ev-k),
+    .ev :global(.ev-also),
+    .ev :global(.ev-none) {
+      display: none;
+    }
+  }
   @media (max-width: 720px) {
     .row {
       grid-template-columns: 1fr;
@@ -167,9 +331,6 @@ const flat = rows.flatMap((r) => r.cells);
     }
     .rl {
       padding: 0;
-    }
-    .readout {
-      white-space: normal;
     }
   }
 </style>
@@ -179,27 +340,118 @@ const flat = rows.flatMap((r) => r.cells);
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
   gsap.registerPlugin(ScrollTrigger);
 
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const strip = document.querySelector('[data-strip]');
-  const matrix = document.querySelector('[data-matrix]');
-  const readout = document.querySelector<HTMLElement>('[data-readout]');
-
-  if (strip && matrix && !reduce) {
-    const tl = gsap.timeline({ scrollTrigger: { trigger: strip, start: 'top 85%', once: true } });
-    tl.from(strip.children, { scaleY: 0, opacity: 0, duration: 0.6, ease: 'expo.out', stagger: { each: 0.012 } }).from(
-      matrix.querySelectorAll('.cell'),
-      { opacity: 0, y: 12, scale: 0.9, duration: 0.7, ease: 'expo.out', stagger: { each: 0.014, from: 'start' } },
-      '-=0.5',
-    );
-  }
-
-  const show = (el: HTMLElement) => {
-    if (!readout) return;
-    const n = el.dataset.n;
-    readout.innerHTML = `<b>${el.dataset.skill}</b>&nbsp; ${n} example${n === '1' ? '' : 's'}: <span class="muted">${el.dataset.used}</span>`;
+  type Data = {
+    cells: { skill: string; n: number; docs: number[] }[];
+    docs: { title: string; anchor: string; cluster: string; note?: string }[];
+    copy: {
+      usedIn: { one: string; many: string };
+      alongside: string;
+      none: string;
+    };
+    clusters: Record<string, string>;
   };
-  matrix?.querySelectorAll<HTMLElement>('.cell').forEach((c) => {
-    c.addEventListener('pointerenter', () => show(c));
-    c.addEventListener('focus', () => show(c));
-  });
+
+  const COLOR: Record<string, string> = { ai: 'var(--t1)', systems: 'var(--t5)', product: 'var(--t3)', teaching: 'var(--t2)', academic: 'var(--t4)' };
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const raw = document.getElementById('skills-data')?.textContent;
+  const matrix = document.querySelector<HTMLElement>('[data-matrix]');
+  const ev = document.querySelector<HTMLElement>('[data-ev]');
+  const status = document.querySelector<HTMLElement>('[data-ev-status]');
+
+  if (raw && matrix && ev) {
+    const data: Data = JSON.parse(raw);
+    const bySkill = new Map(data.cells.map((c) => [c.skill, c]));
+    const rows = [...matrix.querySelectorAll('.cells')].map((r) => [...r.querySelectorAll<HTMLButtonElement>('[data-skill]')]);
+    const btns = rows.flat();
+    const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+    const usedIn = (n: number) => (n === 1 ? data.copy.usedIn.one : data.copy.usedIn.many).replace('{n}', String(n));
+
+    // skills that share at least one listed example, most shared first
+    const alongside = (skill: string) => {
+      const mine = new Set(bySkill.get(skill)!.docs);
+      return data.cells
+        .filter((c) => c.skill !== skill)
+        .map((c) => ({ skill: c.skill, shared: c.docs.filter((d) => mine.has(d)).length, n: c.n }))
+        .filter((c) => c.shared > 0)
+        .sort((a, b) => b.shared - a.shared || b.n - a.n);
+    };
+
+    const select = (skill: string, focus = false) => {
+      const cell = bySkill.get(skill);
+      if (!cell) return;
+      const also = alongside(skill);
+      const related = new Set(also.map((a) => a.skill));
+      for (const b of btns) {
+        const on = b.dataset.skill === skill;
+        b.setAttribute('aria-pressed', String(on));
+        b.tabIndex = on ? 0 : -1;
+        b.classList.toggle('off', !on && !related.has(b.dataset.skill!));
+        if (on && focus) b.focus({ preventScroll: true });
+      }
+
+      ev.innerHTML = `
+        <h4 id="ev-skill" class="ev-skill">${esc(skill)}</h4>
+        <p class="ev-n muted">${usedIn(cell.n)}</p>
+        <ul class="ev-list">${cell.docs
+          .map((di) => {
+            const d = data.docs[di];
+            return `<li><a href="#${d.anchor}" style="--c:${COLOR[d.cluster]}"><i aria-hidden="true"></i><span class="t">${esc(d.title)}</span><span class="k mono">${esc(d.note ?? data.clusters[d.cluster])}</span></a></li>`;
+          })
+          .join('')}</ul>
+        <p class="ev-k mono">${esc(data.copy.alongside)}</p>
+        ${
+          also.length
+            ? `<div class="ev-also">${also
+                .slice(0, 8)
+                .map((a) => `<button type="button" data-pick="${esc(a.skill)}">${esc(a.skill)}</button>`)
+                .join('')}</div>`
+            : `<p class="ev-none">${esc(data.copy.none)}</p>`
+        }`;
+      if (status) status.textContent = `${skill}. ${usedIn(cell.n)}.`;
+      if (!reduce) gsap.from(ev.children, { opacity: 0, y: 6, duration: 0.35, ease: 'expo.out', stagger: 0.03 });
+    };
+
+    matrix.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-skill]');
+      if (b) select(b.dataset.skill!);
+    });
+    ev.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pick]');
+      if (b) select(b.dataset.pick!, true);
+    });
+
+    // one tab stop for the whole matrix; arrows move between skills (roving tabindex)
+    matrix.addEventListener('keydown', (e) => {
+      const cur = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-skill]');
+      if (!cur) return;
+      const r = rows.findIndex((row) => row.includes(cur));
+      const i = rows[r].indexOf(cur);
+      const flat = btns.indexOf(cur);
+      let next: HTMLButtonElement | undefined;
+      if (e.key === 'ArrowRight') next = btns[Math.min(flat + 1, btns.length - 1)];
+      else if (e.key === 'ArrowLeft') next = btns[Math.max(flat - 1, 0)];
+      else if (e.key === 'ArrowDown' && rows[r + 1]) next = rows[r + 1][Math.min(i, rows[r + 1].length - 1)];
+      else if (e.key === 'ArrowUp' && rows[r - 1]) next = rows[r - 1][Math.min(i, rows[r - 1].length - 1)];
+      else if (e.key === 'Home') next = btns[0];
+      else if (e.key === 'End') next = btns[btns.length - 1];
+      if (!next) return;
+      e.preventDefault();
+      select(next.dataset.skill!, true);
+    });
+
+    select(btns.find((b) => b.getAttribute('aria-pressed') === 'true')?.dataset.skill ?? btns[0].dataset.skill!);
+
+    if (!reduce) {
+      gsap.from(btns, {
+        opacity: 0,
+        y: 10,
+        duration: 0.7,
+        ease: 'expo.out',
+        stagger: { each: 0.012 },
+        // hand opacity back to the stylesheet so the .off dimming still applies
+        clearProps: 'opacity,transform',
+        scrollTrigger: { trigger: matrix, start: 'top 85%', once: true },
+      });
+    }
+  }
 </script>
