@@ -45,7 +45,15 @@ function smoothScroll() {
 function field() {
   const canvas = document.getElementById('field') as HTMLCanvasElement | null;
   if (!canvas) return;
-  const f = createField(canvas);
+  // the hero's caption names each move the background cube makes
+  const cap = document.querySelector<HTMLElement>('[data-cube-caption]');
+  const f = createField(canvas, {
+    onCube: (e) => {
+      if (!cap) return;
+      cap.dataset.phase = e.phase;
+      cap.textContent = e.phase === 'solved' ? 'solved' : `${e.phase === 'scramble' ? 'scrambling' : 'solving'} · ${e.move} · ${e.step}/${e.of}`;
+    },
+  });
   document.querySelectorAll<HTMLElement>('[data-field]').forEach((sec) => {
     const idx = Number(sec.dataset.field);
     const level = Number(sec.dataset.fieldLevel ?? 1);

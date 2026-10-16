@@ -11,7 +11,8 @@ export default defineConfig({
   markdown: {
     // mermaid blocks in the blog are drawn by mermaid on the page, not highlighted
     syntaxHighlight: { type: 'shiki', excludeLangs: ['mermaid'] },
-    shikiConfig: { theme: 'github-dark-default', langAlias: { Dockerfile: 'dockerfile', Procfile: 'yaml', env: 'dotenv' } },
+    // both themes are emitted as CSS variables; the post page picks one per theme
+    shikiConfig: { themes: { light: 'github-light-default', dark: 'github-dark-default' }, defaultColor: false, langAlias: { Dockerfile: 'dockerfile', Procfile: 'yaml', env: 'dotenv' } },
   },
   vite: {
     environments: {

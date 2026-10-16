@@ -1,5 +1,6 @@
 ---
 import { existsSync } from 'node:fs';
+import Palette from './Palette.astro';
 import { chapters, person } from '../data/content';
 interface Props {
   // pages other than the home page point the section links back at it
@@ -22,6 +23,10 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
   </nav>
 
   <div class="acts">
+    <button class="act jump" type="button" data-pal-open aria-label="Jump to a section, project or post (or just start typing)" title="Jump to… (just start typing)">
+      <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.2" /><path d="m13 13 3.6 3.6" /></svg>
+      <span class="jump-k mono" aria-hidden="true">type</span>
+    </button>
     <button class="act theme" type="button" data-theme-toggle aria-label="Switch to light theme">
       <svg class="ico sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.6" /><path d="M10 1.8v2.2M10 16v2.2M1.8 10H4M16 10h2.2M4.2 4.2l1.6 1.6M14.2 14.2l1.6 1.6M4.2 15.8l1.6-1.6M14.2 5.8l1.6-1.6" /></svg>
       <svg class="ico moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.4 12.6A6.8 6.8 0 0 1 7.4 3.6a6.8 6.8 0 1 0 9 9Z" /></svg>
@@ -49,6 +54,7 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     </details>
   </div>
 </header>
+<Palette base={base} />
 
 <style>
   .hud {
@@ -144,6 +150,14 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
     color: var(--ink);
     border-color: var(--line-3);
     background: rgb(var(--wash-rgb) / 0.05);
+  }
+  .act.jump {
+    gap: 7px;
+    padding: 0 11px 0 10px;
+  }
+  .jump-k {
+    font-size: var(--fs-micro);
+    color: var(--ink-3);
   }
   .act.theme {
     width: 36px;
@@ -284,7 +298,8 @@ const hasResume = existsSync(new URL('../../public/kalyan-mudumby-resume.pdf', i
   @media (max-width: 560px) {
     .act.mail,
     .act.blog,
-    .act.theme {
+    .act.theme,
+    .act.jump {
       display: none;
     }
     .act,

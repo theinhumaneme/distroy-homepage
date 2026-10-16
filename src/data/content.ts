@@ -671,6 +671,21 @@ export const contact = {
   text: 'Have a role, a project, or a technical problem in mind? I’d like to hear about it.',
 };
 
+/* ------------------------------------------------------------------------ */
+/* Off the clock: cubing and typing                                          */
+/* ------------------------------------------------------------------------ */
+
+export const offClock = {
+  title: 'Off the clock',
+  text: 'Away from code I solve Rubik’s cubes and practice speed typing. The cube behind my name scrambles and solves itself, one real move at a time. The typing test is yours to try.',
+  // Owner-supplied numbers only (Oct 2026). Never estimate or round these up.
+  stats: [
+    { k: 'Rubik’s cube', v: '35 s best', note: 'Beginner method · learning CFOP, F2L done' },
+    { k: 'Typing', v: '100 wpm average', note: '120–130 wpm on good days' },
+  ],
+  typingAverage: 100,
+};
+
 /* Chapters, in page order. */
 export const chapters = [
   { id: 'top', label: 'Introduction' },

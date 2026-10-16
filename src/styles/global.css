@@ -127,7 +127,7 @@
   --t4: #bf3e2d;
   --t5: #1a6bb8;
 
-  --field-opacity: 0.5;
+  --field-opacity: 0.68;
 
   --viz-node: #f2f1ec;
   --viz-edge: rgb(var(--ink-rgb) / 0.2);

@@ -1,6 +1,8 @@
 ---
 import ChapterHead from './ChapterHead.astro';
-import { about } from '../data/content';
+import TypeChallenge from './TypeChallenge.astro';
+import { about, offClock } from '../data/content';
+const stats = offClock.stats;
 ---
 
 <section id="about" class="chapter" data-stage="about" data-field="1" data-field-level="0.22" aria-labelledby="about-title">
@@ -17,6 +19,27 @@ import { about } from '../data/content';
           {about.blogLine.text} <a href={about.blogLine.url}>{about.blogLine.link}</a>.
         </p>
       </div>
+    </div>
+
+    <div class="off" data-reveal>
+      <div class="off-text">
+        <h3 class="off-title">{offClock.title}</h3>
+        <p>{offClock.text}</p>
+        {
+          stats.length > 0 && (
+            <dl class="off-stats">
+              {stats.map((s) => (
+                <div>
+                  <dt>{s.k}</dt>
+                  <dd>{s.v}</dd>
+                  <dd class="note">{s.note}</dd>
+                </div>
+              ))}
+            </dl>
+          )
+        }
+      </div>
+      <TypeChallenge />
     </div>
 
     <div class="ab-grid">
@@ -128,6 +151,58 @@ import { about } from '../data/content';
   }
   @media (max-width: 900px) {
     .story {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* cubing and typing: a short note beside a typing line to try */
+  .off {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(24px, 5vw, 80px);
+    align-items: start;
+    margin-bottom: clamp(56px, 9vh, 96px);
+    padding-top: clamp(28px, 4vh, 40px);
+    border-top: 1px solid var(--line);
+  }
+  .off-text {
+    display: grid;
+    gap: 12px;
+    max-width: 30em;
+    color: var(--ink-2);
+    line-height: 1.65;
+  }
+  .off-title {
+    font-size: var(--fs-title);
+    font-weight: var(--fw-head);
+    letter-spacing: var(--tr-snug);
+    color: var(--ink);
+  }
+  .off-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    margin: 6px 0 0;
+  }
+  .off-stats dt {
+    font-size: var(--fs-xs);
+    color: var(--ink-3);
+  }
+  .off-stats dd {
+    margin: 2px 0 0;
+    font-size: var(--fs-title-s);
+    font-weight: var(--fw-medium);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .off-stats dd.note {
+    margin-top: 2px;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-body);
+    color: var(--ink-3);
+  }
+  @media (max-width: 900px) {
+    .off {
       grid-template-columns: 1fr;
     }
   }

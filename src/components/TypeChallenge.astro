@@ -1,0 +1,332 @@
+---
+// A minimal typing test in the spirit of Monkeytype: 25 common words, a caret,
+// letters that light up as you type them, and the result only at the end.
+// Space moves to the next word; Tab restarts.
+import { offClock } from '../data/content';
+
+// common English words, lowercase, as typing tests use
+const words =
+  'the be of and a to in he have it that for they with as not on she at by this we you do but from or which one would all will there say who make when can more if no man out other so what time up go about than into could state only new year some take come these know see use get like then first any work now may such give over think most even find day also after way many must look before great back through long where much should well people down own just because good each those feel seem how high too place little world very still nation hand old life tell write become here show house both between need mean call develop under last right move thing general school never same another begin while number part turn real leave might want point form off child few small since against ask late home interest large person end open public follow during present without again hold govern around possible head consider word program problem however lead system set order eye plan run keep face fact group play stand increase early course change help line'.split(
+    ' ',
+  );
+---
+
+<div class="tt" data-tt data-words={JSON.stringify(words)} data-avg={offClock.typingAverage}>
+  <div class="tt-bar mono" aria-hidden="true">
+    <span class="tt-count" data-count>0/25</span>
+    <span class="tt-hint">click or tap, then type · tab restarts · esc leaves</span>
+  </div>
+
+  <div class="tt-stage">
+    <div class="tt-words mono" data-words-el aria-hidden="true"></div>
+    <span class="tt-caret" data-caret aria-hidden="true"></span>
+    <input
+      class="tt-input"
+      data-input
+      type="text"
+      autocomplete="off"
+      autocapitalize="off"
+      autocorrect="off"
+      spellcheck="false"
+      aria-label="Typing test: type the words shown, separated by spaces. Tab restarts."
+    />
+    <p class="tt-focus">click here to type</p>
+  </div>
+
+  <div class="tt-result" data-result hidden aria-live="polite">
+    <p class="tt-big"><b data-wpm>0</b><span>wpm</span></p>
+    <p class="tt-big"><b data-acc>0</b><span>% acc</span></p>
+    <p class="tt-meta mono" data-meta></p>
+  </div>
+</div>
+
+<style>
+  .tt {
+    display: grid;
+    gap: 14px;
+  }
+  .tt-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: var(--fs-xs);
+    color: var(--ink-3);
+  }
+  .tt-count {
+    color: var(--t3);
+    font-variant-numeric: tabular-nums;
+  }
+  .tt-stage {
+    position: relative;
+    cursor: text;
+  }
+  .tt-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em 0.62em;
+    font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+    line-height: 1.6;
+    color: var(--ink-3);
+    opacity: 0.55;
+    user-select: none;
+    transition:
+      opacity 0.2s,
+      filter 0.2s;
+  }
+  .tt.focus .tt-words {
+    opacity: 1;
+  }
+  .tt:not(.focus) .tt-words {
+    filter: blur(3px);
+  }
+  .tt-words :global(.w) {
+    display: inline-flex;
+  }
+  .tt-words :global(.w.err) {
+    text-decoration: underline;
+    text-decoration-color: var(--t4);
+    text-underline-offset: 6px;
+  }
+  .tt-words :global(.ok) {
+    color: var(--ink);
+  }
+  .tt-words :global(.bad) {
+    color: var(--t4);
+  }
+  .tt-words :global(.extra) {
+    color: var(--t4);
+    opacity: 0.6;
+  }
+  .tt-caret {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 1.3em;
+    border-radius: 1px;
+    background: var(--t3);
+    font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+    transition: transform 0.09s ease-out;
+    animation: tt-blink 1s steps(1) infinite;
+  }
+  .tt:not(.focus) .tt-caret,
+  .tt.done .tt-caret {
+    display: none;
+  }
+  .tt.typing .tt-caret {
+    animation: none;
+  }
+  @keyframes tt-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  /* the real input covers the words, invisibly, so a tap opens the keyboard */
+  .tt-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    font-size: 16px;
+    border: 0;
+    cursor: text;
+  }
+  .tt-focus {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: var(--fs-small);
+    font-weight: var(--fw-medium);
+    color: var(--ink-2);
+    pointer-events: none;
+  }
+  .tt.focus .tt-focus {
+    display: none;
+  }
+  .tt-result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 28px;
+  }
+  .tt-result[hidden] {
+    display: none;
+  }
+  .tt-big {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .tt-big b {
+    font-size: clamp(2rem, 3.4vw, 2.75rem);
+    font-weight: var(--fw-head);
+    line-height: 1;
+    color: var(--t3);
+    font-variant-numeric: tabular-nums;
+  }
+  .tt-big span {
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .tt-meta {
+    flex-basis: 100%;
+    font-size: var(--fs-xs);
+    color: var(--ink-3);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tt-caret {
+      transition: none;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tt]').forEach((root) => {
+    const pool: string[] = JSON.parse(root.dataset.words ?? '[]');
+    const avg = Number(root.dataset.avg) || 0;
+    const COUNT = 25;
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector(s) as T;
+    const wordsEl = $('[data-words-el]');
+    const caret = $('[data-caret]');
+    const input = $<HTMLInputElement>('[data-input]');
+    const count = $('[data-count]');
+    const result = $('[data-result]');
+
+    let target: string[] = [];
+    let typed: string[] = [''];
+    let start = 0;
+    let keys = 0;
+    let errors = 0;
+    let done = false;
+
+    const pick = () => Array.from({ length: COUNT }, () => pool[Math.floor(Math.random() * pool.length)]);
+    const esc = (c: string) => (c === '<' ? '&lt;' : c === '&' ? '&amp;' : c);
+
+    // put the caret before the next character, or after the word's last one
+    const place = () => {
+      const cur = typed.length - 1;
+      const w = wordsEl.querySelector<HTMLElement>(`[data-w="${cur}"]`);
+      if (!w) return;
+      const chars = w.querySelectorAll<HTMLElement>('[data-c]');
+      const i = typed[cur].length;
+      const base = wordsEl.getBoundingClientRect();
+      const r = (chars[Math.min(i, chars.length - 1)] ?? w).getBoundingClientRect();
+      const x = (i < chars.length ? r.left : r.right) - base.left;
+      const y = r.top - base.top + (r.height - caret.offsetHeight) / 2;
+      caret.style.transform = `translate(${x}px, ${y}px)`;
+    };
+
+    const render = () => {
+      const cur = typed.length - 1;
+      wordsEl.innerHTML = target
+        .map((w, wi) => {
+          const t = typed[wi] ?? '';
+          let html = '';
+          for (let i = 0; i < w.length; i++) {
+            const cls = i < t.length ? (t[i] === w[i] ? 'ok' : 'bad') : '';
+            html += `<span class="${cls}" data-c>${esc(w[i])}</span>`;
+          }
+          for (let i = w.length; i < t.length; i++) html += `<span class="extra" data-c>${esc(t[i])}</span>`;
+          const err = wi < cur && t !== w ? ' err' : '';
+          return `<span class="w${err}" data-w="${wi}">${html}</span>`;
+        })
+        .join('');
+      count.textContent = `${Math.min(cur, COUNT)}/${COUNT}`;
+      place();
+    };
+
+    const restart = () => {
+      target = pick();
+      typed = [''];
+      start = keys = errors = 0;
+      done = false;
+      input.value = '';
+      root.classList.remove('done', 'typing');
+      result.hidden = true;
+      render();
+    };
+
+    const finish = () => {
+      done = true;
+      root.classList.add('done');
+      root.classList.remove('typing');
+      const mins = (performance.now() - start) / 60000;
+      // as Monkeytype counts it: characters of correctly typed words, plus spaces, ÷ 5
+      let chars = 0;
+      target.forEach((w, i) => {
+        if (typed[i] === w) chars += w.length + (i < target.length - 1 ? 1 : 0);
+      });
+      const wpm = Math.round(chars / 5 / Math.max(mins, 1e-3));
+      const acc = keys ? Math.round(((keys - errors) / keys) * 100) : 0;
+      $('[data-wpm]').textContent = String(wpm);
+      $('[data-acc]').textContent = String(acc);
+      $('[data-meta]').textContent = `${COUNT} words · ${(mins * 60).toFixed(1)} s${avg ? ` · my average is ${avg} wpm` : ''} · tab to go again`;
+      count.textContent = `${COUNT}/${COUNT}`;
+      result.hidden = false;
+    };
+
+    const typeChar = (c: string) => {
+      if (done) return;
+      if (!start) {
+        start = performance.now();
+        root.classList.add('typing');
+      }
+      const cur = typed.length - 1;
+      const want = target[cur];
+      if (c === ' ') {
+        if (!typed[cur]) return; // no empty words
+        keys++;
+        if (typed[cur] !== want) errors++;
+        if (cur === target.length - 1) return finish();
+        typed.push('');
+        render();
+        return;
+      }
+      keys++;
+      if (want[typed[cur].length] !== c) errors++;
+      typed[cur] += c;
+      render();
+      // the last word ends the test as soon as it's typed correctly
+      if (cur === target.length - 1 && typed[cur] === want) finish();
+    };
+
+    const backspace = () => {
+      if (done) return;
+      const cur = typed.length - 1;
+      if (typed[cur]) typed[cur] = typed[cur].slice(0, -1);
+      else if (cur > 0 && typed[cur - 1] !== target[cur - 1]) typed.pop(); // back into a wrong word only
+      render();
+    };
+
+    // The input stays empty; each event is read and applied to the test.
+    input.addEventListener('input', (e) => {
+      const ev = e as InputEvent;
+      if (ev.inputType.startsWith('delete')) backspace();
+      else for (const c of ev.data ?? input.value) typeChar(c);
+      input.value = '';
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        restart();
+      } else if (e.key === 'Escape') input.blur();
+      else if (e.key === 'Backspace' && !input.value) {
+        // an empty input fires no input event for backspace, so handle it here
+        e.preventDefault();
+        backspace();
+      }
+    });
+    input.addEventListener('paste', (e) => e.preventDefault());
+    input.addEventListener('drop', (e) => e.preventDefault());
+    input.addEventListener('focus', () => {
+      root.classList.add('focus');
+      place();
+    });
+    input.addEventListener('blur', () => root.classList.remove('focus'));
+    addEventListener('resize', place);
+
+    restart();
+  });
+</script>

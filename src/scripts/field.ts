@@ -1,18 +1,24 @@
-// The background "latent field": one particle system that re-forms for each
-// chapter. 0 cloud → 1 token sequence → 2 embedding matrix → 3 vector
+// The background field: one particle system that re-forms for each chapter.
+// 0 Rubik's cube → 1 token sequence → 2 embedding matrix → 3 vector
 // clusters → 4 attention arcs → 5 output stream.
+// The cube is live: it plays a random scramble, then its exact inverse to
+// solve, turning one layer at a time (see Cube below).
 
 import { cssVar, currentTheme, onThemeChange } from './theme';
 
 type Formation = Float32Array;
 
-// the five token hues, read from the theme so light mode gets its deeper set
-const readPalette = () => ['--t1', '--t2', '--t3', '--t4', '--t5'].map((t) => cssVar(t));
+// the five token hues plus ink, read from the theme so light mode gets its
+// deeper set; six colours so the cube has six faces
+const readPalette = () => ['--t1', '--t2', '--t3', '--t4', '--t5', '--ink'].map((t) => cssVar(t));
+const COLORS = 6;
 let PALETTE = readPalette();
-const ROTATE = [1.6, 0, 0.12, 1, 0.08, 0]; // how much each formation spins
-const TILT = [0.18, 0, 0.55, 0.22, 0, 0];
-// horizontal offset per formation (in field units) so shapes frame the copy
-const SHIFT = [0.66, 0, 0, 0.1, 0, 0];
+const ROTATE = [0.9, 0, 0.12, 1, 0.08, 0]; // how much each formation spins
+const TILT = [0.5, 0, 0.55, 0.22, 0, 0];
+// offset per formation (in field units) so shapes frame the copy; the cube
+// sits up beside the name, clear of the hero's lower copy
+const SHIFT = [0.7, 0, 0, 0.1, 0, 0];
+const LIFT = [-0.22, 0, 0, 0, 0, 0];
 
 const hash = (i: number) => {
   let x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
@@ -31,31 +37,164 @@ const mulberry = (a: number) => () => {
 };
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
+/* Rubik's cube ----------------------------------------------------------------
+   Coordinates: x right, y down, z away from the viewer (right-handed, as the
+   projection draws it). Faces: R +x, L −x, D +y, U −y, B +z, F −z. */
+const HALF = 0.3; // half the cube's edge, in field units
+const CELL = (HALF * 2) / 3;
+const FACES = [
+  { axis: 0, sign: 1, name: 'R' },
+  { axis: 0, sign: -1, name: 'L' },
+  { axis: 1, sign: 1, name: 'D' },
+  { axis: 1, sign: -1, name: 'U' },
+  { axis: 2, sign: 1, name: 'B' },
+  { axis: 2, sign: -1, name: 'F' },
+];
+
+/** Dots per sticker edge for a field of n particles. */
+const cubeSide = (n: number) => Math.max(2, Math.floor(Math.floor(n / COLORS / 9) / 4));
+
+function cubeHome(out: Float32Array, n: number) {
+  // Each sticker is a square of evenly spaced dots, one on every corner, so
+  // edges read straight.
+  const per = cubeSide(n);
+  const side = CELL * 0.8;
+  for (let i = 0; i < n; i++) {
+    const face = FACES[i % COLORS];
+    const slot = Math.floor(i / COLORS);
+    const sticker = slot % 9;
+    let d = Math.floor(slot / 9);
+    if (d >= per * 4) d = 0; // leftovers sit on a corner dot, out of sight
+    const su = (sticker % 3) - 1;
+    const sv = Math.floor(sticker / 3) - 1;
+    const edge = Math.floor(d / per),
+      f = (d % per) / per;
+    const [pu, pv] = edge === 0 ? [f, 0] : edge === 1 ? [1, f] : edge === 2 ? [1 - f, 1] : [0, 1 - f];
+    const p = [0, 0, 0];
+    const [a, b] = [(face.axis + 1) % 3, (face.axis + 2) % 3];
+    p[face.axis] = face.sign * HALF;
+    p[a] = su * CELL + (pu - 0.5) * side;
+    p[b] = sv * CELL + (pv - 0.5) * side;
+    out.set(p, i * 3);
+  }
+}
+
+type Move = { axis: number; sign: number; dir: number }; // dir: +1 clockwise, −1 prime
+const notation = (m: Move) => FACES.find((f) => f.axis === m.axis && f.sign === m.sign)!.name + (m.dir < 0 ? '′' : '');
+
+/** Rotate (x, y, z) about the axis by angle, right-handed. */
+function turn(axis: number, ang: number, x: number, y: number, z: number, out: number[]) {
+  const c = Math.cos(ang),
+    s = Math.sin(ang);
+  if (axis === 0) (out[0] = x), (out[1] = y * c - z * s), (out[2] = y * s + z * c);
+  else if (axis === 1) (out[0] = z * s + x * c), (out[1] = y), (out[2] = z * c - x * s);
+  else (out[0] = x * c - y * s), (out[1] = x * s + y * c), (out[2] = z);
+}
+
+export type CubeEvent = { move: string; phase: 'scramble' | 'solve' | 'solved'; step: number; of: number };
+
+/** The cube's state: particle positions after completed moves, plus the turn in progress. */
+class Cube {
+  pos: Float32Array;
+  now: Float32Array;
+  private seq: Move[] = [];
+  private idx = 0;
+  private t0 = -1;
+  private hold = 0;
+  private tmp = [0, 0, 0];
+  static TURN = 420;
+  static GAP = 120;
+  constructor(
+    home: Float32Array,
+    private onMove?: (e: CubeEvent) => void,
+  ) {
+    this.pos = new Float32Array(home);
+    this.now = new Float32Array(home);
+  }
+  private scramble() {
+    const moves: Move[] = [];
+    while (moves.length < 9) {
+      const f = FACES[Math.floor(Math.random() * 6)];
+      const prev = moves[moves.length - 1];
+      if (prev && prev.axis === f.axis) continue; // no back-to-back turns on one axis
+      moves.push({ axis: f.axis, sign: f.sign, dir: Math.random() < 0.5 ? 1 : -1 });
+    }
+    const solve = moves
+      .slice()
+      .reverse()
+      .map((m) => ({ ...m, dir: -m.dir }));
+    this.seq = [...moves, ...solve];
+    this.idx = 0;
+  }
+  /** Advance to `ms`; writes the animated positions to `now`. */
+  step(ms: number) {
+    if (this.t0 < 0) {
+      this.t0 = ms + 1600; // a beat to read the solved cube first
+      this.scramble();
+      this.onMove?.({ move: '', phase: 'solved', step: 0, of: 9 });
+    }
+    if (ms < this.t0) {
+      this.now.set(this.pos);
+      return;
+    }
+    const m = this.seq[this.idx];
+    const t = Math.min(1, (ms - this.t0) / Cube.TURN);
+    if (t === 0 || this.hold !== this.idx + 1) {
+      this.hold = this.idx + 1;
+      const half = this.seq.length / 2;
+      const solving = this.idx >= half;
+      this.onMove?.({ move: notation(m), phase: solving ? 'solve' : 'scramble', step: (this.idx % half) + 1, of: half });
+    }
+    // clockwise seen from outside the face: −90° about its outward normal
+    const full = (-Math.PI / 2) * m.sign * m.dir;
+    const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const ang = full * e;
+    const P = this.pos,
+      N = this.now,
+      o = this.tmp;
+    for (let i = 0; i < P.length; i += 3) {
+      const layer = Math.max(-1, Math.min(1, Math.round(P[i + m.axis] / CELL)));
+      if (layer !== m.sign) {
+        N[i] = P[i];
+        N[i + 1] = P[i + 1];
+        N[i + 2] = P[i + 2];
+        continue;
+      }
+      turn(m.axis, ang, P[i], P[i + 1], P[i + 2], o);
+      N[i] = o[0];
+      N[i + 1] = o[1];
+      N[i + 2] = o[2];
+    }
+    if (t >= 1) {
+      // commit the quarter turn exactly, so the grid never drifts
+      for (let i = 0; i < P.length; i += 3) {
+        const layer = Math.max(-1, Math.min(1, Math.round(P[i + m.axis] / CELL)));
+        if (layer !== m.sign) continue;
+        turn(m.axis, full, P[i], P[i + 1], P[i + 2], o);
+        P[i] = Math.round(o[0] * 1e5) / 1e5;
+        P[i + 1] = Math.round(o[1] * 1e5) / 1e5;
+        P[i + 2] = Math.round(o[2] * 1e5) / 1e5;
+      }
+      this.idx++;
+      this.t0 = ms + Cube.GAP;
+      if (this.idx === this.seq.length / 2) this.t0 = ms + 700; // scrambled: pause, then solve
+      if (this.idx >= this.seq.length) {
+        this.t0 = -1; // solved: hold, then a fresh scramble
+        this.onMove?.({ move: '', phase: 'solved', step: 9, of: 9 });
+        this.t0 = ms + 2200;
+        this.scramble();
+      }
+    }
+  }
+}
+
 function buildFormations(n: number): Formation[] {
   const r = mulberry(1337);
   const f: Formation[] = Array.from({ length: 6 }, () => new Float32Array(n * 3));
 
-  // 0 · cloud: a loose, slightly flattened galaxy of tokens
-  for (let i = 0; i < n; i++) {
-    const shell = r() < 0.55;
-    const u = r() * 2 - 1;
-    const th = r() * Math.PI * 2;
-    // a sphere of tokens: a crisp shell, an orbiting ring and a soft core
-    const ring = !shell && r() < 0.35;
-    const s = Math.sqrt(1 - u * u);
-    if (ring) {
-      const rr = 0.86 + gauss(r) * 0.03;
-      f[0].set([rr * Math.cos(th), gauss(r) * 0.012, rr * Math.sin(th) * 0.32], i * 3);
-      // tilt the ring
-      const y = f[0][i * 3 + 1],
-        x = f[0][i * 3];
-      f[0][i * 3] = x * 0.94 - y * 0.34;
-      f[0][i * 3 + 1] = x * 0.34 + y * 0.94;
-      continue;
-    }
-    const rad = shell ? 0.56 + gauss(r) * 0.018 : Math.pow(r(), 0.9) * 0.5;
-    f[0].set([rad * s * Math.cos(th), rad * u, rad * s * Math.sin(th)], i * 3);
-  }
+  // 0 · cube: a solved 3×3×3, each particle a dot on one sticker. Particle i
+  // carries colour i % 6, so face f gets the particles of colour f.
+  cubeHome(f[0], n);
 
   // 1 · sequence: lines of "words" made of token blocks
   {
@@ -142,20 +281,21 @@ function buildFormations(n: number): Formation[] {
   return f;
 }
 
-export function createField(canvas: HTMLCanvasElement) {
+export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: CubeEvent) => void } = {}) {
   const ctx = canvas.getContext('2d', { alpha: true })!;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const small = innerWidth < 760;
-  const N = small ? 760 : 1600;
+  const N = small ? 900 : 2200;
 
   const forms = buildFormations(N);
+  const cube = new Cube(forms[0], opts.onCube);
   const cur = new Float32Array(forms[0]);
   const from = new Float32Array(forms[0]);
   const ox = new Float32Array(N);
   const oy = new Float32Array(N);
   const delay = new Float32Array(N).map((_, i) => hash(i) * 0.45);
   const size = new Float32Array(N).map((_, i) => 1.3 + hash(i + 9) * 1.9);
-  const group = new Uint8Array(N).map((_, i) => i % 5);
+  const group = new Uint8Array(N).map((_, i) => i % COLORS);
 
   let w = 0,
     h = 0,
@@ -165,7 +305,8 @@ export function createField(canvas: HTMLCanvasElement) {
   const MORPH = 1700;
   let rot = ROTATE[0],
     tilt = TILT[0],
-    shift = small ? 0 : SHIFT[0];
+    shift = small ? 0 : SHIFT[0],
+    lift = LIFT[0];
   let intensity = 1,
     intensityTarget = 1;
   let mx = -9999,
@@ -173,6 +314,9 @@ export function createField(canvas: HTMLCanvasElement) {
     px = 0,
     py = 0;
   let angle = 0;
+  // The cube never spins round: it holds a three-quarter view (a corner toward
+  // the viewer, three faces showing) and sways a little either side of it.
+  let yaw = Math.PI / 4;
   let last = performance.now();
   let running = true;
 
@@ -233,6 +377,9 @@ export function createField(canvas: HTMLCanvasElement) {
   const sx = new Float32Array(N);
   const sy = new Float32Array(N);
   const sz = new Float32Array(N);
+  // 1 when a cube sticker faces away from the viewer: drawn faintly, so the
+  // three near faces read as solid colour rather than mixing with the far ones
+  const back = new Uint8Array(N);
 
   function frame(now: number) {
     if (!running) return;
@@ -243,6 +390,7 @@ export function createField(canvas: HTMLCanvasElement) {
     rot += (ROTATE[target] - rot) * k;
     tilt += (TILT[target] - tilt) * k;
     shift += ((small ? 0 : SHIFT[target]) - shift) * k;
+    lift += (LIFT[target] - lift) * k;
     intensity += (intensityTarget - intensity) * k;
     if (!reduce) angle += dt * 0.00006 * rot;
 
@@ -253,10 +401,14 @@ export function createField(canvas: HTMLCanvasElement) {
 
     // morph progress
     const mt = morphStart < 0 ? 1 : Math.min(1, (now - morphStart) / MORPH);
-    const to = forms[target];
+    // the cube turns only while it is the formation on show
+    if (target === 0 && !reduce) cube.step(now);
+    const to = target === 0 ? cube.now : forms[target];
     const flow = target === 5 ? now * 0.00012 : 0;
 
-    const ay = angle + px * 0.5;
+    const want = target === 0 ? Math.PI / 4 + (reduce ? 0 : Math.sin(now * 0.00022) * 0.28) : angle;
+    yaw += (want - yaw) * k;
+    const ay = yaw + px * 0.5;
     const ax = tilt + py * 0.25;
     const cy = Math.cos(ay),
       sy_ = Math.sin(ay),
@@ -274,9 +426,12 @@ export function createField(canvas: HTMLCanvasElement) {
         ty = to[j + 1];
       const tz = to[j + 2];
       if (flow) tx = ((((tx + 1.7 + flow * (1 + (i % 7) * 0.12)) % 3.4) + 3.4) % 3.4) - 1.7;
+      // a gentle drift keeps the field alive; smaller on the cube so its
+      // sticker edges still read straight
       if (!reduce) {
-        ty += Math.sin(t * 0.7 + i) * 0.006;
-        tx += Math.cos(t * 0.5 + i * 1.3) * 0.004;
+        const amp = target === 0 ? 0.35 : 1;
+        ty += Math.sin(t * 0.7 + i) * 0.006 * amp;
+        tx += Math.cos(t * 0.5 + i * 1.3) * 0.004 * amp;
       }
       const x = mt >= 1 ? tx : from[j] + (tx - from[j]) * local;
       const y = mt >= 1 ? ty : from[j + 1] + (ty - from[j + 1]) * local;
@@ -292,7 +447,7 @@ export function createField(canvas: HTMLCanvasElement) {
       const z2 = y * sx_ + z1 * cx;
       const p = cam / (cam + z2);
       let X = w / 2 + (x1 + shift) * scale * p;
-      let Y = h / 2 + y1 * scale * p;
+      let Y = h / 2 + (y1 + lift) * scale * p;
 
       // pointer repulsion, eased
       const dx = X - mx,
@@ -302,7 +457,7 @@ export function createField(canvas: HTMLCanvasElement) {
         toy = 0;
       if (d2 < 22000) {
         const d = Math.sqrt(d2) || 1;
-        const f = (1 - d / 148) * 26;
+        const f = (1 - d / 148) * (target === 0 ? 18 : 26);
         tox = (dx / d) * f;
         toy = (dy / d) * f;
       }
@@ -311,30 +466,54 @@ export function createField(canvas: HTMLCanvasElement) {
       sx[i] = X + ox[i];
       sy[i] = Y + oy[i];
       sz[i] = p;
+      if (target === 0) {
+        // outward normal = the axis this dot sits furthest along
+        const axx = Math.abs(x),
+          axy = Math.abs(y),
+          axz = Math.abs(z);
+        const nx = axx >= axy && axx >= axz ? Math.sign(x) : 0;
+        const ny = !nx && axy >= axz ? Math.sign(y) : 0;
+        const nz = !nx && !ny ? Math.sign(z) : 0;
+        const nz1 = -nx * sy_ + nz * cy;
+        back[i] = ny * sx_ + nz1 * cx > 0 ? 1 : 0;
+      } else back[i] = 0;
     }
 
     ctx.clearRect(0, 0, w, h);
     // draw by colour and three depth buckets to keep state changes low
-    for (let g = 0; g < 5; g++) {
+    for (let g = 0; g < COLORS; g++) {
       ctx.fillStyle = PALETTE[g];
       for (let b = 0; b < 3; b++) {
-        ctx.globalAlpha = Math.min(1, (0.34 + b * 0.3) * intensity);
-        for (let i = g; i < N; i += 5) {
+        // the cube's near faces draw at full strength so their colours read
+        ctx.globalAlpha = Math.min(1, (target === 0 ? 0.95 : 0.34 + b * 0.3) * intensity);
+        for (let i = g; i < N; i += COLORS) {
+          if (back[i]) continue;
           const p = sz[i];
           const bucket = p < 0.94 ? 0 : p < 1.04 ? 1 : 2;
           if (bucket !== b) continue;
-          const s = size[i] * p * (target === 2 ? 1.15 : 1);
+          // the cube keeps the field's varied dots, in a narrower range so edges read even
+          const s = target === 0 ? (2.2 + (size[i] - 1.3) * 0.65) * p : size[i] * p * (target === 2 ? 1.15 : 1);
+          ctx.fillRect(sx[i] - s / 2, sy[i] - s / 2, s, s);
+        }
+      }
+      // the far faces show faintly through on a dark ground, for depth; on
+      // paper they read as noise
+      if (target === 0 && blend === 'lighter') {
+        ctx.globalAlpha = 0.12 * intensity;
+        for (let i = g; i < N; i += COLORS) {
+          if (!back[i]) continue;
+          const s = 1.4 * sz[i];
           ctx.fillRect(sx[i] - s / 2, sy[i] - s / 2, s, s);
         }
       }
     }
-    // bokeh pass
+    // bokeh pass, softer on the cube so the glow doesn't swallow its stickers
     ctx.globalCompositeOperation = blend;
     for (let i = 0; i < N; i++) {
-      if (!glowy[i]) continue;
+      if (!glowy[i] || (target === 0 && (back[i] || blend !== 'lighter'))) continue;
       const p = sz[i];
       const r = 7 + size[i] * 6 * p;
-      ctx.globalAlpha = 0.28 * intensity * Math.min(1.4, p);
+      ctx.globalAlpha = 0.28 * intensity * Math.min(1.4, p) * (target === 0 ? 0.55 : 1);
       ctx.drawImage(sprites[group[i]], sx[i] - r, sy[i] - r, r * 2, r * 2);
     }
     ctx.globalCompositeOperation = 'source-over';

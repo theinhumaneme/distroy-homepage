@@ -46,7 +46,7 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
                 ))}
               </div>
               <div class="cp-right">
-                <span class="merged mono">⑂ merged</span>
+                <span class="merged mono"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="4.5" cy="3.5" r="1.6" /><circle cx="4.5" cy="12.5" r="1.6" /><circle cx="11.5" cy="8.5" r="1.6" /><path d="M4.5 5.1v5.8M4.5 5.6c0 2.2 1.6 2.9 3.4 2.9h2" /></svg>merged</span>
                 <span class="mono">langchain-ai/langchain</span>
                 {c.links.map((l) => (
                   <a class="link" href={l.url} target="_blank" rel="noopener">
@@ -366,12 +366,24 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
     font-size: var(--fs-xs);
     color: var(--ink-2);
   }
+  /* GitHub's merged-PR badge: purple, with the merge glyph */
   .merged {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: var(--fs-micro);
-    padding: 5px 10px;
+    padding: 5px 11px 5px 9px;
     border-radius: 999px;
     background: #8957e5;
     color: #fff;
+  }
+  .merged svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
   }
 
   @media (max-width: 960px) {

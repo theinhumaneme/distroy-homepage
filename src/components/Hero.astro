@@ -66,6 +66,8 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
     </div>
   </div>
 
+  <p class="cube-cap mono" data-cube-caption aria-hidden="true"></p>
+
   <a class="scroll" href="#work">
     <span class="bar" aria-hidden="true"><i></i></span>
     Explore the work
@@ -292,6 +294,22 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
   .scroll:hover {
     color: var(--ink);
   }
+  /* the background cube's current move, in standard notation */
+  .cube-cap {
+    position: absolute;
+    right: var(--gutter);
+    bottom: 28px;
+    font-size: var(--fs-micro);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .cube-cap[data-phase='solved'] {
+    color: var(--t2);
+  }
+  .cube-cap:empty {
+    display: none;
+  }
+
   .scroll .bar {
     position: relative;
     width: 1px;
@@ -326,7 +344,8 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
     }
     .meta,
     .scroll,
-    .tid {
+    .tid,
+    .cube-cap {
       display: none;
     }
     .name {
