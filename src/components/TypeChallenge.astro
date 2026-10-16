@@ -201,6 +201,9 @@ const words =
     let errors = 0;
     let done = false;
 
+    // tell the page what's happening (the token pet in TokenPet.astro watches)
+    const emit = (type: string, extra: object = {}) => root.dispatchEvent(new CustomEvent('tt', { bubbles: true, detail: { type, el: root, ...extra } }));
+
     const pick = () => Array.from({ length: COUNT }, () => pool[Math.floor(Math.random() * pool.length)]);
     const esc = (c: string) => (c === '<' ? '&lt;' : c === '&' ? '&amp;' : c);
 
@@ -265,6 +268,7 @@ const words =
       $('[data-meta]').textContent = `${COUNT} words · ${(mins * 60).toFixed(1)} s${avg ? ` · my average is ${avg} wpm` : ''} · tab to go again`;
       count.textContent = `${COUNT}/${COUNT}`;
       result.hidden = false;
+      emit('done', { wpm, avg });
     };
 
     const typeChar = (c: string) => {
@@ -279,6 +283,7 @@ const words =
         if (!typed[cur]) return; // no empty words
         keys++;
         if (typed[cur] !== want) errors++;
+        emit('word', { ok: typed[cur] === want });
         if (cur === target.length - 1) return finish();
         typed.push('');
         render();
@@ -323,8 +328,12 @@ const words =
     input.addEventListener('focus', () => {
       root.classList.add('focus');
       place();
+      emit('focus');
     });
-    input.addEventListener('blur', () => root.classList.remove('focus'));
+    input.addEventListener('blur', () => {
+      root.classList.remove('focus');
+      emit('blur');
+    });
     addEventListener('resize', place);
 
     restart();

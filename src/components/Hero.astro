@@ -26,6 +26,7 @@ const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
               <span class={`tok c${((li * 3 + i) % 5) + 1}`} title={`"${t.t.replace(' ', '␣')}" → token ${t.id}`} data-name-tok>
                 {li > 0 && i === 0 ? t.t.trimStart() : t.t}
                 <span class="tid mono">{t.id}</span>
+                <span class="peek" aria-hidden="true"><i></i><i></i></span>
               </span>
             ))}
           </span>

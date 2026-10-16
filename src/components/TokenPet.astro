@@ -1,0 +1,1125 @@
+---
+// The tokens of the name in the hero are pets. One at a time comes out: it
+// breaks into dots, re-forms below as a small creature with its own
+// personality, and wanders the page, walking along the tops of headings and
+// cards. It can be dragged and thrown, it cheers on the typing test, and it
+// dozes when nothing happens. Hover a token in the name and it peeks; click
+// it to swap it in. Double-click the pet, or click its empty slot, and it
+// goes home. Decorative: the name keeps its aria-label, and nothing moves for
+// anyone who asks for reduced motion.
+---
+
+<div class="pet" data-pet hidden>
+  <p class="pet-say" data-say role="status"></p>
+  <span class="pet-z mono" aria-hidden="true"><i>z</i><i>z</i><i>z</i></span>
+  <button class="pet-btn" type="button" data-pet-btn>
+    <span class="pet-eyes" aria-hidden="true"><i><b></b></i><i><b></b></i></span>
+    <span class="pet-body" aria-hidden="true" data-word></span>
+    <span class="pet-legs" aria-hidden="true"><i></i><i></i></span>
+  </button>
+</div>
+
+<style>
+  .pet {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 45; /* over the page, under the top bar and the palette */
+    pointer-events: none;
+    will-change: transform;
+  }
+  .pet[hidden] {
+    display: none;
+  }
+  .pet-btn {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    cursor: grab;
+    pointer-events: auto;
+    touch-action: none;
+    transform-origin: 50% 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pet.held .pet-btn {
+    cursor: grabbing;
+  }
+  .pet-btn:focus-visible {
+    outline: 2px solid var(--c);
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+  /* the chip is the hero token, small: same face, tint and underline */
+  .pet-body {
+    display: block;
+    padding: 0 0.06em 0.06em;
+    border-radius: 0.12em;
+    font-size: 26px;
+    line-height: 0.92;
+    letter-spacing: var(--tr-display);
+    font-weight: var(--fw-display);
+    white-space: nowrap;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--c) 10%, var(--bg)), color-mix(in oklab, var(--c) 24%, var(--bg)));
+    box-shadow:
+      inset 0 -0.07em 0 color-mix(in oklab, var(--c) 85%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--c) 30%, transparent);
+  }
+
+  /* two eyes peeking over the top of the chip */
+  .pet-eyes {
+    display: flex;
+    gap: 3px;
+    margin-bottom: -4px;
+    position: relative;
+    z-index: 1;
+  }
+  .pet-eyes i {
+    position: relative;
+    width: 10px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--ink);
+    transition: transform 0.12s;
+    transform-origin: 50% 70%;
+  }
+  .pet-eyes b {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 4px;
+    height: 4px;
+    margin: -2px 0 0 -2px;
+    border-radius: 50%;
+    background: var(--ink);
+    transform: translate(var(--ex, 0px), var(--ey, 0px));
+  }
+  .pet.blink .pet-eyes i,
+  .pet.sleep .pet-eyes i {
+    transform: scaleY(0.14);
+  }
+  .pet.wince .pet-eyes i {
+    transform: scaleY(0.45) rotate(-8deg);
+  }
+  .pet.wince .pet-eyes i + i {
+    transform: scaleY(0.45) rotate(8deg);
+  }
+
+  /* personalities, mostly in the eyes */
+  /* calm: heavy lids */
+  .pet.p-calm .pet-eyes i {
+    background: linear-gradient(var(--ink) 0 34%, var(--bg) 34%);
+  }
+  .pet.p-calm .pet-eyes b {
+    top: 62%;
+  }
+  /* shy: small pupils, and cheeks that colour when poked */
+  .pet.p-shy .pet-eyes b {
+    width: 3px;
+    height: 3px;
+    margin: -1.5px 0 0 -1.5px;
+  }
+  .pet.p-shy .pet-eyes::before,
+  .pet.p-shy .pet-eyes::after {
+    content: '';
+    position: absolute;
+    top: 13px;
+    width: 7px;
+    height: 3px;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--t4) 70%, transparent);
+    opacity: 0.35;
+    transition: opacity 0.3s;
+  }
+  .pet.p-shy .pet-eyes::before {
+    left: -7px;
+  }
+  .pet.p-shy .pet-eyes::after {
+    right: -7px;
+  }
+  .pet.p-shy.blush .pet-eyes::before,
+  .pet.p-shy.blush .pet-eyes::after {
+    opacity: 1;
+  }
+  /* hyper: wide eyes */
+  .pet.p-hyper .pet-eyes i {
+    width: 12px;
+    height: 13px;
+  }
+  .pet.p-hyper .pet-eyes b {
+    width: 5px;
+    height: 5px;
+    margin: -2.5px 0 0 -2.5px;
+  }
+  /* grumpy: brows */
+  .pet.p-grump .pet-eyes i::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -1px;
+    width: 10px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--ink);
+    transform: rotate(16deg);
+  }
+  .pet.p-grump .pet-eyes i + i::before {
+    transform: rotate(-16deg);
+  }
+
+  .pet-legs {
+    display: flex;
+    gap: 9px;
+    height: 7px;
+  }
+  .pet-legs i {
+    width: 2px;
+    height: 7px;
+    border-radius: 1px;
+    background: var(--ink);
+    transform-origin: 50% 0;
+  }
+  .pet.walk .pet-legs i {
+    animation: pet-step var(--step, 0.32s) ease-in-out infinite alternate;
+  }
+  .pet.walk .pet-legs i + i {
+    animation-delay: calc(-1 * var(--step, 0.32s));
+  }
+  .pet.air .pet-legs i {
+    transform: rotate(18deg);
+  }
+  .pet.air .pet-legs i + i {
+    transform: rotate(-18deg);
+  }
+  @keyframes pet-step {
+    from {
+      transform: rotate(22deg);
+    }
+    to {
+      transform: rotate(-22deg);
+    }
+  }
+
+  /* what it says, above its head */
+  .pet-say {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    width: max-content;
+    max-width: 220px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: var(--fw-medium);
+    line-height: 1.35;
+    box-shadow: 0 10px 24px -12px rgb(0 0 0 / calc(0.6 * var(--shadow-k)));
+    transform: translate(-50%, 4px);
+    opacity: 0;
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+  }
+  .pet-say.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  .pet.edge-l .pet-say {
+    left: 0;
+    transform: translate(0, 4px);
+  }
+  .pet.edge-r .pet-say {
+    left: auto;
+    right: 0;
+    transform: translate(0, 4px);
+  }
+  .pet.edge-l .pet-say.show,
+  .pet.edge-r .pet-say.show {
+    transform: none;
+  }
+
+  .pet-z {
+    position: absolute;
+    right: -10px;
+    top: -6px;
+    font-size: 12px;
+    color: var(--ink-3);
+    display: none;
+  }
+  .pet.sleep .pet-z {
+    display: block;
+  }
+  .pet-z i {
+    position: absolute;
+    font-style: normal;
+    opacity: 0;
+    animation: pet-z 2.4s ease-out infinite;
+  }
+  .pet-z i:nth-child(2) {
+    animation-delay: 0.8s;
+  }
+  .pet-z i:nth-child(3) {
+    animation-delay: 1.6s;
+  }
+  @keyframes pet-z {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) scale(0.8);
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(10px, -22px) scale(1.15);
+    }
+  }
+
+  /* the dots a token breaks into, and the dust when a pet lands hard */
+  :global(.pet-dot),
+  :global(.pet-dust) {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 44;
+    width: 6px;
+    height: 6px;
+    border-radius: 1px;
+    pointer-events: none;
+    will-change: transform;
+  }
+  :global(.pet-dot) {
+    background: var(--c);
+  }
+  :global(.pet-dust) {
+    width: 4px;
+    height: 4px;
+    background: var(--ink-3);
+  }
+
+  /* the slot a pet left in the name: the token's outline, dashed, with its id */
+  :global(.hero .name .tok.pet-gone) {
+    color: transparent;
+    background: none;
+    box-shadow: none;
+    outline: 0.03em dashed color-mix(in oklab, var(--c) 75%, transparent);
+    outline-offset: -0.03em;
+  }
+  :global(.hero .name .tok.pet-able) {
+    cursor: pointer;
+  }
+  /* a token that could come out peeks over its top edge on hover */
+  :global(.hero .name .tok .peek) {
+    position: absolute;
+    left: 50%;
+    top: -0.1em;
+    display: flex;
+    gap: 0.03em;
+    opacity: 0;
+    transform: translate(-50%, 0.06em) scaleY(0.2);
+    transform-origin: 50% 100%;
+    transition:
+      opacity 0.18s,
+      transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
+    pointer-events: none;
+  }
+  :global(.hero .name .tok .peek i) {
+    position: relative;
+    width: 0.13em;
+    height: 0.145em;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 0.016em solid var(--ink);
+  }
+  :global(.hero .name .tok .peek i::after) {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.055em;
+    height: 0.055em;
+    border-radius: 50%;
+    background: var(--ink);
+    transform: translate(-50%, -40%);
+  }
+  :global(.hero .name .tok.pet-able:not(.pet-gone):hover .peek) {
+    opacity: 1;
+    transform: translate(-50%, -0.06em);
+  }
+
+  @media (max-width: 760px) {
+    .pet-body {
+      font-size: 22px;
+    }
+  }
+  @media print {
+    .pet {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  /* Personalities ----------------------------------------------------------
+     Each token of the name is a different kind of creature. They differ
+     mostly in how they move; the lines are few and short. */
+  type React = 'hop' | 'nod' | 'flip' | 'scurry' | 'grumble' | 'tilt';
+  type Persona = {
+    kind: string; // css class: p-<kind>
+    speed: number; // walking pace, px/s
+    step: number; // leg swing, s
+    hop: number; // chance it hops somewhere when it next decides
+    walk: number; // chance it walks somewhere instead
+    reach: [number, number]; // how far a walk goes, px
+    idle: [number, number]; // how long it stands still, ms
+    sleepAfter: number; // ms without input before it dozes
+    gravity: number;
+    react: React; // what a poke does
+    shy?: boolean; // keeps its distance from the pointer
+    heavy?: boolean; // always lands with a thump
+    hello: string;
+    lines: string[];
+    land: string[];
+    cheer: (wpm: number, avg: number) => string;
+  };
+  const PERSONAS: Record<string, (id: string) => Persona> = {
+    // K: the eldest, slow and unbothered
+    k: (id) => ({
+      kind: 'calm',
+      speed: 26,
+      step: 0.5,
+      hop: 0.12,
+      walk: 0.38,
+      reach: [40, 160],
+      idle: [3500, 8000],
+      sleepAfter: 14000,
+      gravity: 2200,
+      react: 'nod',
+      hello: `“K”, token ${id}. yes, that 42.`,
+      lines: ['someone has to go first.', 'no rush. the page isn’t going anywhere.', 'drag me if you must.'],
+      land: ['hm.'],
+      cheer: (w, a) => (w > a ? `${w} wpm. calmly impressive.` : `${w} wpm. steady is good.`),
+    }),
+    // aly: shy, keeps to itself, scurries off when you come close
+    aly: (id) => ({
+      kind: 'shy',
+      speed: 70,
+      step: 0.2,
+      hop: 0.18,
+      walk: 0.5,
+      reach: [50, 180],
+      idle: [1800, 4200],
+      sleepAfter: 30000,
+      gravity: 2400,
+      react: 'scurry',
+      shy: true,
+      hello: `oh! hi. I’m “aly”… token ${id}.`,
+      lines: ['you can look. just not too close.', 'I’m the middle of Kalyan. nobody notices the middle.', 'okay, one poke. that was it.'],
+      land: ['eep!'],
+      cheer: (w) => `${w} wpm… that was really good.`,
+    }),
+    // an: all energy, hops everywhere
+    an: (id) => ({
+      kind: 'hyper',
+      speed: 95,
+      step: 0.14,
+      hop: 0.55,
+      walk: 0.35,
+      reach: [80, 260],
+      idle: [500, 1600],
+      sleepAfter: 45000,
+      gravity: 2600,
+      react: 'flip',
+      hello: `“an”! token ${id}! let’s go!`,
+      lines: ['again! again!', 'throw me higher!', 'two letters, all energy.'],
+      land: ['wheee!', 'again!'],
+      cheer: (w) => `${w} WPM!! again!!`,
+    }),
+    // Mud: the heavy one, grumpy
+    mud: (id) => ({
+      kind: 'grump',
+      speed: 22,
+      step: 0.55,
+      hop: 0.08,
+      walk: 0.3,
+      reach: [30, 120],
+      idle: [3000, 7000],
+      sleepAfter: 20000,
+      gravity: 3200,
+      react: 'grumble',
+      heavy: true,
+      hello: `“Mud”. token ${id}. leave me be.`,
+      lines: ['put me down gently next time.', 'biggest number in the name. show some respect.', 'hmph.'],
+      land: ['oof.', 'hmph.'],
+      cheer: (w) => `${w} wpm. fine. that was decent.`,
+    }),
+    // um: hesitant, stops and starts, never quite sure
+    um: (id) => ({
+      kind: 'unsure',
+      speed: 40,
+      step: 0.3,
+      hop: 0.16,
+      walk: 0.6,
+      reach: [24, 70],
+      idle: [700, 2600],
+      sleepAfter: 25000,
+      gravity: 2400,
+      react: 'tilt',
+      hello: `um… hi? I’m “um”, token ${id}.`,
+      lines: ['um… what was I saying?', 'I’m mostly a pause.', 'um, you can drag me. if you want.'],
+      land: ['um.'],
+      cheer: (w) => `um… ${w} wpm? that’s… a lot?`,
+    }),
+    // by: the friendly one, and the guide
+    by: (id) => ({
+      kind: 'friendly',
+      speed: 46,
+      step: 0.32,
+      hop: 0.3,
+      walk: 0.42,
+      reach: [60, 240],
+      idle: [1400, 4200],
+      sleepAfter: 25000,
+      gravity: 2400,
+      react: 'hop',
+      hello: `hi! I’m “by”, token ${id}.`,
+      lines: ['the others in the name can come out too. click one.', 'drag me. throw me. I bounce.', 'double-click and I’ll go home.', 'the typing test is in About. I’ll watch.'],
+      land: ['oof.', 'again!'],
+      cheer: (w, a) => (w > a ? `${w} wpm! faster than Kalyan’s average.` : `${w} wpm! tab for another go.`),
+    }),
+  };
+
+  const keep = (key: string) => ({
+    get: () => {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    set: (v: string) => {
+      try {
+        localStorage.setItem(key, v);
+      } catch {}
+    },
+  });
+  const store = keep('km-pet'); // the word of the pet that's out, or 'home'
+  const met = keep('km-pet-met'); // the words that have said hello, comma-separated
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const toks = [...document.querySelectorAll<HTMLElement>('.hero [data-name-tok]')];
+  const wrap = document.querySelector<HTMLElement>('[data-pet]');
+  if (toks.length && wrap && !reduce) run(toks, wrap);
+
+  function run(toks: HTMLElement[], wrap: HTMLElement) {
+    const btn = wrap.querySelector<HTMLButtonElement>('[data-pet-btn]')!;
+    const bubble = wrap.querySelector<HTMLElement>('[data-say]')!;
+    const eyes = wrap.querySelector<HTMLElement>('.pet-eyes')!;
+    const bodyEl = wrap.querySelector<HTMLElement>('.pet-body')!;
+    const wordOf = (t: HTMLElement) => (t.firstChild?.textContent ?? '').trim();
+    const idOf = (t: HTMLElement) => t.querySelector('.tid')?.textContent?.trim() ?? '';
+    const hueOf = (t: HTMLElement) => [...t.classList].find((c) => /^c\d$/.test(c)) ?? '';
+    const titles = new Map(toks.map((t) => [t, t.title]));
+    const personaOf = (t: HTMLElement) => (PERSONAS[wordOf(t).toLowerCase()] ?? PERSONAS.by)(idOf(t));
+
+    const PERCH = 'h2, .hero .foot, .role, .panel, .compact, .tt, .q-box, .pub, .era, .card';
+    let perches: Element[] = [];
+    let ceil = 64;
+    const collect = () => {
+      // on a phone the gaps between blocks are too tight to stand in without
+      // covering text, so it keeps to the bottom of the screen (and the typing test)
+      perches = [...document.querySelectorAll(innerWidth < 760 ? '.tt' : PERCH)].filter((el) => !el.closest('dialog, .hud'));
+      ceil = (document.querySelector('.hud')?.getBoundingClientRect().bottom ?? 56) + 8;
+    };
+
+    // p: the feet, in viewport px
+    const p = { x: 0, y: 0, vx: 0, vy: 0, spin: 0, sq: 0 };
+    let W = 0,
+      H = 0;
+    let cur: HTMLElement | null = null; // the token that's out
+    let P: Persona = PERSONAS.by('');
+    let mode: 'off' | 'idle' | 'walk' | 'air' | 'drag' | 'sleep' | 'fly' = 'off';
+    let on: Element | 'floor' | null = null;
+    let goal = 0;
+    let until = 0;
+    let thrown = false;
+    let stay: Element | null = null; // the typing test, while someone types
+    let mx = -9999,
+      my = -9999,
+      moved = 0,
+      lastInput = performance.now();
+    let last = performance.now();
+    let looping = false;
+    let busy = false; // a token is mid-flight as dots
+
+    const rand = (a: number, b: number) => a + Math.random() * (b - a);
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+    const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
+    const floorY = () => innerHeight - 6;
+    const surf = (el: Element | 'floor') => {
+      if (el === 'floor') return { top: floorY(), l: 22, r: innerWidth - 22 };
+      const r = el.getBoundingClientRect();
+      if (r.width < 90 || r.height < 8) return null;
+      return { top: r.top, l: r.left + 18, r: r.right - 18 };
+    };
+    // somewhere it can stand: under the top bar, above the bottom of the screen
+    const standable = (top: number) => top >= ceil + H && top <= innerHeight - 2;
+
+    /* talking -------------------------------------------------------------- */
+    let line = 0;
+    let sayTimer = 0;
+    let helloTimer = 0;
+    const say = (text: string, ms = 2800) => {
+      bubble.textContent = text;
+      bubble.classList.add('show');
+      clearTimeout(sayTimer);
+      sayTimer = window.setTimeout(() => bubble.classList.remove('show'), ms);
+    };
+    const flash = (cls: string, ms: number) => {
+      wrap.classList.add(cls);
+      setTimeout(() => wrap.classList.remove(cls), ms);
+    };
+
+    /* moving --------------------------------------------------------------- */
+    const fall = () => {
+      mode = 'air';
+      on = null;
+      p.vx *= 0.3;
+      p.vy = Math.max(p.vy, 0);
+    };
+    const land = (el: Element | 'floor', top: number) => {
+      const hard = p.vy > 950 || (P.heavy && p.vy > 500);
+      p.y = top;
+      p.vx = p.vy = 0;
+      on = el;
+      mode = 'idle';
+      until = performance.now() + rand(P.idle[0], P.idle[1]) * 0.5;
+      if (hard) {
+        p.sq = P.heavy ? 1.3 : 1;
+        dust(P.heavy ? 9 : 6);
+        if (thrown && Math.random() < 0.6) say(pick(P.land), 1400);
+      } else p.sq = Math.max(p.sq, 0.35);
+      thrown = false;
+      // come out of any spin the short way round
+      const T = Math.PI * 2;
+      p.spin = ((((p.spin + Math.PI) % T) + T) % T) - Math.PI;
+      gsap.to(p, { spin: 0, duration: 0.35, ease: 'back.out(2)' });
+    };
+    // a jump that lands on (tx, top) after T seconds
+    const leap = (tx: number, top: number) => {
+      const dx = tx - p.x,
+        dy = top - p.y;
+      const T = clamp(0.48 + Math.abs(dx) / 900 + Math.max(0, -dy) / 1400, 0.48, 0.95);
+      p.vx = dx / T;
+      p.vy = (dy - 0.5 * P.gravity * T * T) / T;
+      mode = 'air';
+      on = null;
+    };
+    const hopTo = (el: Element | 'floor', near = p.x) => {
+      const s = surf(el);
+      if (!s || !standable(s.top)) return false;
+      leap(clamp(near, s.l, s.r), s.top);
+      return true;
+    };
+    const walkTo = (x: number, s: { l: number; r: number }) => {
+      goal = clamp(x, s.l, s.r);
+      if (Math.abs(goal - p.x) > 12) mode = 'walk';
+    };
+    const decide = (now: number, s: { top: number; l: number; r: number }) => {
+      if (stay) {
+        until = now + 1000;
+        return;
+      }
+      const near = now - moved < 2500 && Math.abs(my - p.y) < 180 && Math.abs(mx - p.x) < 320;
+      // curious ones walk over to the pointer; the shy one keeps away
+      if (near && !P.shy && Math.abs(mx - p.x) > 50 && Math.random() < 0.7) {
+        walkTo(mx - Math.sign(mx - p.x) * 40, s);
+        return;
+      }
+      const r = Math.random();
+      if (r < P.walk) {
+        walkTo(p.x + rand(P.reach[0], P.reach[1]) * (Math.random() < 0.5 ? -1 : 1), s);
+        if (mode !== 'walk') until = now + 1200;
+      } else if (r < P.walk + P.hop) {
+        // hop to a nearby perch, or down to the floor
+        const options: { el: Element | 'floor'; x: number }[] = [];
+        for (const el of perches) {
+          if (el === on) continue;
+          const t = surf(el);
+          if (!t || !standable(t.top)) continue;
+          const tx = clamp(p.x + rand(-180, 180), t.l, t.r);
+          const dy = t.top - p.y;
+          if (Math.abs(tx - p.x) < 340 && dy > -200 && dy < 380) options.push({ el, x: tx });
+        }
+        if (on !== 'floor' && floorY() - p.y < 420) options.push({ el: 'floor', x: p.x + rand(-120, 120) });
+        // the restless one also hops on the spot
+        if (P.kind === 'hyper' && on) options.push({ el: on, x: p.x + rand(-60, 60) });
+        const o = options.length ? pick(options) : null;
+        if (!o || !hopTo(o.el, o.x)) until = now + 2000;
+      } else until = now + rand(P.idle[0], P.idle[1]);
+    };
+
+    /* the loop ------------------------------------------------------------- */
+    function frame(now: number) {
+      if (mode === 'off') {
+        looping = false;
+        return;
+      }
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+
+      if (mode === 'air') {
+        const py = p.y;
+        p.vy += P.gravity * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        if (thrown) p.spin += p.vx * dt * 0.006;
+        if (p.x < 16 || p.x > innerWidth - 16) {
+          p.x = clamp(p.x, 16, innerWidth - 16);
+          p.vx *= -0.45;
+        }
+        if (p.y - H < ceil && p.vy < 0) {
+          p.y = ceil + H;
+          p.vy = 0;
+        }
+        if (p.vy > 0) {
+          let landed = false;
+          for (const el of perches) {
+            const s = surf(el);
+            if (s && py <= s.top + 1 && p.y >= s.top && p.x >= s.l && p.x <= s.r && standable(s.top)) {
+              land(el, s.top);
+              landed = true;
+              break;
+            }
+          }
+          if (!landed && p.y >= floorY()) land('floor', floorY());
+        }
+      } else if (mode === 'idle' || mode === 'walk' || mode === 'sleep') {
+        const s = on ? surf(on) : null;
+        // its perch scrolled away: drop to whatever is below
+        if (!s || !standable(s.top)) fall();
+        else {
+          p.y = s.top;
+          if (mode === 'walk') {
+            const d = goal - p.x,
+              step = P.speed * dt;
+            if (Math.abs(d) <= step) {
+              p.x = goal;
+              mode = 'idle';
+              until = now + rand(P.idle[0], P.idle[1]);
+            } else p.x += Math.sign(d) * step;
+          }
+          p.x = clamp(p.x, s.l, s.r);
+          // the shy one scurries off when the pointer comes close
+          if (P.shy && mode !== 'sleep' && now - moved < 800 && Math.hypot(mx - p.x, my - (p.y - H / 2)) < 110) {
+            walkTo(p.x - Math.sign(mx - p.x || 1) * 130, s);
+          }
+          if (mode === 'idle' && now - lastInput > P.sleepAfter && !stay) mode = 'sleep';
+          else if (mode === 'idle' && now > until) decide(now, s);
+        }
+      }
+      p.sq *= Math.exp(-dt * 9);
+      render(now);
+      requestAnimationFrame(frame);
+    }
+    const loop = () => {
+      if (looping) return;
+      looping = true;
+      last = performance.now();
+      requestAnimationFrame(frame);
+    };
+
+    const render = (now = performance.now()) => {
+      wrap.style.transform = `translate3d(${(p.x - W / 2).toFixed(1)}px, ${(p.y - H).toFixed(1)}px, 0)`;
+      const sx = 1 + p.sq * 0.16,
+        sy = 1 - p.sq * 0.22;
+      btn.style.transform = `rotate(${p.spin.toFixed(3)}rad) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
+      wrap.classList.toggle('walk', mode === 'walk');
+      wrap.classList.toggle('air', mode === 'air' || mode === 'drag');
+      wrap.classList.toggle('sleep', mode === 'sleep');
+      wrap.classList.toggle('edge-l', p.x < 130);
+      wrap.classList.toggle('edge-r', p.x > innerWidth - 130);
+      // the eyes follow the pointer; the unsure one glances up while it thinks
+      let ex = 0,
+        ey = 0;
+      if (mx > -999) {
+        ex = clamp((mx - p.x) / 140, -1, 1) * 2.2;
+        ey = clamp((my - (p.y - H)) / 140, -1, 1) * 2;
+      }
+      if (P.kind === 'unsure' && mode === 'idle' && now - moved > 1500) {
+        ex = Math.sin(now / 900) * 1.8;
+        ey = -2;
+      }
+      if (P.shy && Math.hypot(mx - p.x, my - p.y) < 160) ex = -ex; // won't meet your eye
+      eyes.style.setProperty('--ex', `${ex.toFixed(2)}px`);
+      eyes.style.setProperty('--ey', `${ey.toFixed(2)}px`);
+    };
+
+    const dust = (n: number) => {
+      for (let k = 0; k < n; k++) {
+        const d = document.createElement('span');
+        d.className = 'pet-dust';
+        document.body.append(d);
+        const dir = k < n / 2 ? -1 : 1;
+        gsap.fromTo(
+          d,
+          { x: p.x - 2, y: p.y - 4, opacity: 0.8 },
+          { x: p.x - 2 + dir * rand(14, 38), y: p.y - rand(4, 18), opacity: 0, duration: rand(0.45, 0.75), ease: 'power2.out', onComplete: () => d.remove() },
+        );
+      }
+    };
+
+    /* blinking -------------------------------------------------------------- */
+    const blink = () => {
+      if (mode !== 'off' && mode !== 'sleep') flash('blink', 130);
+      setTimeout(blink, rand(2400, 6000));
+    };
+    setTimeout(blink, 3000);
+
+    /* dots ------------------------------------------------------------------
+       A token's letters, sampled as dots: positions are fractions of its box,
+       so the same set draws the big token in the name and the small pet. */
+    const glyphDots = (el: HTMLElement, text: string, max = 90) => {
+      const r = el.getBoundingClientRect();
+      const cs = getComputedStyle(el);
+      const w = Math.max(1, Math.ceil(r.width)),
+        h = Math.max(1, Math.ceil(r.height));
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      const g = c.getContext('2d', { willReadFrequently: true })!;
+      const fs = parseFloat(cs.fontSize);
+      g.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      (g as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = cs.letterSpacing;
+      const m = g.measureText(text);
+      g.fillText(text, (w - m.width) / 2, (h + m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2 - h * 0.02);
+      const data = g.getImageData(0, 0, w, h).data;
+      const step = Math.max(2, fs / 15);
+      let pts: [number, number][] = [];
+      for (let y = step / 2; y < h; y += step)
+        for (let x = step / 2; x < w; x += step) if (data[(Math.floor(y) * w + Math.floor(x)) * 4 + 3] > 140) pts.push([x / w, y / h]);
+      // thin it evenly to at most `max`, then add the underline at the chip's foot
+      if (pts.length > max) {
+        const every = pts.length / max;
+        pts = pts.filter((_, i) => Math.floor(i / every) !== Math.floor((i - 1) / every));
+      }
+      for (let k = 0; k < 10; k++) pts.push([(k + 0.5) / 10, 0.97]);
+      return pts;
+    };
+    const flyDots = (pts: [number, number][], from: DOMRect, to: DOMRect, hue: string, opts: { burst: number; dur: number }) =>
+      new Promise<void>((done) => {
+        const size = (r: DOMRect) => clamp(r.height / 15, 2, 9);
+        const s0 = size(from) / 6,
+          s1 = size(to) / 6;
+        const tl = gsap.timeline({ onComplete: done });
+        pts.forEach(([u, v]) => {
+          const d = document.createElement('span');
+          d.className = `pet-dot ${hue}`;
+          document.body.append(d);
+          const x0 = from.left + u * from.width - 3,
+            y0 = from.top + v * from.height - 3;
+          const x1 = to.left + u * to.width - 3,
+            y1 = to.top + v * to.height - 3;
+          const at = u * 0.18 + Math.random() * 0.06;
+          gsap.set(d, { x: x0, y: y0, scale: s0 });
+          tl.to(d, { x: x0 + rand(-1, 1) * opts.burst, y: y0 + rand(-1, 0.4) * opts.burst, duration: 0.3, ease: 'power2.out' }, at)
+            // x and y on different curves, so each dot travels an arc
+            .to(d, { x: x1, duration: opts.dur, ease: 'power2.inOut' }, at + 0.3)
+            .to(d, { y: y1, scale: s1, duration: opts.dur, ease: 'back.in(1.2)' }, at + 0.3)
+            .to(d, { opacity: 0, duration: 0.18, onComplete: () => d.remove() }, at + 0.3 + opts.dur);
+        });
+      });
+
+    /* out of the name, and back -------------------------------------------- */
+    const setTitle = (t: HTMLElement) => {
+      t.title = t === cur ? `“${wordOf(t)}” is out. Click to call it back.` : `${titles.get(t)} · click to let it out`;
+      t.classList.add('pet-able');
+    };
+
+    const escape = async (t: HTMLElement) => {
+      if (busy || mode !== 'off') return;
+      busy = true;
+      cur = t;
+      P = personaOf(t);
+      line = 0;
+      store.set(wordOf(t));
+      collect();
+      // dress the pet as this token
+      const word = wordOf(t);
+      bodyEl.textContent = word;
+      wrap.className = 'pet';
+      wrap.classList.add(hueOf(t) || 'c1', `p-${P.kind}`);
+      wrap.style.setProperty('--step', `${P.step}s`);
+      btn.setAttribute('aria-label', `“${word}”, token ${idOf(t)}, out of the name. Press to hear it, Escape to send it home.`);
+      wrap.hidden = false;
+      wrap.style.opacity = '0';
+      btn.style.transform = 'none';
+      const b0 = btn.getBoundingClientRect();
+      W = b0.width;
+      H = b0.height;
+
+      // where it will stand: the ledge under the name if there's room, else the floor
+      const r = t.getBoundingClientRect();
+      const ledge = innerWidth >= 760 ? document.querySelector('.hero .foot') : null;
+      const ls = ledge ? surf(ledge) : null;
+      const target = ledge && ls && standable(ls.top) ? { el: ledge as Element | 'floor', s: ls } : { el: 'floor' as Element | 'floor', s: surf('floor')! };
+      p.x = clamp(r.left + r.width / 2 + rand(-60, 60), target.s.l, target.s.r);
+      p.y = target.s.top;
+      p.vx = p.vy = p.spin = p.sq = 0;
+      render();
+
+      await gsap.to(t, { rotation: -3, duration: 0.07, yoyo: true, repeat: 3, transformOrigin: '50% 100%', ease: 'sine.inOut' });
+      gsap.set(t, { rotation: 0 });
+      const pts = glyphDots(t, word);
+      t.classList.add('pet-gone');
+      toks.forEach(setTitle);
+      await flyDots(pts, r, bodyEl.getBoundingClientRect(), hueOf(t), { burst: r.height * 0.18, dur: 0.75 });
+
+      wrap.style.opacity = '1';
+      on = target.el;
+      mode = 'idle';
+      until = performance.now() + 1400;
+      p.sq = 0.6;
+      gsap.from(eyes, { scale: 0, duration: 0.35, ease: 'back.out(3)', transformOrigin: '50% 100%' });
+      busy = false;
+      loop();
+      // each one introduces itself, the first time you meet it
+      const seen = (met.get() ?? '').split(',').filter(Boolean);
+      if (!seen.includes(word)) {
+        met.set([...seen, word].join(','));
+        helloTimer = window.setTimeout(() => say(P.hello, 3400), 500);
+      }
+    };
+
+    const goHome = async (then?: HTMLElement) => {
+      if (busy || !cur || mode === 'off' || mode === 'fly') return;
+      busy = true;
+      const t = cur;
+      store.set(then ? wordOf(then) : 'home');
+      clearTimeout(helloTimer);
+      clearTimeout(sayTimer);
+      bubble.classList.remove('show');
+      mode = 'fly';
+      const from = bodyEl.getBoundingClientRect();
+      wrap.hidden = true;
+      const pts = glyphDots(t, wordOf(t));
+      const r = t.getBoundingClientRect();
+      // the name is off screen: the dots stream up and out of view
+      const to = r.bottom > ceil && r.top < innerHeight ? r : new DOMRect(from.left, -from.height * 3, from.width, from.height);
+      await flyDots(pts, from, to, hueOf(t), { burst: 10, dur: 0.7 });
+      t.classList.remove('pet-gone');
+      gsap.fromTo(t, { y: '-0.08em' }, { y: 0, duration: 0.6, ease: 'bounce.out' });
+      mode = 'off';
+      cur = null;
+      busy = false;
+      toks.forEach(setTitle);
+      if (then) setTimeout(() => escape(then), 250);
+    };
+
+    toks.forEach((t) =>
+      t.addEventListener('click', () => {
+        if (busy) return;
+        if (mode === 'off') escape(t);
+        else if (t === cur) goHome();
+        else goHome(t); // swap: the one that's out goes home, this one comes out
+      }),
+    );
+
+    /* poking, dragging and throwing ----------------------------------------- */
+    let drag: { id: number; ox: number; oy: number; x0: number; y0: number; t: number; lx: number; ly: number } | null = null;
+    let dragged = false;
+    btn.addEventListener('pointerdown', (e) => {
+      if (mode === 'fly' || mode === 'off') return;
+      btn.setPointerCapture(e.pointerId);
+      drag = { id: e.pointerId, ox: p.x - e.clientX, oy: p.y - e.clientY, x0: e.clientX, y0: e.clientY, t: performance.now(), lx: e.clientX, ly: e.clientY };
+      dragged = false;
+    });
+    btn.addEventListener('pointermove', (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const now = performance.now();
+      if (!dragged && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 5) return;
+      if (!dragged) {
+        dragged = true;
+        mode = 'drag';
+        on = null;
+        p.vx = p.vy = 0;
+        wrap.classList.add('held');
+      }
+      const dt = Math.max(1, now - drag.t) / 1000;
+      // smoothed throw velocity
+      p.vx = p.vx * 0.6 + ((e.clientX - drag.lx) / dt) * 0.4;
+      p.vy = p.vy * 0.6 + ((e.clientY - drag.ly) / dt) * 0.4;
+      drag.lx = e.clientX;
+      drag.ly = e.clientY;
+      drag.t = now;
+      p.x = e.clientX + drag.ox;
+      p.y = e.clientY + drag.oy;
+      p.spin = clamp(p.vx * 0.0004, -0.5, 0.5);
+    });
+    const release = (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      drag = null;
+      wrap.classList.remove('held');
+      if (!dragged) return;
+      p.vx = clamp(p.vx, -2200, 2200);
+      p.vy = clamp(p.vy, -2200, 2200);
+      thrown = Math.hypot(p.vx, p.vy) > 500;
+      mode = 'air';
+    };
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointercancel', release);
+
+    const poke = () => {
+      if (mode === 'sleep') {
+        mode = 'idle';
+        until = performance.now() + 1500;
+        say('…huh? I’m up.', 1800);
+        return;
+      }
+      say(P.lines[line++ % P.lines.length]);
+      if (!on || (mode !== 'idle' && mode !== 'walk')) return;
+      const s = surf(on);
+      if (!s) return;
+      switch (P.react) {
+        case 'hop':
+          p.vy = -420;
+          mode = 'air';
+          on = null;
+          break;
+        case 'flip':
+          p.vy = -680;
+          mode = 'air';
+          on = null;
+          gsap.to(p, { spin: `+=${Math.PI * 2}`, duration: 0.55, ease: 'power1.inOut' });
+          break;
+        case 'nod':
+          gsap.to(p, { sq: 0.7, duration: 0.12, yoyo: true, repeat: 1 });
+          break;
+        case 'scurry':
+          flash('blush', 1600);
+          walkTo(p.x + (p.x > (s.l + s.r) / 2 ? -1 : 1) * 110, s);
+          break;
+        case 'grumble':
+          flash('wince', 700);
+          p.sq = 0.5;
+          break;
+        case 'tilt':
+          gsap.to(p, { spin: 0.28, duration: 0.22, yoyo: true, repeat: 1, ease: 'sine.inOut' });
+          break;
+      }
+    };
+
+    let clickTimer = 0;
+    btn.addEventListener('click', (e) => {
+      if (dragged) {
+        dragged = false;
+        return;
+      }
+      if (e.detail >= 2) {
+        clearTimeout(clickTimer);
+        goHome();
+        return;
+      }
+      // a keyboard press has no detail; a mouse click waits to see if a second follows
+      if (e.detail === 0) poke();
+      else clickTimer = window.setTimeout(poke, 240);
+    });
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        goHome();
+      }
+    });
+
+    /* the world ------------------------------------------------------------- */
+    const wake = () => {
+      lastInput = performance.now();
+      if (mode === 'sleep') {
+        mode = 'idle';
+        until = performance.now() + 600;
+      }
+    };
+    addEventListener(
+      'pointermove',
+      (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+        moved = performance.now();
+        if (mode !== 'sleep' || Math.hypot(mx - p.x, my - p.y) < 160) wake();
+      },
+      { passive: true },
+    );
+    ['keydown', 'wheel', 'touchstart'].forEach((t) => addEventListener(t, () => (lastInput = performance.now()), { passive: true }));
+    addEventListener('resize', () => {
+      collect();
+      p.x = clamp(p.x, 16, innerWidth - 16);
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && mode !== 'off') {
+        looping = false;
+        loop();
+      }
+    });
+
+    // the typing test: it goes and watches, reacts to each word, and cheers at the end
+    document.addEventListener('tt', (ev) => {
+      const d = (ev as CustomEvent<{ type: string; ok?: boolean; wpm?: number; avg?: number; el: Element }>).detail;
+      if (mode === 'off' || mode === 'fly') return;
+      if (d.type === 'focus') {
+        stay = d.el;
+        wake();
+        if (on !== d.el && mode !== 'drag') {
+          const s = surf(d.el);
+          if (s) hopTo(d.el, s.r - 10);
+        }
+      } else if (d.type === 'blur') stay = null;
+      else if (d.type === 'word' && on === d.el && mode === 'idle') {
+        if (!d.ok) flash('wince', 450);
+        else if (P.kind === 'calm' || P.kind === 'grump') p.sq = 0.4; // too dignified to bounce
+        else {
+          p.vy = P.kind === 'hyper' ? -340 : -240;
+          mode = 'air';
+          on = null;
+        }
+      } else if (d.type === 'done' && d.wpm != null) {
+        if (on && mode !== 'drag' && P.kind !== 'grump') {
+          p.vy = -680;
+          mode = 'air';
+          on = null;
+        }
+        say(P.cheer(d.wpm, d.avg ?? 0), 3600);
+      }
+    });
+
+    /* first appearance ------------------------------------------------------- */
+    const saved = store.get();
+    toks.forEach(setTitle);
+    if (saved === 'home') return;
+    // whoever was out last time comes out again; "by" goes first
+    const first = toks.find((t) => wordOf(t) === saved) ?? toks[toks.length - 1];
+    // after the intro has played, and only while the name is on screen
+    const intro = document.documentElement.classList.contains('intro');
+    setTimeout(
+      () => {
+        const io = new IntersectionObserver(
+          ([en]) => {
+            if (!en.isIntersecting) return;
+            io.disconnect();
+            setTimeout(() => escape(first), 600);
+          },
+          { threshold: 0.9 },
+        );
+        io.observe(first);
+      },
+      intro ? 5200 : 3000,
+    );
+  }
+</script>
