@@ -4,7 +4,8 @@ import { Image } from 'astro:assets';
 import Base from '../../../layouts/Base.astro';
 import Hud from '../../../components/Hud.astro';
 import PostList from '../../../components/PostList.astro';
-import { blogCopy, person } from '../../../data/content';
+import { existsSync } from 'node:fs';
+import { blogCopy, hero, person } from '../../../data/content';
 import { coverOf, getPosts, postDate, postPath, type Post } from '../../../lib/blog';
 
 export async function getStaticPaths() {
@@ -22,11 +23,12 @@ interface Props {
 const { post, more } = Astro.props;
 const { Content } = await render(post);
 const cover = coverOf(post);
+const hasResume = existsSync(new URL('../../../../public/kalyan-mudumby-resume.pdf', import.meta.url));
 const { title, description, date, tags } = post.data;
 ---
 
 <Base title={`${title} · ${person.name}`} description={description}>
-  <Hud base="/" where={blogCopy.title} />
+  <Hud base="/" />
   <main id="main" class="post">
     <article class="wrap" aria-labelledby="post-title">
       <header class="post-head">
@@ -46,6 +48,17 @@ const { title, description, date, tags } = post.data;
       <div class="prose">
         <Content />
       </div>
+
+      <aside class="author" aria-label="About the author">
+        <p class="who">
+          Written by <a href="/">{person.name}</a>, {person.role}. {hero.availability}
+        </p>
+        <p class="reach">
+          <a class="link" href="/#work">Selected work <span aria-hidden="true">→</span></a>
+          <a class="link" href={`mailto:${person.email}`}>Email</a>
+          {hasResume && <a class="link" href={person.resume} download>Resume <span aria-hidden="true">↓</span></a>}
+        </p>
+      </aside>
     </article>
 
     {
@@ -70,9 +83,39 @@ const { title, description, date, tags } = post.data;
     padding-bottom: clamp(72px, 12vh, 160px);
   }
   .post-head,
-  .prose,
-  .more {
+  .more,
+  .author {
     max-width: 760px;
+  }
+  /* about 70–75 characters a line at body size; code and figures may run wider */
+  .prose {
+    max-width: 36em;
+  }
+  .prose :global(:is(pre, figure, table, .mermaid, img)) {
+    max-width: min(760px, 100%);
+  }
+  .author {
+    display: grid;
+    gap: 14px;
+    margin-top: clamp(48px, 8vh, 80px);
+    padding-top: 24px;
+    border-top: 1px solid var(--line-2);
+  }
+  .author .who {
+    max-width: 62ch;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+  .author .who a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--line-3);
+    text-underline-offset: 3px;
+  }
+  .author .reach {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
   }
   .post-head {
     display: grid;

@@ -44,7 +44,7 @@
 
   --gutter: clamp(16px, 4.2vw, 64px);
   --maxw: 1360px;
-  --hud-h: 60px;
+  --hud-h: 72px;
 
   /* Type scale: every font-size on the page resolves to one of these steps */
   --fs-display: clamp(3rem, 8vw, 8.2rem);
@@ -81,6 +81,13 @@
 }
 
 /* Touch: give small inline controls a finger-sized hit area without moving them */
+/* Citation chips draw small; their hit area meets 24×24 on any pointer */
+.cite::before {
+  content: '';
+  position: absolute;
+  inset: -5px -3px;
+}
+
 @media (pointer: coarse) {
   .link,
   .cite {
@@ -247,31 +254,6 @@ p {
   gap: 22px;
   margin-bottom: clamp(48px, 8vh, 96px);
   max-width: 1080px;
-}
-
-.chap-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  font-family: var(--f-mono);
-  font-size: var(--fs-micro);
-  letter-spacing: var(--tr-mono);
-  color: var(--ink-3);
-}
-.chap-tag b {
-  font-weight: var(--fw-medium);
-  color: var(--ink);
-  padding: 3px 8px;
-  border-radius: 5px;
-  background: color-mix(in oklab, var(--c, var(--t1)) 20%, transparent);
-  box-shadow: inset 0 -2px 0 color-mix(in oklab, var(--c, var(--t1)) 75%, transparent);
-}
-.chap-tag .anno {
-  font-style: normal;
-  color: var(--ink-3);
-}
-.chap-tag .anno::before {
-  content: '// ';
 }
 
 .chap-title {

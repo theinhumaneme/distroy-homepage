@@ -60,7 +60,17 @@ export const sourceById = (id: string) => sources.find((s) => s.id === id);
 
 export const hero = {
   prompt: 'who is kalyan mudumby?',
-  statement: ['I build', 'AI systems,', 'backends, and the infrastructure behind them.'],
+  // `em` marks the three kinds of work; each gets its own token hue, with equal weight
+  statement: [
+    { text: 'I build ' },
+    { text: 'AI systems', em: 1, tail: ',' },
+    { text: ' ' },
+    { text: 'backends', em: 5, tail: ',' },
+    { text: ' and the ' },
+    { text: 'infrastructure', em: 3 },
+    { text: ' behind them.' },
+  ],
+  availability: 'Available for a Spring 2027 co-op, and full-time from May 2027.',
   intro:
     'From a city’s 311 chatbot to a college digital library, I build tools that make information easier to find and systems easier to run.',
   meta: ['Boston, MA', 'MS Computer Science · Northeastern', 'Expected May 2027'],
@@ -233,52 +243,6 @@ export const cases: Case[] = [
     links: [],
     viz: 'device',
   },
-  {
-    id: 'activity',
-    anchor: 'work-activity',
-    title: 'Activity Visualizer',
-    org: 'Personal project · distroy.dev',
-    headline: 'See the route. Understand the effort.',
-    body: [
-      {
-        text: 'Activity Visualizer turns GPX and TCX files into performance analysis, 3D route flyovers, and shareable videos. Review corrections to noisy readings before exploring the data, and use privacy zones to hide start and finish locations in maps and exports.',
-      },
-    ],
-    privacy: 'Activity files are processed in your browser. A Cloudflare Worker serves the app and proxies map tiles.',
-    points: [
-      { text: 'Repairs GPS jumps and start and finish drift, filters faulty heart-rate readings, and checks altitude against terrain elevation.', src: 'activity' },
-      { text: 'Analysis covers grade-adjusted pace, categorized climbs, intervals, splits, best efforts and heart-rate zones.', src: 'activity' },
-      { text: 'Flyover videos render in the browser in portrait, square and landscape formats using WebCodecs.', src: 'activity' },
-      { text: 'A training library accepts bulk exports of up to 5,000 files, parsed in parallel by a pool of Web Workers.', src: 'activity' },
-    ],
-    stack: ['TypeScript', 'React 19', 'MapLibre GL', 'WebCodecs', 'Web Workers', 'Cloudflare Workers', 'Vitest'],
-    links: [{ label: 'activity-visualizer.distroy.dev', url: 'https://activity-visualizer.distroy.dev' }],
-    viz: 'route',
-  },
-  {
-    id: 'training',
-    anchor: 'work-training',
-    title: 'Training Story',
-    org: 'Personal project · distroy.dev',
-    headline: 'See how your training changes over time.',
-    body: [
-      {
-        text: 'Training Story turns Hevy workout exports into exercise trends, personal records, and comparisons. Review imported workouts, adjust how they count toward your progress, and explore every view through one shared analytics engine.',
-      },
-    ],
-    privacy: 'Workout files are processed in your browser.',
-    points: [
-      { text: 'Training volume, estimated one-rep max, personal records, streaks and sets per muscle for any date range.', src: 'training' },
-      { text: 'Compare two workouts, or overlay up to four lifts with trend lines.', src: 'training' },
-      { text: 'Calculation tests use hand-computed expectations, and Playwright exercises the production build.', src: 'training' },
-    ],
-    stack: ['JavaScript', 'React 19', 'D3.js', 'GSAP', 'Chart.js', 'Vite', 'Playwright', 'Cloudflare Pages'],
-    links: [
-      { label: 'hevy-visualizer.distroy.dev', url: 'https://hevy-visualizer.distroy.dev' },
-      { label: 'GitHub', url: 'https://github.com/theinhumaneme/hevy-visualizer' },
-    ],
-    viz: 'bars',
-  },
 ];
 
 /* ------------------------------------------------------------------------ */
@@ -288,6 +252,8 @@ export const cases: Case[] = [
 export type MiniDoc = { anchor: string; title: string; line: string; tag: string; url?: string; group: 'tools' | 'academic' };
 
 export const moreWork: MiniDoc[] = [
+  { anchor: 'more-activity', group: 'tools', title: 'Activity Visualizer', tag: 'react · maplibre', url: 'https://activity-visualizer.distroy.dev', line: 'Turns GPX and TCX exports into performance analysis, 3D route flyovers and shareable videos, processed in the browser.' },
+  { anchor: 'more-training', group: 'tools', title: 'Training Story', tag: 'react · d3', url: 'https://hevy-visualizer.distroy.dev', line: 'Turns a Hevy workout export into exercise trends, personal records and comparisons, processed in the browser.' },
   { anchor: 'more-autodeploy', group: 'tools', title: 'Autodeploy', tag: 'rust · cli', url: 'https://github.com/theinhumaneme/autodeploy', line: 'Prepare repositories and Docker deployments from one reusable configuration.' },
   { anchor: 'more-obslab', group: 'tools', title: 'Observability lab', tag: 'opentelemetry · grafana', url: 'https://kalyanmudumby.com/post/complete-springboot-observability/', line: 'Follow a metric spike to the relevant request trace and logs in a local Spring Boot lab.' },
   { anchor: 'more-nixos', group: 'tools', title: 'NixOS configuration', tag: 'nix · linux', url: 'https://github.com/theinhumaneme/nixos', line: 'Version-controlled configuration for reproducible personal development environments.' },
@@ -403,7 +369,7 @@ export const docs: Doc[] = [
     id: 'activity',
     title: 'Activity Visualizer',
     cluster: 'product',
-    anchor: 'work-activity',
+    anchor: 'more-activity',
     skills: ['TypeScript', 'React', 'MapLibre GL', 'WebCodecs', 'Web Workers', 'Cloudflare', 'Vitest', 'Data visualization'],
     chunks: [
       'Activity Visualizer turns GPX and TCX exports into performance analysis, 3D route flyovers and shareable videos, with privacy zones near the start and finish.',
@@ -415,7 +381,7 @@ export const docs: Doc[] = [
     id: 'training',
     title: 'Training Story',
     cluster: 'product',
-    anchor: 'work-training',
+    anchor: 'more-training',
     skills: ['React', 'D3.js', 'Playwright', 'Cloudflare', 'Data visualization'],
     chunks: [
       'Training Story turns a Hevy workout export into exercise trends, personal records, comparisons and an interactive data visualization story, processed in the browser.',
@@ -697,15 +663,14 @@ export const contact = {
   text: 'Have a role, a project, or a technical problem in mind? I’d like to hear about it.',
 };
 
-/* Chapters, in page order. `anno` is the small pipeline annotation. */
+/* Chapters, in page order. */
 export const chapters = [
-  { id: 'top', n: '01', label: 'Introduction', anno: 'prompt' },
-  { id: 'work', n: '02', label: 'Featured work', anno: 'retrieve' },
-  { id: 'explore', n: '03', label: 'Explore my work', anno: 'search' },
-  { id: 'experience', n: '04', label: 'Experience', anno: 'context' },
-  { id: 'about', n: '05', label: 'About', anno: 'tokenize' },
-  { id: 'blog', n: '06', label: 'Blog', anno: 'decode' },
-  { id: 'contact', n: '07', label: 'Contact', anno: 'generate' },
+  { id: 'top', label: 'Introduction' },
+  { id: 'work', label: 'Featured work' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'explore', label: 'Explore' },
+  { id: 'about', label: 'About' },
+  { id: 'contact', label: 'Contact' },
 ];
 
 export const blogCopy = {

@@ -9,7 +9,6 @@ import More from '../components/More.astro';
 import Skills from '../components/Skills.astro';
 import Experience from '../components/Experience.astro';
 import About from '../components/About.astro';
-import Blog from '../components/Blog.astro';
 import Contact from '../components/Contact.astro';
 ---
 
@@ -23,7 +22,7 @@ import Contact from '../components/Contact.astro';
     try {
       if (!location.hash && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('intro');
-        setTimeout(() => document.documentElement.classList.remove('intro'), 4000);
+        setTimeout(() => document.documentElement.classList.remove('intro'), 2500);
       }
     } catch {}
   </script>
@@ -34,12 +33,11 @@ import Contact from '../components/Contact.astro';
   <main id="main">
     <Hero />
     <Cases />
+    <Experience />
     <Query />
     <More />
     <Skills />
-    <Experience />
     <About />
-    <Blog />
   </main>
   <Contact />
   </div>

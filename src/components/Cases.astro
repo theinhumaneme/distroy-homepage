@@ -295,9 +295,9 @@ const numbered = cases.map((c) => ({ ...c, n: c.compact ? '' : String(++n).padSt
   .note {
     margin-top: 22px;
     padding: 14px 16px;
-    border-left: 2px solid var(--t3);
+    border: 1px solid color-mix(in oklab, var(--t3) 28%, transparent);
     background: color-mix(in oklab, var(--t3) 5%, transparent);
-    border-radius: 0 10px 10px 0;
+    border-radius: 10px;
     font-size: var(--fs-body-s);
     color: var(--ink-2);
   }

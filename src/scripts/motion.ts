@@ -85,38 +85,24 @@ function reveals() {
 }
 
 function hud() {
-  const fill = document.querySelector<HTMLElement>('[data-progress]');
-  const where = document.querySelector<HTMLElement>('[data-where]');
-  ScrollTrigger.create({
-    start: 0,
-    end: 'max',
-    onUpdate: (self) => {
-      if (fill) fill.style.transform = `scaleX(${self.progress})`;
-    },
-  });
-
+  // The section links (desktop bar and mobile menu) mark where the reader is.
   const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-stage-link]')];
-  const total = String(links.length).padStart(2, '0');
   document.querySelectorAll<HTMLElement>('[data-stage]').forEach((sec) => {
-    const i = links.findIndex((l) => l.getAttribute('href') === `#${sec.dataset.stage}`);
-    if (i < 0) return;
+    const href = `#${sec.dataset.stage}`;
     ScrollTrigger.create({
       trigger: sec,
       start: 'top 50%',
       end: 'bottom 50%',
       onToggle: (self) => {
         if (!self.isActive) return;
-        links.forEach((l, k) => l.classList.toggle('on', k === i));
-        if (where) where.textContent = `${String(i + 1).padStart(2, '0')} / ${total} · ${sec.dataset.stageLabel ?? links[i].textContent?.trim()}`;
+        links.forEach((l) => {
+          const on = l.getAttribute('href')?.endsWith(href) ?? false;
+          l.classList.toggle('on', on);
+          if (on) l.setAttribute('aria-current', 'location');
+          else l.removeAttribute('aria-current');
+        });
       },
     });
-  });
-
-  const bar = document.querySelector('.hud');
-  ScrollTrigger.create({
-    start: 80,
-    end: 'max',
-    onToggle: (self) => bar?.classList.toggle('scrolled', self.isActive),
   });
 }
 

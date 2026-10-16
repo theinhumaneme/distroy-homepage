@@ -16,7 +16,6 @@ body:has(.homepage) {
   --tr-display: -0.045em;
   --tr-head: -0.035em;
   --fw-head: 550;
-  --hud-h: 72px;
 }
 
 body .homepage #field { opacity: 0.72; }
@@ -68,25 +67,11 @@ body .homepage .hero .meta-line span:first-child { color: var(--ink); }
 body .homepage .hero .ctas { gap: 8px; }
 body .homepage .hero .scroll { bottom: 24px; }
 
-body .homepage .hud {
-  grid-template-columns: auto 1fr auto;
-  gap: 28px;
-  background: rgba(6, 6, 9, 0.82);
-  backdrop-filter: blur(18px);
-  border-bottom-color: var(--line);
-}
-body .homepage .hud .stages { justify-self: center; font-size: 0.8125rem; background: none; border: 0; }
-body .homepage .hud .stages a { padding: 7px 10px; }
-body .homepage .hud .where .num { display: none; }
-body .homepage .hud .track { width: 64px; height: 2px; }
-body .homepage .mobile-nav { display: none; }
 
 body .homepage .chapter { padding-block: clamp(88px, 11vw, 144px); }
 body .homepage .chapter:not(.cases, .more, .skills) > .wrap { padding-top: 32px; border-top: 1px solid var(--line-2); }
 body .homepage .chap-head { gap: 22px; margin-bottom: 52px; max-width: 960px; }
 body .homepage .chap-title { line-height: 1.08; max-width: 18ch; }
-body .homepage .chap-tag { gap: 14px; }
-body .homepage .chap-tag b { padding: 5px 10px; border-radius: 4px; }
 body .homepage .lede { max-width: 58ch; line-height: 1.7; }
 body .homepage .btn { min-height: 48px; height: auto; padding: 13px 19px; font-weight: 500; }
 body .homepage .link { line-height: 1.6; }
@@ -161,18 +146,6 @@ body .homepage > .foot { padding-top: 40px; }
 @media (min-width: 1600px) {
   body .homepage .hero .name { font-size: 8rem; }
 }
-@media (max-width: 1100px) {
-  body .homepage .hud { grid-template-columns: auto 1fr; }
-  body .homepage .hud .where { display: none; }
-  body .homepage .mobile-nav { display: block; justify-self: end; font-size: var(--fs-xs); }
-  body .homepage .mobile-nav summary { cursor: pointer; list-style: none; border: 1px solid var(--line-2); border-radius: 6px; padding: 8px 12px; }
-  body .homepage .mobile-nav summary::-webkit-details-marker { display: none; }
-  body .homepage .mobile-nav summary span { margin-left: 14px; color: var(--t2); }
-  body .homepage .mobile-nav[open] summary span { display: inline-block; transform: rotate(45deg); }
-  body .homepage .mobile-nav nav { position: absolute; right: var(--gutter); top: calc(var(--hud-h) - 4px); width: min(280px, calc(100vw - 2 * var(--gutter))); padding: 8px; background: #101017; border: 1px solid var(--line-2); border-radius: 10px; box-shadow: 0 20px 60px #0009; }
-  body .homepage .mobile-nav a { display: block; padding: 11px 14px; color: var(--ink-2); border-radius: 5px; }
-  body .homepage .mobile-nav a:hover { color: var(--ink); background: var(--bg-3); }
-}
 @media (max-width: 960px) {
   body .homepage #field { opacity: 0.3; }
   body .homepage .hero { min-height: 100svh; padding-top: 112px; }
@@ -191,7 +164,6 @@ body .homepage > .foot { padding-top: 40px; }
 @media (max-width: 720px) {
   body .homepage .skills .row { grid-template-columns: 1fr; }
   body .homepage .chap-head { gap: 18px; margin-bottom: 36px; }
-  body .homepage .chap-tag .anno { display: none; }
   body .homepage .project-index { gap: 0 18px; }
   body .homepage .project-index a { font-size: 0.8125rem; }
   body .homepage .project-index .index-arrow { display: none; }

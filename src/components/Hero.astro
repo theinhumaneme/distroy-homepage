@@ -8,7 +8,6 @@ const nameToks = tokenize(person.name);
 // break the name onto two lines at the first token that starts a new word
 const breakAt = nameToks.findIndex((t, i) => i > 0 && t.t.startsWith(' '));
 const lines = [nameToks.slice(0, breakAt), nameToks.slice(breakAt)];
-const [s1, s2, s3] = hero.statement;
 ---
 
 <section id="top" class="hero" data-stage="top" data-field="0" aria-labelledby="hero-name">
@@ -36,12 +35,24 @@ const [s1, s2, s3] = hero.statement;
     </h1>
 
     <p class="statement" data-hero-statement>
-      {s1} <em class="serif shimmer">{s2}</em> {s3}
+      {
+        hero.statement.map((part) =>
+          part.em ? (
+            <span class="nw">
+              <strong class={`kind tok c${part.em}`}>{part.text}</strong>
+              {part.tail}
+            </span>
+          ) : (
+            part.text
+          ),
+        )
+      }
     </p>
 
     <div class="foot" data-hero-late>
       <p class="intro">{hero.intro}</p>
       <div class="side">
+        <p class="avail"><span class="dot" aria-hidden="true"></span>{hero.availability}</p>
         <p class="meta-line mono">{hero.meta.map((item) => <span>{item}</span>)}</p>
         <div class="ctas">
           <a class="btn primary" href="#work">View selected work <span class="arr">↓</span></a>
@@ -104,7 +115,8 @@ const [s1, s2, s3] = hero.statement;
     margin-left: -6px;
     background: var(--t2);
     border-radius: 1px;
-    animation: blink 1s steps(1) infinite;
+    /* blinks while the question is asked, then settles */
+    animation: blink 1s steps(1) 3;
   }
   .meta {
     margin-left: 10px;
@@ -166,25 +178,44 @@ const [s1, s2, s3] = hero.statement;
     font-weight: var(--fw-head);
     text-wrap: balance;
   }
-  .statement em {
-    font-size: 1.1em;
-    letter-spacing: var(--tr-snug);
+  /* The three kinds of work read as tokens, like the name above them: same
+     weight, one hue each, so none outranks the others */
+  .statement {
+    color: var(--ink-2);
   }
-  /* SplitText wraps the words in their own elements, so the clip goes on those */
-  .shimmer,
-  .shimmer :global(div) {
-    background-image: linear-gradient(100deg, var(--t1) 10%, var(--t5) 35%, var(--t2) 55%, var(--t3) 75%, var(--t4) 95%);
-    background-size: 220% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: shimmer 9s ease-in-out infinite alternate;
-    padding-right: 0.02em;
+  .kind {
+    color: var(--ink);
+    font-weight: inherit;
+    white-space: nowrap;
+    padding: 0 0.06em;
+    margin: 0 -0.02em;
+    border-radius: 0.12em;
+    background: color-mix(in oklab, var(--c) 18%, transparent);
+    box-shadow: inset 0 -0.07em 0 color-mix(in oklab, var(--c) 80%, transparent);
   }
-  @keyframes shimmer {
-    to {
-      background-position: 100% 0;
-    }
+
+  /* keeps the comma with its noun when the line wraps */
+  .nw {
+    white-space: nowrap;
+  }
+
+  .avail {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: var(--fs-body);
+    font-weight: var(--fw-medium);
+    color: var(--ink);
+    line-height: 1.45;
+    text-wrap: pretty;
+  }
+  .avail .dot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--t2);
+    transform: translateY(-1px);
   }
 
   .foot {
@@ -252,7 +283,7 @@ const [s1, s2, s3] = hero.statement;
   }
 
   /* Held back until the intro takes over (set in index.astro, lifted by the
-     script below, or after 4s if the script never runs) */
+     script below, or after 2.5s if the script never runs) */
   :global(html.intro :is(#field, .hud, .hero .prompt, .hero [data-name-tok], .hero .tid, .hero [data-hero-statement], .hero [data-hero-late], .hero .scroll)) {
     opacity: 0 !important;
   }
@@ -262,8 +293,12 @@ const [s1, s2, s3] = hero.statement;
       grid-template-columns: 1fr;
     }
     .meta,
-    .scroll {
+    .scroll,
+    .tid {
       display: none;
+    }
+    .name {
+      row-gap: 0.12em;
     }
   }
 </style>
@@ -286,6 +321,7 @@ const [s1, s2, s3] = hero.statement;
     const statement = root.querySelector<HTMLElement>('[data-hero-statement]')!;
     const late = root.querySelectorAll<HTMLElement>('[data-hero-late]');
     const split = SplitText.create(statement, { type: 'words', mask: 'words' });
+    const kinds = statement.querySelectorAll<HTMLElement>('.kind');
 
     if (html.classList.contains('intro')) {
       // The page answers its own question. The field gathers, the question is
@@ -294,27 +330,29 @@ const [s1, s2, s3] = hero.statement;
       const ids = toks.map((t) => t.querySelector<HTMLElement>('.tid'));
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
 
-      tl.from('#field', { opacity: 0, duration: 2.3, ease: 'power2.out', clearProps: 'opacity' }, 0);
-      tl.from(prompt, { opacity: 0, y: 10, duration: 0.9 }, 0.3);
+      // Kept short: the buttons and availability are readable within ~1.7s.
+      tl.from('#field', { opacity: 0, duration: 1.8, ease: 'power2.out', clearProps: 'opacity' }, 0);
+      tl.from(prompt, { opacity: 0, y: 10, duration: 0.6 }, 0.1);
 
       // keystrokes at an uneven, human pace, with a longer gap after spaces
       q.textContent = '';
-      let at = 0.7;
+      let at = 0.3;
       for (let i = 0; i < full.length; i++) {
         tl.call(() => void (q.textContent = full.slice(0, i + 1)), [], at);
-        at += 0.055 + ((i * 37) % 7) * 0.009 + (full[i] === ' ' ? 0.11 : 0);
+        at += 0.026 + ((i * 37) % 7) * 0.004 + (full[i] === ' ' ? 0.05 : 0);
       }
-      at += 0.65; // the pause before an answer
+      at += 0.22; // the pause before an answer
 
       toks.forEach((t, i) => {
-        tl.from(t, { opacity: 0, y: '0.18em', duration: 0.95 }, at + i * 0.17);
-        if (ids[i]) tl.from(ids[i], { opacity: 0, y: 6, duration: 0.6 }, at + i * 0.17 + 0.22);
+        tl.from(t, { opacity: 0, y: '0.18em', duration: 0.8 }, at + i * 0.07);
+        if (ids[i]) tl.from(ids[i], { opacity: 0, y: 6, duration: 0.5 }, at + i * 0.07 + 0.15);
       });
-      at += 0.8; // the statement follows the name, overlapping it
-      tl.from(split.words, { yPercent: 110, duration: 1.1, stagger: 0.075 }, at);
-      at += 0.65;
-      tl.from(late, { opacity: 0, y: 16, duration: 1.1 }, at);
-      tl.from(['.hud', '.hero .scroll'], { opacity: 0, duration: 0.8, ease: 'power2.out', stagger: 0.16, clearProps: 'opacity' }, at + 0.3);
+      at += 0.3; // the statement follows the name, overlapping it
+      tl.from(split.words, { yPercent: 110, duration: 0.9, stagger: 0.035 }, at);
+      tl.from(kinds, { opacity: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out' }, at + 0.1);
+      at += 0.3;
+      tl.from(late, { opacity: 0, y: 14, duration: 0.8 }, at);
+      tl.from(['.hud', '.hero .scroll'], { opacity: 0, duration: 0.6, ease: 'power2.out', stagger: 0.1, clearProps: 'opacity' }, at);
 
       // the from-states are set; hand the elements over from the stylesheet
       html.classList.remove('intro');

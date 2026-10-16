@@ -588,7 +588,7 @@ const KEYS = [
       const elapsed = performance.now() - t;
       const has = q.trim().length > 0;
 
-      meta.textContent = has && groups.length ? fill(copy.meta, { docs: groups.length, total: index.docs.length, passages: shown.length }) : copy.idle;
+      meta.textContent = !has ? copy.idle : groups.length ? fill(copy.meta, { docs: groups.length, total: index.docs.length, passages: shown.length }) : '';
       ms.textContent = has ? fill(copy.timing, { ms: elapsed.toFixed(1) }) : '';
       status.textContent = has && groups.length ? meta.textContent : '';
       empty.hidden = groups.length > 0 || !has;

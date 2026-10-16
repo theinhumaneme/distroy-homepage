@@ -11,7 +11,7 @@ const years = [...new Set(posts.map((p) => p.data.date.getUTCFullYear()))];
 ---
 
 <Base title={`${blogCopy.title} · ${person.name}`} description={blogCopy.lede}>
-  <Hud base="/" where={blogCopy.title} />
+  <Hud base="/" />
   <main id="main">
     <section class="chapter blog-index" aria-labelledby="blog-title">
       <div class="wrap">
