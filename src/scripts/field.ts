@@ -59,24 +59,43 @@ const FACES = [
 ];
 
 /** Dots per sticker edge for a field of n particles. */
-const cubeSide = (n: number) => Math.max(2, Math.floor(Math.floor(n / COLORS / 9) / 4));
+// about two thirds of a sticker's dots trace its outline, the rest fill it
+const cubeSide = (n: number) => Math.max(2, Math.min(10, Math.floor(Math.floor(n / COLORS / 9) / 6)));
 
+/**
+ * Lay the particles on a solved cube; returns 1 for each particle that sits
+ * inside a sticker rather than on its outline.
+ */
 function cubeHome(out: Float32Array, n: number) {
   // Each sticker is a square of evenly spaced dots, one on every corner, so
-  // edges read straight.
+  // edges read straight. The dots left over fill the square as a halftone
+  // grid, so a sticker reads as a tile of colour rather than an empty frame.
   const per = cubeSide(n);
+  const ring = per * 4;
+  const inner = Math.max(0, Math.floor(n / COLORS / 9) - ring);
+  const m = Math.floor(Math.sqrt(inner)); // m × m grid inside each sticker
   const side = CELL * 0.8;
+  const fill = new Uint8Array(n);
   for (let i = 0; i < n; i++) {
     const face = FACES[i % COLORS];
     const slot = Math.floor(i / COLORS);
     const sticker = slot % 9;
     let d = Math.floor(slot / 9);
-    if (d >= per * 4) d = 0; // leftovers sit on a corner dot, out of sight
     const su = (sticker % 3) - 1;
     const sv = Math.floor(sticker / 3) - 1;
-    const edge = Math.floor(d / per),
-      f = (d % per) / per;
-    const [pu, pv] = edge === 0 ? [f, 0] : edge === 1 ? [1, f] : edge === 2 ? [1 - f, 1] : [0, 1 - f];
+    let pu: number, pv: number;
+    if (d >= ring && d - ring < m * m) {
+      // the halftone: cell centres, inset from the outline
+      const k = d - ring;
+      pu = 0.5 + ((k % m) + 0.5 - m / 2) * (0.78 / m);
+      pv = 0.5 + (Math.floor(k / m) + 0.5 - m / 2) * (0.78 / m);
+      fill[i] = 1;
+    } else {
+      if (d >= ring) d = 0; // leftovers sit on a corner dot, out of sight
+      const edge = Math.floor(d / per),
+        f = (d % per) / per;
+      [pu, pv] = edge === 0 ? [f, 0] : edge === 1 ? [1, f] : edge === 2 ? [1 - f, 1] : [0, 1 - f];
+    }
     const p = [0, 0, 0];
     const [a, b] = [(face.axis + 1) % 3, (face.axis + 2) % 3];
     p[face.axis] = face.sign * HALF;
@@ -84,6 +103,7 @@ function cubeHome(out: Float32Array, n: number) {
     p[b] = sv * CELL + (pv - 0.5) * side;
     out.set(p, i * 3);
   }
+  return fill;
 }
 
 type Move = { axis: number; sign: number; dir: number }; // dir: +1 clockwise, −1 prime
@@ -195,13 +215,13 @@ class Cube {
   }
 }
 
-function buildFormations(n: number): Formation[] {
+function buildFormations(n: number): { forms: Formation[]; fill: Uint8Array } {
   const r = mulberry(1337);
   const f: Formation[] = Array.from({ length: 6 }, () => new Float32Array(n * 3));
 
   // 0 · cube: a solved 3×3×3, each particle a dot on one sticker. Particle i
   // carries colour i % 6, so face f gets the particles of colour f.
-  cubeHome(f[0], n);
+  const fill = cubeHome(f[0], n);
 
   // 1 · sequence: lines of "words" made of token blocks
   {
@@ -261,18 +281,21 @@ function buildFormations(n: number): Formation[] {
     f[5].set([r() * 3.4 - 1.7, -0.1 + (lane - 3) * 0.06 + gauss(r) * 0.012, (lane - 3) * 0.05], i * 3);
   }
 
-  return f;
+  return { forms: f, fill };
 }
 
 export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: CubeEvent) => void } = {}) {
   const ctx = canvas.getContext('2d', { alpha: true })!;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const small = innerWidth < 760;
-  const N = small ? 900 : 2200;
+  // enough for each sticker's outline plus a halftone fill inside it
+  const N = small ? 1500 : 3600;
 
-  const forms = buildFormations(N);
+  const { forms, fill } = buildFormations(N);
   const cube = new Cube(forms[0], opts.onCube);
-  const scenes: Record<number, Scene> = { 6: graphScene(N), 7: stackScene(N), 8: keysScene()(N), 9: searchScene(N), 10: mailScene(N), 11: orbitScene(N) };
+  // the scenes keep their own density; the cube's extra dots double up on theirs
+  const SN = small ? 900 : 2200;
+  const scenes: Record<number, Scene> = { 6: graphScene(SN), 7: stackScene(SN), 8: keysScene()(SN), 9: searchScene(SN), 10: mailScene(SN), 11: orbitScene(SN) };
   for (const [k, sc] of Object.entries(scenes)) TILT[Number(k)] = sc.tilt;
   // hues are tokens (--t1) or literal colours (a transparent one hides dots)
   const readSceneHues = () => Object.fromEntries(Object.entries(scenes).map(([k, sc]) => [k, sc.hues.map((t) => (t.startsWith('--') ? cssVar(t) : t))]));
@@ -373,6 +396,12 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
   // 1 when a cube sticker faces away from the viewer: drawn faintly, so the
   // three near faces read as solid colour rather than mixing with the far ones
   const back = new Uint8Array(N);
+  // the cube's faces are lit from above and to the left: 0 shadow, 1 mid, 2 lit
+  const shade = new Uint8Array(N);
+  // On a dark ground a lit face glows brighter; on paper light washes a face
+  // out and shadow deepens it, so the strengths run the other way.
+  const SHADE_DARK = [0.6, 0.8, 1];
+  const SHADE_LIGHT = [1, 0.8, 0.6];
 
   function frame(now: number) {
     if (!running) return;
@@ -400,7 +429,7 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
     if (sc) {
       if (!reduce) sc.step(now);
       const k = SCENE_SCALE[target];
-      for (let j = 0; j < N * 3; j++) sceneTo[j] = sc.pos[j] * k;
+      for (let j = 0; j < N * 3; j++) sceneTo[j] = sc.pos[j % (SN * 3)] * k;
     }
     const to = target === 0 ? cube.now : sc ? sceneTo : forms[target];
     const flow = target === 5 ? now * 0.00012 : 0;
@@ -476,12 +505,19 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
         const nx = axx >= axy && axx >= axz ? Math.sign(x) : 0;
         const ny = !nx && axy >= axz ? Math.sign(y) : 0;
         const nz = !nx && !ny ? Math.sign(z) : 0;
+        const nx1 = nx * cy + nz * sy_;
         const nz1 = -nx * sy_ + nz * cy;
-        back[i] = ny * sx_ + nz1 * cx > 0 ? 1 : 0;
+        const ny1 = ny * cx - nz1 * sx_;
+        const nz2 = ny * sx_ + nz1 * cx;
+        back[i] = nz2 > 0 ? 1 : 0;
+        // light from up, left and a little toward the viewer
+        const lit = -0.42 * nx1 - 0.8 * ny1 - 0.43 * nz2;
+        shade[i] = lit > 0.55 ? 2 : lit > 0.1 ? 1 : 0;
       } else back[i] = 0;
     }
 
     ctx.clearRect(0, 0, w, h);
+    const SHADE = blend === 'lighter' ? SHADE_DARK : SHADE_LIGHT;
     // a scene draws in its own colours, one pass per hue, evenly sized dots
     if (sc) {
       const hues = sceneHues[target];
@@ -489,7 +525,7 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
       for (let c = 0; c < hues.length; c++) {
         ctx.fillStyle = hues[c];
         for (let i = 0; i < N; i++) {
-          if (sc.col[i] !== c) continue;
+          if (sc.col[i % SN] !== c) continue;
           const s = (2 + (size[i] - 1.3) * 0.5) * sz[i] * dotScale;
           ctx.fillRect(sx[i] - s / 2, sy[i] - s / 2, s, s);
         }
@@ -502,16 +538,28 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
     for (let g = 0; g < COLORS; g++) {
       ctx.fillStyle = PALETTE[g];
       for (let b = 0; b < 3; b++) {
-        // the cube's near faces draw at full strength so their colours read
-        ctx.globalAlpha = Math.min(1, (target === 0 ? 0.95 : 0.34 + b * 0.3) * intensity);
+        // the cube's buckets are its lit, mid and shadowed faces; the field's are depth
+        ctx.globalAlpha = Math.min(1, (target === 0 ? SHADE[b] : 0.34 + b * 0.3) * intensity);
         for (let i = g; i < N; i += COLORS) {
-          if (back[i]) continue;
+          if (back[i] || (target === 0 && fill[i])) continue;
           const p = sz[i];
-          const bucket = p < 0.94 ? 0 : p < 1.04 ? 1 : 2;
+          const bucket = target === 0 ? shade[i] : p < 0.94 ? 0 : p < 1.04 ? 1 : 2;
           if (bucket !== b) continue;
           // the cube keeps the field's varied dots, in a narrower range so edges read even
           const s = target === 0 ? (2.2 + (size[i] - 1.3) * 0.65) * p * dotScale : size[i] * p * (target === 2 ? 1.15 : 1);
           ctx.fillRect(sx[i] - s / 2, sy[i] - s / 2, s, s);
+        }
+      }
+      // the halftone inside each near sticker: smaller, softer dots that
+      // tint the tile without blurring its outline
+      if (target === 0) {
+        for (let b = 0; b < 3; b++) {
+          ctx.globalAlpha = (blend === 'lighter' ? 0.58 : 0.62) * SHADE[b] * intensity;
+          for (let i = g; i < N; i += COLORS) {
+            if (back[i] || !fill[i] || shade[i] !== b) continue;
+            const s = (1.7 + (size[i] - 1.3) * 0.3) * sz[i] * dotScale;
+            ctx.fillRect(sx[i] - s / 2, sy[i] - s / 2, s, s);
+          }
         }
       }
       // the far faces show faintly through on a dark ground, for depth; on
