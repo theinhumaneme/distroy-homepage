@@ -713,7 +713,6 @@ export const blogCopy = {
   lede: 'Tutorials and write-ups, from Telegram bots and Android ROMs to self-hosting, deployment tools, observability and Nix.',
   all: 'All posts',
   back: 'All posts',
-  original: 'Originally published on kalyanmudumby.com',
   latest: 'Latest post',
   minutes: '{n} min read',
   writeup: '{name} write-up',

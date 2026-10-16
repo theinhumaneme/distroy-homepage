@@ -8,7 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { glob } from 'astro/loaders';
 import type { Loader, LoaderContext } from 'astro/loaders';
 
-type PostRef = { slug: string; title: string; description: string };
+type PostRef = { href: string; title: string; description: string };
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -28,13 +28,16 @@ const walk = (dir: string): string[] =>
 
 type EntryType = NonNullable<ReturnType<LoaderContext['entryTypes']['get']>>;
 
-/** Hugo addresses posts by folder name or by `slug`; both map to the slug. */
+/** Hugo addresses posts by folder name or by `slug`; both map to the post's
+ *  permalink, which keeps Hugo's parent folders (post/cloudflare/x/). */
 async function indexPosts(root: string, md: EntryType, hold: string[]) {
   const refs = new Map<string, PostRef>();
   for (const file of walk(root).filter((f) => basename(f) === 'index.md' && !hold.some((h) => relative(root, f).startsWith(h + '/')))) {
     const { data: fm } = await md.getEntryInfo({ contents: readFileSync(file, 'utf8'), fileUrl: pathToFileURL(file) });
-    const ref = { slug: String(fm.slug), title: String(fm.title), description: String(fm.description ?? '') };
-    refs.set(ref.slug, ref);
+    const parent = dirname(relative(root, dirname(file)));
+    const href = `/post/${parent === '.' ? '' : parent + '/'}${fm.slug}/`;
+    const ref = { href, title: String(fm.title), description: String(fm.description ?? '') };
+    refs.set(String(fm.slug), ref);
     refs.set(basename(dirname(file)), ref);
   }
   return refs;
@@ -53,10 +56,9 @@ function resolveImage(path: string, dir: string, files: string[]) {
 export function hugoToMarkdown(body: string, file: string, posts: Map<string, PostRef>, warn: (m: string) => void) {
   const dir = dirname(file);
   const files = walk(dir);
-  const postHref = (link: string) => {
-    const m = link.match(/(?:^|\/)post\/([^/)]+)\/?(?:index\.md)?$/);
-    const ref = m && posts.get(m[1]);
-    return ref ? `/blog/${ref.slug}/` : undefined;
+  const refOf = (link: string) => {
+    const m = link.replace(/\/$/, '').match(/(?:^|\/)post\/(?:[^/)]+\/)*?([^/)]+)\/?(?:index\.md)?$/);
+    return m ? posts.get(m[1]) : undefined;
   };
 
   return (
@@ -78,18 +80,17 @@ export function hugoToMarkdown(body: string, file: string, posts: Map<string, Po
       })
       .replace(/\{\{<\s*article\s+(.*?)\s*>\}\}/g, (_, a: string) => {
         const { link = '' } = attrs(a);
-        const href = postHref(link.replace(/\/$/, ''));
-        const ref = href && posts.get(href.split('/')[2]);
+        const ref = refOf(link);
         if (!ref) {
           warn(`${relative(process.cwd(), file)}: article shortcode points at ${link}, which is not a post; left out`);
           return '';
         }
-        return card(href, 'Related post', ref.title, ref.description, false);
+        return card(ref.href, 'Related post', ref.title, ref.description, false);
       })
       // links to other posts: Hugo paths, .md paths and absolute blog URLs
       .replace(/\]\(((?:https?:\/\/(?:www\.)?kalyanmudumby\.com)?[./]*\/?post\/[^)\s]+)\)/g, (m, link: string) => {
-        const href = postHref(link.replace(/\/$/, ''));
-        return href ? `](${href})` : m;
+        const ref = refOf(link);
+        return ref ? `](${ref.href})` : m;
       })
       .replace(/(!\[[^\]]*\]\()([^)\s]+)/g, (_, pre: string, path: string) => pre + resolveImage(path, dir, files))
   );
@@ -115,7 +116,12 @@ export function hugoPosts(opts: { base: string; hold?: string[] }): Loader {
           return { ...info, body: hugoToMarkdown(info.body, fileURLToPath(p.fileUrl), posts, (m) => ctx.logger.warn(m)) };
         },
       });
-      return inner.load({ ...ctx, entryTypes });
+      // The glob loader reuses a rendered entry while its file is unchanged; fold
+      // the rewrite code and the post index into the digest so a change to
+      // either re-renders the posts.
+      const salt = ctx.generateDigest(hugoToMarkdown.toString() + resolveImage.toString() + JSON.stringify([...posts]));
+      const generateDigest: LoaderContext['generateDigest'] = (d) => ctx.generateDigest(typeof d === 'string' ? d + salt : { ...d, salt });
+      return inner.load({ ...ctx, entryTypes, generateDigest });
     },
   };
 }

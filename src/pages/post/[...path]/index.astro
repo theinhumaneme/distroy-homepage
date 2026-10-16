@@ -5,12 +5,12 @@ import Base from '../../../layouts/Base.astro';
 import Hud from '../../../components/Hud.astro';
 import PostList from '../../../components/PostList.astro';
 import { blogCopy, person } from '../../../data/content';
-import { coverOf, getPosts, originalHref, postDate, type Post } from '../../../lib/blog';
+import { coverOf, getPosts, postDate, postPath, type Post } from '../../../lib/blog';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
   return posts.map((post, i) => ({
-    params: { slug: post.id },
+    params: { path: postPath(post) },
     props: { post, more: [...posts.slice(i + 1), ...posts.slice(0, i)].slice(0, 3) },
   }));
 }
@@ -25,7 +25,7 @@ const cover = coverOf(post);
 const { title, description, date, tags } = post.data;
 ---
 
-<Base title={`${title} · ${person.name}`} description={description} canonical={originalHref(post)}>
+<Base title={`${title} · ${person.name}`} description={description}>
   <Hud base="/" where={blogCopy.title} />
   <main id="main" class="post">
     <article class="wrap" aria-labelledby="post-title">
@@ -38,7 +38,6 @@ const { title, description, date, tags } = post.data;
         {description && <p class="lede" data-reveal data-reveal-delay="0.08">{description}</p>}
         <div class="meta" data-reveal data-reveal-delay="0.12">
           {tags.length > 0 && <div class="chips">{tags.map((t) => <span class="chip">{t}</span>)}</div>}
-          <a class="link" href={originalHref(post)} target="_blank" rel="noopener">{blogCopy.original} <span aria-hidden="true">↗</span></a>
         </div>
       </header>
 

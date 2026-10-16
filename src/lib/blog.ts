@@ -8,10 +8,17 @@ export type Post = CollectionEntry<'blog'>;
 export const getPosts = async () =>
   (await getCollection('blog', (p) => !p.data.draft)).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-export const postHref = (p: Post) => `/blog/${p.id}/`;
+// Posts keep the Hugo blog's permalinks. Hugo keeps a bundle's parent folders
+// and swaps only the last one for the slug, so post/cloudflare/x/ stays under
+// /post/cloudflare/.
+export const postPath = (p: Post) => {
+  const parent = dirname(dirname(p.filePath ?? '').replace(/^src\/content\/blog\/?/, ''));
+  return `${parent === '.' ? '' : parent + '/'}${p.data.slug}`;
+};
+export const postHref = (p: Post) => `/post/${postPath(p)}/`;
 
-// Hugo's original address, kept as the canonical while that blog stays up
-export const originalHref = (p: Post) => `https://kalyanmudumby.com/post/${p.id}/`;
+// project links in content.ts use the full kalyanmudumby.com address
+export const hugoHref = (p: Post) => `https://kalyanmudumby.com${postHref(p)}`;
 
 export const postDate = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 
@@ -27,6 +34,6 @@ export const readingTime = (p: Post) => blogCopy.minutes.replace('{n}', String(M
 
 // the project a post was written about, when that project's entry links to it
 export const projectOf = (p: Post) => {
-  const url = originalHref(p);
+  const url = hugoHref(p);
   return cases.find((c) => c.links.some((l) => l.url === url))?.title ?? moreWork.find((m) => m.url === url)?.title;
 };
