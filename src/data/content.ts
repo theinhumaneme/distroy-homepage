@@ -161,7 +161,7 @@ export const cases: Case[] = [
       { text: 'Invalid JSON and diagrams are retried within fixed limits.', src: 'patternsmith' },
       { text: 'Models can run through hosted APIs, vLLM, or LM Studio, including quantized models and multi-token prediction in LM Studio.', src: 'patternsmith' },
     ],
-    stack: ['Python 3.11', 'LangGraph', 'Pydantic v2', 'vLLM', 'LM Studio', 'mypy --strict', 'pytest', 'Hugo'],
+    stack: ['Python 3.11', 'LangGraph', 'Pydantic v2', 'vLLM', 'LM Studio', 'pytest', 'Hugo'],
     links: [
       { label: 'patternsmith.distroy.dev', url: 'https://patternsmith.distroy.dev' },
       { label: 'GitHub', url: 'https://github.com/theinhumaneme/patternsmith' },
@@ -314,13 +314,13 @@ export const docs: Doc[] = [
     title: 'Patternsmith',
     cluster: 'ai',
     anchor: 'work-patternsmith',
-    skills: ['LangGraph', 'LangChain', 'Python', 'Pydantic', 'vLLM', 'LM Studio', 'pytest', 'mypy --strict', 'Multi-agent'],
+    skills: ['LangGraph', 'LangChain', 'Python', 'Pydantic', 'vLLM', 'LM Studio', 'pytest', 'Multi-agent'],
     chunks: [
       'Patternsmith turns a software design pattern or code smell into an illustrated programming tutorial with prose, idiomatic code and Mermaid diagrams, published as a Hugo static site.',
       'A LangGraph multi-agent pipeline: research and teaching, code generation and writing stages over one typed Pydantic state, followed by a separate Mermaid diagram-validation tool step.',
       'The article reuses generated code verbatim, and additional checks flag specific inconsistencies between code and diagrams.',
       'Malformed JSON enters a bounded LLM repair-retry loop, and invalid Mermaid diagrams enter a bounded fix loop validated with the mmdc CLI.',
-      'Per-topic failure isolation lets a batch continue when one topic fails; type-checked with mypy strict and tested offline with mock models.',
+      'Per-topic failure isolation lets a batch continue when one topic fails; fully type-checked and tested offline with mock models.',
       'Supports hosted APIs and local model serving through vLLM and LM Studio, including quantized-model serving and multi-token prediction in LM Studio.',
     ],
   },
@@ -530,7 +530,7 @@ export const skillRows: { label: string; skills: string[] }[] = [
   { label: 'Infrastructure', skills: ['Docker', 'Docker Compose', 'GitLab CI', 'Nginx', 'Cloudflare', 'NixOS', 'Linux', 'Performance'] },
   { label: 'Observability', skills: ['OpenTelemetry', 'Prometheus', 'Grafana'] },
   { label: 'Frontend', skills: ['React', 'Angular', 'Next.js', 'D3.js', 'MapLibre GL', 'WebCodecs', 'Web Workers', 'Data visualization'] },
-  { label: 'Testing', skills: ['pytest', 'mypy --strict', 'Vitest', 'Playwright', 'Testcontainers'] },
+  { label: 'Testing', skills: ['pytest', 'Vitest', 'Playwright', 'Testcontainers'] },
 ];
 
 export const skillsCopy = {

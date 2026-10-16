@@ -15,12 +15,6 @@ body .homepage .hero::before {
   pointer-events: none;
 }
 body .homepage .hero-in { gap: 26px; }
-body .homepage .hero .prompt {
-  padding: 8px 13px 8px 8px;
-  border-radius: 8px;
-  font-size: var(--fs-xs);
-}
-body .homepage .hero .meta { font-size: var(--fs-micro); }
 body .homepage .hero .name {
   font-size: clamp(3.5rem, 8.2vw, 7.6rem);
   line-height: 0.96;
@@ -122,7 +116,6 @@ body .homepage > .foot { padding-top: 40px; }
   body .homepage .hero .name { font-size: 8rem; }
 }
 @media (max-width: 960px) {
-  body .homepage #field { opacity: calc(var(--field-opacity) * 0.42); }
   body .homepage .hero { min-height: 100svh; padding-top: 112px; }
   body .homepage .hero .foot { grid-template-columns: 1fr; gap: 24px; }
   body .homepage .hero .name { font-size: clamp(3.5rem, 11vw, 6.5rem); }
@@ -156,6 +149,11 @@ body .homepage > .foot { padding-top: 40px; }
   body .homepage .chap-title { line-height: 1.12; }
   body .homepage .outcomes dl { grid-template-columns: 1fr; }
   body .homepage .contact .btn.big { padding-inline: 18px; }
+}
+
+/* Below 760px the field (and the cube) sits behind the copy, so it steps back */
+@media (max-width: 760px) {
+  body .homepage #field { opacity: calc(var(--field-opacity) * 0.42); }
 }
 
 /* Phones: case diagrams keep a legible scale and scroll sideways, rather

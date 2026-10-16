@@ -366,10 +366,13 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
   let sprites = PALETTE.map(makeSprite);
   // additive glow reads as light on a dark ground; on paper it would wash out
   let blend: GlobalCompositeOperation = currentTheme() === 'light' ? 'source-over' : 'lighter';
+  // small squares lose ink to anti-aliasing on paper; the cube's dots grow a touch there
+  let dotScale = currentTheme() === 'light' ? 1.2 : 1;
   onThemeChange((theme) => {
     PALETTE = readPalette();
     sprites = PALETTE.map(makeSprite);
     blend = theme === 'light' ? 'source-over' : 'lighter';
+    dotScale = theme === 'light' ? 1.2 : 1;
   });
   const glowy = new Uint8Array(N).map((_, i) => (hash(i + 77) < 0.05 ? 1 : 0));
 
@@ -492,7 +495,7 @@ export function createField(canvas: HTMLCanvasElement, opts: { onCube?: (e: Cube
           const bucket = p < 0.94 ? 0 : p < 1.04 ? 1 : 2;
           if (bucket !== b) continue;
           // the cube keeps the field's varied dots, in a narrower range so edges read even
-          const s = target === 0 ? (2.2 + (size[i] - 1.3) * 0.65) * p : size[i] * p * (target === 2 ? 1.15 : 1);
+          const s = target === 0 ? (2.2 + (size[i] - 1.3) * 0.65) * p * dotScale : size[i] * p * (target === 2 ? 1.15 : 1);
           ctx.fillRect(sx[i] - s / 2, sy[i] - s / 2, s, s);
         }
       }

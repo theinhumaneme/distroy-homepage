@@ -52,6 +52,10 @@ import Contact from '../components/Contact.astro';
     z-index: 0;
     pointer-events: none;
   }
+  /* on paper the vignette would wash the field out; keep it light */
+  :root[data-theme='light'] .vignette {
+    opacity: 0.35;
+  }
   .vignette {
     position: fixed;
     inset: 0;
